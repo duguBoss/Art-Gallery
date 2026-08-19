@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react';
-import { ART_STYLES, EXHIBITION_HALLS } from './data/stylesData';
-import { ArtStyle, Artwork, HallCategory } from './types/art';
+﻿import { useState, useMemo } from 'react';
+import { ART_STYLES } from './data/stylesData';
+import type { ArtStyle, Artwork, HallCategory } from './types/art';
 import { SpotlightEffect } from './components/SpotlightEffect';
 import { Navbar } from './components/Navbar';
 import { HeroGallery } from './components/HeroGallery';
+import { ArtworkWall } from './components/ArtworkWall';
 import { StyleGrid } from './components/StyleGrid';
 import { StyleDetailModal } from './components/StyleDetailModal';
 import { Lightbox } from './components/Lightbox';
@@ -14,6 +15,7 @@ import { SubmitStyleModal } from './components/SubmitStyleModal';
 import { Footer } from './components/Footer';
 
 export function App() {
+  const [currentView, setCurrentView] = useState<'wall' | 'styles'>('wall');
   const [selectedHall, setSelectedHall] = useState<HallCategory>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
@@ -28,22 +30,17 @@ export function App() {
   // Filtered Styles
   const filteredStyles = useMemo(() => {
     return ART_STYLES.filter((style) => {
-      // Hall filter
       const matchesHall = selectedHall === 'all' || style.hall === selectedHall;
-
-      // Search filter
       const query = searchQuery.trim().toLowerCase();
       if (!query) return matchesHall;
 
-      const matchesQuery =
+      return matchesHall && (
         style.title.toLowerCase().includes(query) ||
         style.englishTitle.toLowerCase().includes(query) ||
         style.badge.toLowerCase().includes(query) ||
         style.summary.toLowerCase().includes(query) ||
-        style.visualKeyFeatures.some(f => f.toLowerCase().includes(query)) ||
-        style.promptKeywords.positiveKeywords.some(k => k.toLowerCase().includes(query));
-
-      return matchesHall && matchesQuery;
+        style.representativeWorks.some(w => w.title.toLowerCase().includes(query) || w.description.toLowerCase().includes(query))
+      );
     });
   }, [selectedHall, searchQuery]);
 
@@ -57,39 +54,46 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-gallery-950 text-gallery-100 relative">
-      {/* Dynamic Museum Torch & Ambient Spotlight */}
       <SpotlightEffect />
 
-      {/* Navigation Topbar */}
       <Navbar
+        currentView={currentView}
+        onSwitchView={setCurrentView}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onOpenMixer={() => setIsMixerOpen(true)}
         onOpenPalette={() => setIsPaletteOpen(true)}
         onOpenSubmit={() => setIsSubmitOpen(true)}
         onOpenTour={() => setIsTourOpen(true)}
-        stylesCount={ART_STYLES.length}
       />
 
-      {/* Main Exhibition Content */}
       <main>
         <HeroGallery
           featuredStyles={featuredStyles}
           onSelectStyle={setSelectedStyle}
           onOpenTour={() => setIsTourOpen(true)}
-          onJumpToHall={(hall) => setSelectedHall(hall as HallCategory)}
+          onSwitchView={setCurrentView}
         />
 
-        <StyleGrid
-          styles={filteredStyles}
-          selectedHall={selectedHall}
-          onSelectHall={setSelectedHall}
-          onSelectStyle={setSelectedStyle}
-          searchQuery={searchQuery}
-        />
+        <div id="exhibition-content">
+          {currentView === 'wall' ? (
+            <ArtworkWall
+              styles={filteredStyles}
+              onInspectArtwork={handleInspectArtwork}
+              onSelectStyle={setSelectedStyle}
+            />
+          ) : (
+            <StyleGrid
+              styles={filteredStyles}
+              selectedHall={selectedHall}
+              onSelectHall={setSelectedHall}
+              onSelectStyle={setSelectedStyle}
+              searchQuery={searchQuery}
+            />
+          )}
+        </div>
       </main>
 
-      {/* Interactive Modals */}
       {selectedStyle && (
         <StyleDetailModal
           style={selectedStyle}
@@ -130,7 +134,6 @@ export function App() {
         onSelectStyle={(s) => setSelectedStyle(s)}
       />
 
-      {/* Museum Footer */}
       <Footer />
     </div>
   );

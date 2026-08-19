@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { X, Sparkles, Copy, Check, Palette, BookOpen, Layers, Lightbulb, ZoomIn, Share2 } from 'lucide-react';
-import { ArtStyle, Artwork } from '../types/art';
+﻿import React, { useState } from 'react';
+import { X, Layers, ZoomIn, Share2, ChevronDown, Sparkles, Check } from 'lucide-react';
+import type { ArtStyle, Artwork } from '../types/art';
 import { playSpotlightClick, playSuccessChime } from '../utils/audio';
 
 interface StyleDetailModalProps {
@@ -14,8 +14,9 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
   onClose,
   onInspectArtwork,
 }) => {
-  const [activeTab, setActiveTab] = useState<'works' | 'prompts' | 'techniques' | 'story'>('works');
+  const [activeTab, setActiveTab] = useState<'gallery' | 'critique' | 'techniques'>('gallery');
   const [copiedHex, setCopiedHex] = useState<string | null>(null);
+  const [showPromptBox, setShowPromptBox] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -29,14 +30,6 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
     setTimeout(() => setCopiedHex(null), 1800);
   };
 
-  const handleCopyPrompt = (text: string) => {
-    playSpotlightClick();
-    navigator.clipboard.writeText(text);
-    playSuccessChime();
-    setCopiedPrompt(true);
-    setTimeout(() => setCopiedPrompt(false), 2000);
-  };
-
   const handleShare = () => {
     playSpotlightClick();
     navigator.clipboard.writeText(window.location.href);
@@ -45,10 +38,17 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
+  const handleCopyPrompt = () => {
+    playSpotlightClick();
+    navigator.clipboard.writeText(style.promptKeywords.mjPrompt);
+    playSuccessChime();
+    setCopiedPrompt(true);
+    setTimeout(() => setCopiedPrompt(false), 2000);
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md overflow-y-auto animate-fadeIn">
       <div className="relative w-full max-w-5xl bg-gallery-950 border border-gold-500/40 rounded-2xl shadow-gallery-lg overflow-hidden my-auto max-h-[92vh] flex flex-col">
-        {/* Top Header Bar */}
         <div className="p-5 sm:p-6 border-b border-gallery-800 bg-gallery-900/90 flex items-start justify-between gap-4 shrink-0">
           <div>
             <div className="flex items-center gap-2.5">
@@ -58,7 +58,7 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
               <span className="text-xs font-mono text-gallery-400">{style.era}</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-serif font-black text-gallery-100 mt-1">
-              {style.title}
+              {style.title} 专题画展
             </h2>
             <p className="text-xs sm:text-sm text-gallery-400 font-sans">{style.englishTitle}</p>
           </div>
@@ -67,7 +67,7 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
             <button
               onClick={handleShare}
               className="p-2.5 rounded-full bg-gallery-800 border border-gallery-700 text-gallery-300 hover:text-white transition-all cursor-pointer"
-              title="复制当前流派分享链接"
+              title="分享展厅链接"
             >
               {copiedLink ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
             </button>
@@ -84,27 +84,26 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
           </div>
         </div>
 
-        {/* Tab Navigation */}
         <div className="flex items-center gap-2 px-6 pt-3 pb-2 border-b border-gallery-800 bg-gallery-900/50 shrink-0 overflow-x-auto scrollbar-none">
           <button
-            onClick={() => setActiveTab('works')}
+            onClick={() => setActiveTab('gallery')}
             className={`px-4 py-2 rounded-lg text-xs font-serif font-bold transition-all cursor-pointer ${
-              activeTab === 'works'
+              activeTab === 'gallery'
                 ? 'bg-gold-500 text-gallery-950 shadow-sm'
                 : 'text-gallery-400 hover:text-gallery-200'
             }`}
           >
-            🖼️ 典藏画作与鉴赏
+            🖼️ 专题画作大展 ({style.representativeWorks.length}幅精选)
           </button>
           <button
-            onClick={() => setActiveTab('prompts')}
+            onClick={() => setActiveTab('critique')}
             className={`px-4 py-2 rounded-lg text-xs font-serif font-bold transition-all cursor-pointer ${
-              activeTab === 'prompts'
+              activeTab === 'critique'
                 ? 'bg-gold-500 text-gallery-950 shadow-sm'
                 : 'text-gallery-400 hover:text-gallery-200'
             }`}
           >
-            ✨ AI 创作提示词配方
+            📜 流派美学与深度赏析
           </button>
           <button
             onClick={() => setActiveTab('techniques')}
@@ -114,32 +113,19 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
                 : 'text-gallery-400 hover:text-gallery-200'
             }`}
           >
-            📐 技法与光影材质拆解
-          </button>
-          <button
-            onClick={() => setActiveTab('story')}
-            className={`px-4 py-2 rounded-lg text-xs font-serif font-bold transition-all cursor-pointer ${
-              activeTab === 'story'
-                ? 'bg-gold-500 text-gallery-950 shadow-sm'
-                : 'text-gallery-400 hover:text-gallery-200'
-            }`}
-          >
-            📜 流派渊源与哲学
+            📐 技法与光影材质剖析
           </button>
         </div>
 
-        {/* Modal Scrollable Body */}
         <div className="p-6 overflow-y-auto space-y-6 flex-1">
-          {/* Quote & Color Swatches Header */}
           <div className="p-4 rounded-xl bg-gallery-900/80 border border-gallery-800 space-y-4">
             <blockquote className="text-xs sm:text-sm font-serif italic text-gold-300 leading-relaxed">
               {style.quote}
             </blockquote>
 
-            {/* Interactive Color Palette Swatches */}
             <div className="pt-3 border-t border-gallery-800">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-mono text-gallery-400">特征提取色卡 (点击一键复制 HEX):</span>
+                <span className="text-xs font-mono text-gallery-400">流派专属色彩谱系:</span>
                 {copiedHex && (
                   <span className="text-xs text-emerald-400 font-mono animate-pulse">
                     已复制 {copiedHex}!
@@ -167,15 +153,9 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
             </div>
           </div>
 
-          {/* TAB 1: Representative Artworks */}
-          {activeTab === 'works' && (
+          {activeTab === 'gallery' && (
             <div className="space-y-4">
-              <h3 className="text-sm font-serif font-bold text-gallery-200 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-gold-400" />
-                <span>精选代表画作 (点击图片进入全屏灯箱高清鉴赏)</span>
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {style.representativeWorks.map((work) => (
                   <div
                     key={work.id}
@@ -183,9 +163,9 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
                       playSpotlightClick();
                       onInspectArtwork(work, style);
                     }}
-                    className="group/work relative rounded-xl overflow-hidden border border-gallery-800 bg-gallery-900 p-2 cursor-pointer hover:border-gold-500/60 transition-all shadow-md"
+                    className="group/work relative rounded-xl overflow-hidden border border-gallery-800 bg-gallery-900 p-2.5 cursor-pointer hover:border-gold-500/60 transition-all shadow-md flex flex-col justify-between"
                   >
-                    <div className="relative h-56 rounded-lg overflow-hidden bg-gallery-950">
+                    <div className="relative h-60 rounded-lg overflow-hidden bg-gallery-950">
                       <img
                         src={work.imageUrl}
                         alt={work.title}
@@ -193,11 +173,19 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
                       />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/work:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white">
                         <ZoomIn className="w-6 h-6 text-gold-300" />
-                        <span className="text-xs font-serif">全屏鉴赏</span>
+                        <span className="text-xs font-serif font-semibold">全屏高清鉴赏</span>
                       </div>
+
+                      {work.tag && (
+                        <span className="absolute top-2 left-2 text-[10px] font-mono text-gallery-200 bg-gallery-950/80 px-2 py-0.5 rounded border border-gallery-700">
+                          {work.tag}
+                        </span>
+                      )}
                     </div>
-                    <div className="p-3">
-                      <h4 className="text-sm font-serif font-bold text-gallery-100">{work.title}</h4>
+                    <div className="pt-3 px-1">
+                      <h4 className="text-sm font-serif font-bold text-gallery-100 group-hover/work:text-gold-300 transition-colors">
+                        {work.title}
+                      </h4>
                       <p className="text-xs text-gallery-400 mt-1 line-clamp-2">{work.description}</p>
                     </div>
                   </div>
@@ -206,99 +194,7 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
             </div>
           )}
 
-          {/* TAB 2: AI Prompt Recipe */}
-          {activeTab === 'prompts' && (
-            <div className="space-y-6">
-              {/* Full MJ Prompt Box */}
-              <div className="p-4 rounded-xl bg-gallery-900 border border-gold-500/30 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-semibold text-gold-400 flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4" />
-                    <span>Midjourney / Stable Diffusion 官方推荐提示词</span>
-                  </span>
-                  <button
-                    onClick={() => handleCopyPrompt(style.promptKeywords.mjPrompt)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gold-500 text-gallery-950 font-mono font-bold text-xs hover:bg-gold-400 transition-all cursor-pointer"
-                  >
-                    {copiedPrompt ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copiedPrompt ? '已复制' : '一键复制完整 Prompt'}</span>
-                  </button>
-                </div>
-                <div className="p-3 rounded-lg bg-gallery-950 font-mono text-xs text-gallery-300 leading-relaxed border border-gallery-800 select-all">
-                  {style.promptKeywords.mjPrompt}
-                </div>
-              </div>
-
-              {/* Keyword Tags Breakdown */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-gallery-900 border border-gallery-800 space-y-2.5">
-                  <h4 className="text-xs font-mono font-bold text-accent-emerald">正向风格关键词 (Positive Tags):</h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    {style.promptKeywords.positiveKeywords.map((tag, idx) => (
-                      <span
-                        key={idx}
-                        onClick={() => handleCopyPrompt(tag)}
-                        className="px-2.5 py-1 rounded-md bg-gallery-950 border border-gallery-700 text-gallery-300 text-xs font-mono hover:border-accent-emerald cursor-pointer"
-                        title="点击复制"
-                      >
-                        +{tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-gallery-900 border border-gallery-800 space-y-2.5">
-                  <h4 className="text-xs font-mono font-bold text-accent-crimson">负向过滤关键词 (Negative Tags):</h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    {style.promptKeywords.negativeKeywords.map((tag, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2.5 py-1 rounded-md bg-gallery-950 border border-gallery-800 text-gallery-400 text-xs font-mono"
-                      >
-                        -{tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 3: Techniques & Lighting */}
-          {activeTab === 'techniques' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl bg-gallery-900 border border-gallery-800 space-y-2">
-                <span className="text-xs font-mono text-gold-400">🎨 媒介与材质 (Medium & Materials)</span>
-                <p className="text-xs text-gallery-300 leading-relaxed font-sans">
-                  {style.creationTechniques.medium}
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-gallery-900 border border-gallery-800 space-y-2">
-                <span className="text-xs font-mono text-accent-cyan">🖌️ 笔触与肌理 (Brushwork & Texture)</span>
-                <p className="text-xs text-gallery-300 leading-relaxed font-sans">
-                  {style.creationTechniques.brushwork}
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-gallery-900 border border-gallery-800 space-y-2">
-                <span className="text-xs font-mono text-accent-amber">💡 光影与明暗 (Lighting & Shadows)</span>
-                <p className="text-xs text-gallery-300 leading-relaxed font-sans">
-                  {style.creationTechniques.lighting}
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-gallery-900 border border-gallery-800 space-y-2">
-                <span className="text-xs font-mono text-accent-violet">📐 空间构图法则 (Composition & Space)</span>
-                <p className="text-xs text-gallery-300 leading-relaxed font-sans">
-                  {style.creationTechniques.composition}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 4: Story & Evolution */}
-          {activeTab === 'story' && (
+          {activeTab === 'critique' && (
             <div className="p-5 rounded-xl bg-gallery-900 border border-gallery-800 space-y-4">
               <h3 className="text-base font-serif font-bold text-gallery-100">流派发源与艺术美学解构</h3>
               <p className="text-xs sm:text-sm text-gallery-300 leading-relaxed font-sans">
@@ -318,6 +214,69 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
               </div>
             </div>
           )}
+
+          {activeTab === 'techniques' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-xl bg-gallery-900 border border-gallery-800 space-y-2">
+                <span className="text-xs font-mono text-gold-400">🎨 媒介与画布材质</span>
+                <p className="text-xs text-gallery-300 leading-relaxed font-sans">
+                  {style.creationTechniques.medium}
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-gallery-900 border border-gallery-800 space-y-2">
+                <span className="text-xs font-mono text-accent-cyan">🖌️ 笔触与构线肌理</span>
+                <p className="text-xs text-gallery-300 leading-relaxed font-sans">
+                  {style.creationTechniques.brushwork}
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-gallery-900 border border-gallery-800 space-y-2">
+                <span className="text-xs font-mono text-accent-amber">💡 空间光影与明暗</span>
+                <p className="text-xs text-gallery-300 leading-relaxed font-sans">
+                  {style.creationTechniques.lighting}
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-gallery-900 border border-gallery-800 space-y-2">
+                <span className="text-xs font-mono text-accent-violet">📐 空间构图法则</span>
+                <p className="text-xs text-gallery-300 leading-relaxed font-sans">
+                  {style.creationTechniques.composition}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="pt-2">
+            <button
+              onClick={() => setShowPromptBox(!showPromptBox)}
+              className="text-xs font-mono text-gallery-400 hover:text-gold-300 flex items-center justify-between w-full p-3 rounded-lg bg-gallery-900/60 border border-gallery-800 transition-colors cursor-pointer"
+            >
+              <span className="flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-gold-400" />
+                <span>AI 创作者参考配方与关键词 (点击展开)</span>
+              </span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${showPromptBox ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showPromptBox && (
+              <div className="mt-3 p-4 rounded-xl bg-gallery-900 border border-gallery-800 space-y-3 animate-fadeIn">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono text-gold-400">Midjourney / SD 推荐 Prompt:</span>
+                  <button
+                    onClick={handleCopyPrompt}
+                    className="flex items-center gap-1 px-3 py-1 rounded bg-gold-500 text-gallery-950 font-mono text-xs font-bold hover:bg-gold-400 transition-all cursor-pointer"
+                  >
+                    {copiedPrompt ? <Check className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
+                    <span>{copiedPrompt ? '已复制' : '复制 Prompt'}</span>
+                  </button>
+                </div>
+                <div className="p-3 rounded-lg bg-gallery-950 font-mono text-xs text-gallery-300 leading-relaxed select-all">
+                  {style.promptKeywords.mjPrompt}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
