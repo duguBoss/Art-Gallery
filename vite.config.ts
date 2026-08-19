@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: './', // relative path for GitHub Pages compatibility
+  base: '/Art-Gallery/', // absolute base path for GitHub Pages
   server: {
     port: 3000,
     open: true

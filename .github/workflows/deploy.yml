@@ -32,11 +32,18 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Prepare static files (404 and nojekyll)
+        run: |
+          cp dist/index.html dist/404.html
+          touch dist/.nojekyll
+
       - name: Deploy to GitHub Pages Branch (gh-pages)
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+          keep_files: false
+          enable_jekyll: false
 
       - name: Upload artifact for GitHub Pages
         uses: actions/upload-pages-artifact@v3
