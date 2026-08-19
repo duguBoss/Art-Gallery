@@ -1,158 +1,172 @@
-// Web Audio API pure synthesizer for gallery soundscape & micro-interactions
-
+﻿// Synthesized Audio System for Art Gallery Immersion
 let audioCtx: AudioContext | null = null;
+let ambientGain: GainNode | null = null;
 let ambientOsc1: OscillatorNode | null = null;
 let ambientOsc2: OscillatorNode | null = null;
-let ambientGain: GainNode | null = null;
 let isAmbientPlaying = false;
 
-function getAudioContext(): AudioContext | null {
-  if (typeof window === 'undefined') return null;
+function getAudioContext(): AudioContext {
   if (!audioCtx) {
     const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    if (AudioContextClass) {
-      audioCtx = new AudioContextClass();
-    }
+    audioCtx = new AudioContextClass();
   }
-  if (audioCtx && audioCtx.state === 'suspended') {
+  if (audioCtx.state === 'suspended') {
     audioCtx.resume();
   }
   return audioCtx;
 }
 
-// Gentle resonance bell when opening modal or changing hall
-export function playGalleryBell(freq = 440) {
+// Footsteps on polished wooden museum floor
+export function playMuseumFootstep() {
   try {
     const ctx = getAudioContext();
-    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
 
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(80, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.12);
+
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(350, ctx.currentTime);
+
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.15);
+  } catch (e) {
+    // silent
+  }
+}
+
+// Gentle museum bell / placard focus chime
+export function playGalleryBell(freq = 520) {
+  try {
+    const ctx = getAudioContext();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
 
     osc.type = 'sine';
     osc.frequency.setValueAtTime(freq, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(freq * 0.5, ctx.currentTime + 1.2);
+    osc.frequency.exponentialRampToValueAtTime(freq * 1.5, ctx.currentTime + 0.3);
 
     gain.gain.setValueAtTime(0.08, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.2);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.8);
 
     osc.connect(gain);
     gain.connect(ctx.destination);
 
     osc.start();
-    osc.stop(ctx.currentTime + 1.2);
-  } catch {
-    // Ignore audio errors silently
+    osc.stop(ctx.currentTime + 0.8);
+  } catch (e) {
+    // silent
   }
 }
 
-// Crisp spotlight shutter / tactile click
+// Spotlight switch click
 export function playSpotlightClick() {
   try {
     const ctx = getAudioContext();
-    if (!ctx) return;
-
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
 
-    osc.type = 'triangle';
+    osc.type = 'square';
     osc.frequency.setValueAtTime(800, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + 0.06);
+    osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.04);
 
-    gain.gain.setValueAtTime(0.05, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+    gain.gain.setValueAtTime(0.04, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
 
     osc.connect(gain);
     gain.connect(ctx.destination);
 
     osc.start();
-    osc.stop(ctx.currentTime + 0.06);
-  } catch {
-    // Ignore audio errors silently
+    osc.stop(ctx.currentTime + 0.05);
+  } catch (e) {
+    // silent
   }
 }
 
-// Success chime on prompt copy
+// Success Chime
 export function playSuccessChime() {
   try {
     const ctx = getAudioContext();
-    if (!ctx) return;
-
     const now = ctx.currentTime;
-    [523.25, 659.25, 783.99].forEach((f, idx) => {
+    [523.25, 659.25, 783.99].forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(f, now + idx * 0.08);
+      osc.frequency.setValueAtTime(freq, now + i * 0.08);
 
-      gain.gain.setValueAtTime(0.04, now + idx * 0.08);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.4);
+      gain.gain.setValueAtTime(0.06, now + i * 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.08 + 0.6);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
 
-      osc.start(now + idx * 0.08);
-      osc.stop(now + idx * 0.08 + 0.4);
+      osc.start(now + i * 0.08);
+      osc.stop(now + i * 0.08 + 0.6);
     });
-  } catch {
-    // Ignore
+  } catch (e) {
+    // silent
   }
 }
 
-// Toggle Museum Ambient White Noise / Tone
-export function toggleAmbientSound(enable?: boolean): boolean {
+// Ambient Museum Hall Soundscape
+export function toggleAmbientSound(): boolean {
   try {
     const ctx = getAudioContext();
-    if (!ctx) return false;
 
-    if (enable === undefined) {
-      enable = !isAmbientPlaying;
-    }
-
-    if (enable && !isAmbientPlaying) {
-      // Start ambient dual sine drone (55Hz and 110Hz warm overtone)
-      ambientGain = ctx.createGain();
-      ambientGain.gain.setValueAtTime(0.001, ctx.currentTime);
-      ambientGain.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 2.0);
-
-      ambientOsc1 = ctx.createOscillator();
-      ambientOsc1.type = 'sine';
-      ambientOsc1.frequency.setValueAtTime(55, ctx.currentTime); // Low A
-
-      ambientOsc2 = ctx.createOscillator();
-      ambientOsc2.type = 'triangle';
-      ambientOsc2.frequency.setValueAtTime(110.5, ctx.currentTime); // Subtle detune
-
-      ambientOsc1.connect(ambientGain);
-      ambientOsc2.connect(ambientGain);
-      ambientGain.connect(ctx.destination);
-
-      ambientOsc1.start();
-      ambientOsc2.start();
-      isAmbientPlaying = true;
-      return true;
-    } else if (!enable && isAmbientPlaying) {
+    if (isAmbientPlaying) {
       if (ambientGain) {
-        ambientGain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 1.0);
+        ambientGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1);
         setTimeout(() => {
-          try {
-            ambientOsc1?.stop();
-            ambientOsc2?.stop();
-            ambientOsc1?.disconnect();
-            ambientOsc2?.disconnect();
-            ambientGain?.disconnect();
-          } catch {}
-          ambientOsc1 = null;
-          ambientOsc2 = null;
-          ambientGain = null;
+          ambientOsc1?.stop();
+          ambientOsc2?.stop();
+          ambientOsc1?.disconnect();
+          ambientOsc2?.disconnect();
+          ambientGain?.disconnect();
         }, 1000);
       }
       isAmbientPlaying = false;
       return false;
+    } else {
+      ambientGain = ctx.createGain();
+      ambientGain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      ambientGain.gain.exponentialRampToValueAtTime(0.04, ctx.currentTime + 2);
+
+      ambientOsc1 = ctx.createOscillator();
+      ambientOsc2 = ctx.createOscillator();
+
+      ambientOsc1.type = 'sine';
+      ambientOsc1.frequency.setValueAtTime(110, ctx.currentTime); // A2
+
+      ambientOsc2.type = 'triangle';
+      ambientOsc2.frequency.setValueAtTime(164.81, ctx.currentTime); // E3
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(280, ctx.currentTime);
+
+      ambientOsc1.connect(filter);
+      ambientOsc2.connect(filter);
+      filter.connect(ambientGain);
+      ambientGain.connect(ctx.destination);
+
+      ambientOsc1.start();
+      ambientOsc2.start();
+
+      isAmbientPlaying = true;
+      return true;
     }
-  } catch {
+  } catch (e) {
     return false;
   }
-  return isAmbientPlaying;
 }

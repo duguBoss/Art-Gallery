@@ -4,6 +4,7 @@ import type { ArtStyle, Artwork, HallCategory } from './types/art';
 import { SpotlightEffect } from './components/SpotlightEffect';
 import { Navbar } from './components/Navbar';
 import { HeroGallery } from './components/HeroGallery';
+import { SpatialGalleryRoom } from './components/SpatialGalleryRoom';
 import { ArtworkWall } from './components/ArtworkWall';
 import { StyleGrid } from './components/StyleGrid';
 import { StyleDetailModal } from './components/StyleDetailModal';
@@ -16,7 +17,7 @@ import { ScenarioExplorerModal } from './components/ScenarioExplorerModal';
 import { Footer } from './components/Footer';
 
 export function App() {
-  const [currentView, setCurrentView] = useState<'wall' | 'styles'>('wall');
+  const [currentView, setCurrentView] = useState<'spatial' | 'wall' | 'styles'>('spatial');
   const [selectedHall, setSelectedHall] = useState<HallCategory>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
@@ -80,14 +81,26 @@ export function App() {
         />
 
         <div id="exhibition-content">
-          {currentView === 'wall' ? (
+          {currentView === 'spatial' && (
+            <SpatialGalleryRoom
+              styles={filteredStyles}
+              onInspectArtwork={handleInspectArtwork}
+              onSelectStyle={setSelectedStyle}
+              onOpenTour={() => setIsTourOpen(true)}
+              onOpenScenarios={() => setIsScenariosOpen(true)}
+            />
+          )}
+
+          {currentView === 'wall' && (
             <ArtworkWall
               styles={filteredStyles}
               onInspectArtwork={handleInspectArtwork}
               onSelectStyle={setSelectedStyle}
               onOpenScenarios={() => setIsScenariosOpen(true)}
             />
-          ) : (
+          )}
+
+          {currentView === 'styles' && (
             <StyleGrid
               styles={filteredStyles}
               selectedHall={selectedHall}

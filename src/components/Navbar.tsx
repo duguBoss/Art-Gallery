@@ -1,10 +1,10 @@
 ﻿import React, { useState } from 'react';
-import { Volume2, VolumeX, Sparkles, Compass, Palette, Send, Search, LayoutGrid, Image as ImageIcon, Clapperboard } from 'lucide-react';
+import { Volume2, VolumeX, Sparkles, Compass, Palette, Send, Search, LayoutGrid, Image as ImageIcon, Clapperboard, Building2 } from 'lucide-react';
 import { toggleAmbientSound, playSpotlightClick } from '../utils/audio';
 
 interface NavbarProps {
-  currentView: 'wall' | 'styles';
-  onSwitchView: (view: 'wall' | 'styles') => void;
+  currentView: 'spatial' | 'wall' | 'styles';
+  onSwitchView: (view: 'spatial' | 'wall' | 'styles') => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
   onOpenMixer: () => void;
@@ -34,7 +34,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-gallery-800/80 bg-gallery-950/85 backdrop-blur-xl transition-all duration-300">
+    <header className="sticky top-0 z-40 w-full border-b border-gallery-800/80 bg-gallery-950/90 backdrop-blur-xl transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
         {/* Brand */}
         <div className="flex items-center gap-3.5 shrink-0">
@@ -54,14 +54,29 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </span>
               </div>
               <p className="text-[11px] text-gallery-400 tracking-wider font-sans">
-                艺术创作流派与视觉美学博览馆
+                实体美学展厅与万象艺术博览馆
               </p>
             </div>
           </a>
         </div>
 
-        {/* View Switcher Tabs */}
-        <div className="hidden lg:flex items-center p-1 rounded-full bg-gallery-900 border border-gallery-800">
+        {/* View Switcher Tabs (Center) */}
+        <div className="hidden lg:flex items-center p-1 rounded-full bg-gallery-900 border border-gallery-800 shadow-inner">
+          <button
+            onClick={() => {
+              playSpotlightClick();
+              onSwitchView('spatial');
+            }}
+            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-serif font-bold transition-all cursor-pointer ${
+              currentView === 'spatial'
+                ? 'bg-gradient-to-r from-gold-500 to-gold-600 text-gallery-950 shadow-glow-gold'
+                : 'text-gallery-300 hover:text-white'
+            }`}
+          >
+            <Building2 className="w-3.5 h-3.5" />
+            <span>🏛️ 3D 实景展厅</span>
+          </button>
+
           <button
             onClick={() => {
               playSpotlightClick();
@@ -69,12 +84,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
             className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-serif font-bold transition-all cursor-pointer ${
               currentView === 'wall'
-                ? 'bg-gold-500 text-gallery-950 shadow-glow-gold/30'
+                ? 'bg-gradient-to-r from-gold-500 to-gold-600 text-gallery-950 shadow-glow-gold'
                 : 'text-gallery-300 hover:text-white'
             }`}
           >
             <ImageIcon className="w-3.5 h-3.5" />
-            <span>🖼️ 全景画墙博览</span>
+            <span>🖼️ 全景画墙</span>
           </button>
 
           <button
@@ -84,12 +99,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
             className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-serif font-bold transition-all cursor-pointer ${
               currentView === 'styles'
-                ? 'bg-gold-500 text-gallery-950 shadow-glow-gold/30'
+                ? 'bg-gradient-to-r from-gold-500 to-gold-600 text-gallery-950 shadow-glow-gold'
                 : 'text-gallery-300 hover:text-white'
             }`}
           >
             <LayoutGrid className="w-3.5 h-3.5" />
-            <span>🏛️ 流派主题展厅</span>
+            <span>📑 分馆总览</span>
           </button>
         </div>
 
@@ -100,7 +115,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="搜索流派、画作或场景，如 锈湖, 广告..."
+            placeholder="搜索流派、画作或场景，如 锈湖, VOX..."
             className="w-full pl-9 pr-3 py-1.5 bg-gallery-900 border border-gallery-700/80 rounded-full text-xs text-gallery-200 placeholder-gallery-400 focus:outline-none focus:border-gold-500/60 transition-all"
           />
         </div>
@@ -113,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               playSpotlightClick();
               onOpenScenarios();
             }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-gradient-to-r from-accent-violet/20 to-gold-500/10 border border-accent-violet/40 text-accent-violet hover:border-gold-400 hover:text-gold-200 text-xs font-sans font-medium transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-accent-violet/15 border border-accent-violet/40 text-accent-violet hover:border-gold-400 hover:text-gold-200 text-xs font-sans font-medium transition-all cursor-pointer shadow-sm"
             title="查看 9 大商业视频场景与美学赋能矩阵"
           >
             <Clapperboard className="w-3.5 h-3.5" />
@@ -201,6 +216,16 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="lg:hidden px-4 pb-3 flex items-center gap-2">
         <div className="flex-1 flex items-center justify-center p-1 rounded-full bg-gallery-900 border border-gallery-800">
           <button
+            onClick={() => onSwitchView('spatial')}
+            className={`flex-1 py-1 rounded-full text-xs font-serif font-bold transition-all ${
+              currentView === 'spatial'
+                ? 'bg-gold-500 text-gallery-950'
+                : 'text-gallery-300'
+            }`}
+          >
+            🏛️ 实景展厅
+          </button>
+          <button
             onClick={() => onSwitchView('wall')}
             className={`flex-1 py-1 rounded-full text-xs font-serif font-bold transition-all ${
               currentView === 'wall'
@@ -218,7 +243,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 : 'text-gallery-300'
             }`}
           >
-            🏛️ 流派展厅
+            📑 分馆
           </button>
         </div>
 
