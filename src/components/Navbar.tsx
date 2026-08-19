@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { Volume2, VolumeX, Sparkles, Compass, Palette, Send, Search, LayoutGrid, Image as ImageIcon } from 'lucide-react';
+import { Volume2, VolumeX, Sparkles, Compass, Palette, Send, Search, LayoutGrid, Image as ImageIcon, Clapperboard } from 'lucide-react';
 import { toggleAmbientSound, playSpotlightClick } from '../utils/audio';
 
 interface NavbarProps {
@@ -11,6 +11,7 @@ interface NavbarProps {
   onOpenPalette: () => void;
   onOpenSubmit: () => void;
   onOpenTour: () => void;
+  onOpenScenarios: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -22,6 +23,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenPalette,
   onOpenSubmit,
   onOpenTour,
+  onOpenScenarios,
 }) => {
   const [isAudioOn, setIsAudioOn] = useState(false);
 
@@ -34,6 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-40 w-full border-b border-gallery-800/80 bg-gallery-950/85 backdrop-blur-xl transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+        {/* Brand */}
         <div className="flex items-center gap-3.5 shrink-0">
           <a href="#" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gallery-800 to-gallery-900 border border-gold-500/40 p-2 flex items-center justify-center shadow-glow-gold/20 group-hover:border-gold-400 transition-all duration-300">
@@ -57,6 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </a>
         </div>
 
+        {/* View Switcher Tabs */}
         <div className="hidden lg:flex items-center p-1 rounded-full bg-gallery-900 border border-gallery-800">
           <button
             onClick={() => {
@@ -89,30 +93,47 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
 
+        {/* Global Search */}
         <div className="hidden md:flex flex-1 max-w-xs relative">
           <Search className="w-4 h-4 text-gallery-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="搜索流派与画作，如 VOX, 锈湖..."
+            placeholder="搜索流派、画作或场景，如 锈湖, 广告..."
             className="w-full pl-9 pr-3 py-1.5 bg-gallery-900 border border-gallery-700/80 rounded-full text-xs text-gallery-200 placeholder-gallery-400 focus:outline-none focus:border-gold-500/60 transition-all"
           />
         </div>
 
+        {/* Action Tools */}
         <div className="flex items-center gap-2">
+          {/* Scenario Explorer Button */}
+          <button
+            onClick={() => {
+              playSpotlightClick();
+              onOpenScenarios();
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-gradient-to-r from-accent-violet/20 to-gold-500/10 border border-accent-violet/40 text-accent-violet hover:border-gold-400 hover:text-gold-200 text-xs font-sans font-medium transition-all cursor-pointer"
+            title="查看 9 大商业视频场景与美学赋能矩阵"
+          >
+            <Clapperboard className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">场景赋能</span>
+          </button>
+
+          {/* Virtual Tour */}
           <button
             onClick={() => {
               playSpotlightClick();
               onOpenTour();
             }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-gradient-to-r from-gold-600/20 to-gold-500/10 border border-gold-500/40 text-gold-300 hover:border-gold-400 hover:text-gold-200 text-xs font-sans font-medium transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-gallery-900 border border-gold-500/30 text-gold-300 hover:border-gold-400 hover:text-gold-200 text-xs font-sans font-medium transition-all cursor-pointer"
             title="开启沉浸式展厅漫步巡礼"
           >
-            <Compass className="w-3.5 h-3.5 animate-pulse" />
+            <Compass className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">沉浸漫游</span>
           </button>
 
+          {/* Palette Inspector */}
           <button
             onClick={() => {
               playSpotlightClick();
@@ -124,6 +145,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Palette className="w-4 h-4 text-accent-cyan" />
           </button>
 
+          {/* Style Mixer / Alchemist */}
           <button
             onClick={() => {
               playSpotlightClick();
@@ -132,9 +154,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="p-2.5 rounded-full bg-gallery-900 border border-gallery-700 text-gallery-300 hover:text-gold-300 hover:border-gold-500/40 text-xs transition-all cursor-pointer"
             title="风格灵感碰撞器"
           >
-            <Sparkles className="w-4 h-4 text-accent-violet" />
+            <Sparkles className="w-4 h-4 text-accent-amber" />
           </button>
 
+          {/* Ambient Soundscape */}
           <button
             onClick={handleAudioToggle}
             className={`p-2.5 rounded-full border transition-all cursor-pointer ${
@@ -147,6 +170,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {isAudioOn ? <Volume2 className="w-4 h-4 animate-pulse" /> : <VolumeX className="w-4 h-4" />}
           </button>
 
+          {/* Submit */}
           <button
             onClick={() => {
               playSpotlightClick();
@@ -158,6 +182,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Send className="w-4 h-4" />
           </button>
 
+          {/* GitHub */}
           <a
             href="https://github.com/duguBoss/Art-Gallery.git"
             target="_blank"
@@ -172,8 +197,9 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      <div className="lg:hidden px-4 pb-3 flex flex-col gap-2">
-        <div className="flex items-center justify-center p-1 rounded-full bg-gallery-900 border border-gallery-800">
+      {/* Mobile Bar */}
+      <div className="lg:hidden px-4 pb-3 flex items-center gap-2">
+        <div className="flex-1 flex items-center justify-center p-1 rounded-full bg-gallery-900 border border-gallery-800">
           <button
             onClick={() => onSwitchView('wall')}
             className={`flex-1 py-1 rounded-full text-xs font-serif font-bold transition-all ${
@@ -195,6 +221,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             🏛️ 流派展厅
           </button>
         </div>
+
+        <button
+          onClick={onOpenScenarios}
+          className="px-3 py-1.5 rounded-full bg-accent-violet/20 border border-accent-violet/40 text-accent-violet text-xs font-serif font-bold"
+        >
+          🎬 场景
+        </button>
       </div>
     </header>
   );

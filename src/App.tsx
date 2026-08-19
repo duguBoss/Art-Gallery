@@ -12,6 +12,7 @@ import { StyleMixer } from './components/StyleMixer';
 import { PaletteInspectorModal } from './components/PaletteInspectorModal';
 import { VirtualTourModal } from './components/VirtualTourModal';
 import { SubmitStyleModal } from './components/SubmitStyleModal';
+import { ScenarioExplorerModal } from './components/ScenarioExplorerModal';
 import { Footer } from './components/Footer';
 
 export function App() {
@@ -26,6 +27,7 @@ export function App() {
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [isSubmitOpen, setIsSubmitOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
+  const [isScenariosOpen, setIsScenariosOpen] = useState(false);
 
   // Filtered Styles
   const filteredStyles = useMemo(() => {
@@ -39,6 +41,7 @@ export function App() {
         style.englishTitle.toLowerCase().includes(query) ||
         style.badge.toLowerCase().includes(query) ||
         style.summary.toLowerCase().includes(query) ||
+        style.appliedScenarios?.some(s => s.scenarioName.toLowerCase().includes(query) || s.useCase.toLowerCase().includes(query)) ||
         style.representativeWorks.some(w => w.title.toLowerCase().includes(query) || w.description.toLowerCase().includes(query))
       );
     });
@@ -65,6 +68,7 @@ export function App() {
         onOpenPalette={() => setIsPaletteOpen(true)}
         onOpenSubmit={() => setIsSubmitOpen(true)}
         onOpenTour={() => setIsTourOpen(true)}
+        onOpenScenarios={() => setIsScenariosOpen(true)}
       />
 
       <main>
@@ -81,6 +85,7 @@ export function App() {
               styles={filteredStyles}
               onInspectArtwork={handleInspectArtwork}
               onSelectStyle={setSelectedStyle}
+              onOpenScenarios={() => setIsScenariosOpen(true)}
             />
           ) : (
             <StyleGrid
@@ -109,6 +114,13 @@ export function App() {
           onClose={() => setInspectedArtwork(null)}
         />
       )}
+
+      <ScenarioExplorerModal
+        isOpen={isScenariosOpen}
+        onClose={() => setIsScenariosOpen(false)}
+        styles={ART_STYLES}
+        onSelectStyle={(s) => setSelectedStyle(s)}
+      />
 
       <StyleMixer
         styles={ART_STYLES}

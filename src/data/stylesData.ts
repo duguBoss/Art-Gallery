@@ -1,4 +1,97 @@
-import type { ArtStyle, HallInfo } from '../types/art';
+import type { ArtStyle, HallInfo, VideoScenarioInfo } from '../types/art';
+
+export const VIDEO_SCENARIOS: VideoScenarioInfo[] = [
+  {
+    id: 'all',
+    code: 'ALL',
+    name: '全部商业场景',
+    enName: 'All Scenarios',
+    description: '全景探索艺术美学在各大影视、商业视频与前沿数字内容中的应用。',
+    iconName: 'Clapperboard',
+    recommendedStyles: [],
+  },
+  {
+    id: 'brand-film',
+    code: '1.1',
+    name: '品牌大片与影视内容',
+    enName: 'Brand Films & Cinema',
+    description: '高奢品牌大片、东方文旅宣传片、电影级质感短片、汽车概念影片。',
+    iconName: 'Film',
+    recommendedStyles: ['ink-wash', 'dark-gothic-baroque', 'cyberpunk-neon'],
+  },
+  {
+    id: 'visual-packaging',
+    code: '1.2',
+    name: '视觉创意与内容包装',
+    enName: 'Visual Branding & Packaging',
+    description: '科技发布会开场、音乐节主视觉、先锋潮流栏目与频道动态包装。',
+    iconName: 'Tv',
+    recommendedStyles: ['liquid-glassmorphism', 'memphis-pop', 'vaporwave-retro'],
+  },
+  {
+    id: 'motion-graphics',
+    code: '1.3',
+    name: '动态图形、MG动画、AE特效',
+    enName: 'Motion Graphics & VFX',
+    description: '扁平概念MG动效、HUD科技界面、转场特效与信息可视化。',
+    iconName: 'Activity',
+    recommendedStyles: ['bauhaus-modern', 'low-poly-geometric', 'memphis-pop'],
+  },
+  {
+    id: 'ar-creative',
+    code: '1.4',
+    name: 'AR现实增强创意视频',
+    enName: 'AR & Spatial Video',
+    description: '街景AR空间特效、虚实交互短视频、Apple Vision Pro 空间视频创意。',
+    iconName: 'Eye',
+    recommendedStyles: ['vox-pixel', 'low-poly-geometric', 'liquid-glassmorphism'],
+  },
+  {
+    id: 'ai-narrative',
+    code: '1.5',
+    name: 'AI 剧情内容创作',
+    enName: 'AI Narrative & Drama',
+    description: 'Sora / Runway AI 生成悬疑微电影、互动剧集、超现实叙事短剧。',
+    iconName: 'Sparkles',
+    recommendedStyles: ['rusty-lake', 'dark-gothic-baroque', 'cyberpunk-neon'],
+  },
+  {
+    id: 'product-ecommerce',
+    code: '1.6',
+    name: '产品与电商营销',
+    enName: 'Product & Commercial Marketing',
+    description: '潮玩爆款展示、母婴/食品温馨治愈广告、3C数码质感渲染短视频。',
+    iconName: 'ShoppingBag',
+    recommendedStyles: ['claymation-3d', 'liquid-glassmorphism', 'memphis-pop'],
+  },
+  {
+    id: 'game-experience',
+    code: '1.7',
+    name: '数字体验与游戏创意',
+    enName: 'Gaming & Digital Experience',
+    description: '独立游戏世界观美术、元宇宙场景搭建、交互式网页与沉浸展项。',
+    iconName: 'Gamepad2',
+    recommendedStyles: ['vox-pixel', 'rusty-lake', 'cyberpunk-neon', 'ukiyo-e-woodblock'],
+  },
+  {
+    id: 'industrial-robot',
+    code: '1.8',
+    name: '硬件、实体工业、具身智能演示',
+    enName: 'Industrial & Robotics Demo',
+    description: '人形机器人演示、新能源汽车架构、半导体精密工业与硬核科技展示。',
+    iconName: 'Cpu',
+    recommendedStyles: ['bauhaus-modern', 'cyberpunk-neon', 'low-poly-geometric'],
+  },
+  {
+    id: 'stylized-animation',
+    code: '1.9',
+    name: '动画与风格化影像',
+    enName: 'Stylized Animation & Anime',
+    description: '治愈手绘动画、原创动画短片、国风二次元MV、实验艺术影像。',
+    iconName: 'Palette',
+    recommendedStyles: ['ghibli-watercolor', 'ukiyo-e-woodblock', 'claymation-3d'],
+  },
+];
 
 export const EXHIBITION_HALLS: HallInfo[] = [
   {
@@ -79,7 +172,7 @@ export const ART_STYLES: ArtStyle[] = [
     ],
     promptKeywords: {
       mjPrompt: 'A surreal atmospheric room scene, in Rusty Lake art style, dark vintage paper texture, muted earthy color palette, crisp black hand-drawn line art, mysterious occult symbolism, David Lynch aesthetic, symmetry, eerie elegance, cinematic lighting --ar 16:9 --v 6.1',
-      positiveKeywords: ['Rusty Lake aesthetic', 'dark surrealism', 'vintage flat illustration', 'thick clean outlines', 'muted sepia tones', 'mysterious narrative symbolism'],
+      positiveKeywords: ['Rusty Lake aesthetic', 'dark surrealism', 'vintage flat illustration', 'thick clean outlines', 'muted sepia tones'],
       negativeKeywords: ['neon bright colors', 'glossy 3D render', 'over-saturated'],
       parameters: '--ar 16:9 --stylize 250 --v 6.1',
     },
@@ -89,6 +182,20 @@ export const ART_STYLES: ArtStyle[] = [
       lighting: '弱对比漫反射室内光，仅保留主体微弱单侧泛光，强调画面的平面戏剧感',
       composition: '中央轴对称或黄金分割居中排布，背景常为封闭墙面或复古壁纸花纹',
     },
+    appliedScenarios: [
+      {
+        scenarioId: 'ai-narrative',
+        scenarioName: '1.5 AI 剧情内容创作',
+        useCase: '适用于 AI 心理悬疑微电影、密室解谜剧情短剧、独立悬疑小说视觉化。',
+        cameraAdvice: '固定机位对称居中构图，极慢速推拉镜头配合老旧留声机音效，强化不安与定格感。',
+      },
+      {
+        scenarioId: 'game-experience',
+        scenarioName: '1.7 数字体验与游戏创意',
+        useCase: '解谜冒险游戏、互动沉浸式交互网页、剧本杀先导视觉片。',
+        cameraAdvice: '两点透视正视视角，强调道具与环境的点击互动与平面剪纸层叠感。',
+      }
+    ],
     representativeWorks: [
       {
         id: 'rl-01',
@@ -117,15 +224,6 @@ export const ART_STYLES: ArtStyle[] = [
         imageUrl: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=1200&q=80',
         aspectRatio: 'square',
         tag: '人物肖像'
-      },
-      {
-        id: 'rl-04',
-        title: '旧阁楼的占星遗物',
-        year: '2024',
-        description: '风化泛黄的羊皮星图与青铜罗盘在微弱烛光下静默，述说着未完的故事。',
-        imageUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80',
-        aspectRatio: 'landscape',
-        tag: '静物构图'
       }
     ],
     likesCount: 1420,
@@ -141,7 +239,7 @@ export const ART_STYLES: ArtStyle[] = [
     badge: '立体像素',
     quote: '“用最纯粹的立方体微粒，搭建一个充满光影呼吸的微缩宇宙。”',
     summary: '将 2D 经典像素升维至 3D 体素空间，结合 MagicaVoxel 物理光追与等距透视，打造精致赛博箱庭与立体雕塑。',
-    detailedDescription: 'VOX（Voxel Art）摒弃了传统 3D 复杂的平滑网格，完全由色彩缤纷的正方体单元拼砌而成。在现代光线追踪渲染引擎下，粗粒度的体素与拟真水面、发光霓虹、景深模糊碰撞出极度迷人的微缩模型（Diorama）魅力。',
+    detailedDescription: 'VOX（Voxel Art）完全由色彩缤纷的正方体单元拼砌而成。在现代光线追踪渲染引擎下，粗粒度的体素与拟真水面、发光霓虹、景深模糊碰撞出极度迷人的微缩模型（Diorama）魅力。',
     visualKeyFeatures: [
       '严格基于 3D 正方体网格单元构筑的实体与场景',
       '等轴正交视角（Isometric Orthographic）或微距倾斜移轴',
@@ -158,8 +256,8 @@ export const ART_STYLES: ArtStyle[] = [
     ],
     promptKeywords: {
       mjPrompt: 'Detailed 3D voxel art diorama, MagicaVoxel style, isometric view, miniature cyberpunk street with glowing lanterns and food stall, ray tracing volumetric lighting, soft ambient occlusion, cute detailed voxel blocks, 8k render, Octane render --ar 16:9 --v 6.1',
-      positiveKeywords: ['Voxel art', 'MagicaVoxel render', 'isometric 3D diorama', 'cubic micro blocks', 'volumetric raytracing glow', 'tilt-shift photography'],
-      negativeKeywords: ['2D flat vector', 'smooth organic curves', 'low resolution blurry'],
+      positiveKeywords: ['Voxel art', 'MagicaVoxel render', 'isometric 3D diorama', 'cubic micro blocks', 'volumetric raytracing glow'],
+      negativeKeywords: ['2D flat vector', 'smooth organic curves'],
       parameters: '--ar 16:9 --stylize 300 --v 6.1',
     },
     creationTechniques: {
@@ -168,6 +266,20 @@ export const ART_STYLES: ArtStyle[] = [
       lighting: '环境光遮蔽（AO）+ 点光源辐射全局照明（GI），强化方块边缘切面明暗',
       composition: '等距斜 45 度视角（Isometric）或微距景深悬浮岛构图',
     },
+    appliedScenarios: [
+      {
+        scenarioId: 'ar-creative',
+        scenarioName: '1.4 AR现实增强创意视频',
+        useCase: '在真实街景上空投影悬浮的 3D 体素建筑岛屿、可爱的像素怪兽游荡。',
+        cameraAdvice: '手持微晃镜头跟随真实视角，体素模型带有物理阴影投射于地面，虚实交错。',
+      },
+      {
+        scenarioId: 'game-experience',
+        scenarioName: '1.7 数字体验与游戏创意',
+        useCase: '沙盒游戏宣传片、元宇宙虚拟地块展示、等轴策略游戏开场动画。',
+        cameraAdvice: '斜 45 度等轴旋转运镜（Turntable Camera），景深虚化边缘突出微距沙盘感。',
+      }
+    ],
     representativeWorks: [
       {
         id: 'vox-01',
@@ -187,15 +299,6 @@ export const ART_STYLES: ArtStyle[] = [
         imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
         aspectRatio: 'square',
         tag: '奇幻场景'
-      },
-      {
-        id: 'vox-03',
-        title: '赛博体素微缩车站',
-        year: '2024',
-        description: '密布霓虹信号灯与发光轨道的未来体素列车站，展现精密机械美感。',
-        imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80',
-        aspectRatio: 'portrait',
-        tag: '科幻构型'
       }
     ],
     likesCount: 1890,
@@ -211,7 +314,7 @@ export const ART_STYLES: ArtStyle[] = [
     badge: '霓虹未来',
     quote: '“高科技，低生活。在雨夜的沥青路面上，倒映着全息广告的永昼。”',
     summary: '高对比度青蓝与品红霓虹、潮湿雨夜反光、密集摩天义体都市与全息投影构筑的视觉风暴。',
-    detailedDescription: '赛博朋克以高密度的巨型都市、繁复的飞线电缆、巨幅全息霓虹招牌、机械义体与阴郁连绵的雨夜倒影为鲜明特征，探讨科技飞速发展与人性孤独的张力。',
+    detailedDescription: '以高密度的巨型都市、繁复的飞线电缆、巨幅全息霓虹招牌、机械义体与阴郁连绵的雨夜倒影为鲜明特征，探讨科技飞速发展与人性孤独的张力。',
     visualKeyFeatures: [
       '品红（Magenta）与青色（Cyan）的强烈互补色冷暖光比',
       '沥青地面潮湿积水的全息倒影与光斑光晕（Bokeh）',
@@ -228,8 +331,8 @@ export const ART_STYLES: ArtStyle[] = [
     ],
     promptKeywords: {
       mjPrompt: 'Cinematic wide shot of a bustling cyberpunk street at rainy night, towering skyscrapers covered in massive holographic advertisements, vivid neon magenta and cyan lighting, wet asphalt reflections, dense flying vehicles, Blade Runner 2049 aesthetic, photorealistic, 8k resolution --ar 21:9 --v 6.1',
-      positiveKeywords: ['Cyberpunk aesthetic', 'Blade Runner neon lighting', 'rainy reflective wet streets', 'cyan and magenta color grading', 'holographic displays'],
-      negativeKeywords: ['sunny rural landscape', 'pastel vintage', 'minimalist white room'],
+      positiveKeywords: ['Cyberpunk aesthetic', 'Blade Runner neon lighting', 'rainy reflective wet streets', 'cyan and magenta color grading'],
+      negativeKeywords: ['sunny rural landscape', 'pastel vintage'],
       parameters: '--ar 21:9 --style raw --v 6.1',
     },
     creationTechniques: {
@@ -238,6 +341,20 @@ export const ART_STYLES: ArtStyle[] = [
       lighting: '强光源多向交叉补光、边缘轮廓光（Rim Light）与雨雾体积光',
       composition: '超广角仰视透视强化建筑压迫感，或两点透视深邃街道延伸',
     },
+    appliedScenarios: [
+      {
+        scenarioId: 'brand-film',
+        scenarioName: '1.1 品牌大片与影视内容',
+        useCase: '科技旗舰手机、电竞外设、新能源汽车“夜行者”概念广告大片。',
+        cameraAdvice: '超广角低机位快速穿梭运镜，雨夜光轨拉丝与镜头光晕（Anamorphic Lens Flare）。',
+      },
+      {
+        scenarioId: 'industrial-robot',
+        scenarioName: '1.8 硬件工业与具身智能演示',
+        useCase: '未来机械装甲、仿生机械义肢、自动驾驶穿梭机产品展示。',
+        cameraAdvice: '微距特写精密齿轮与电缆接头，冷蓝轮廓光勾勒金属硬朗结构。',
+      }
+    ],
     representativeWorks: [
       {
         id: 'cp-01',
@@ -256,15 +373,6 @@ export const ART_STYLES: ArtStyle[] = [
         imageUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80',
         aspectRatio: 'square',
         tag: '机械概念'
-      },
-      {
-        id: 'cp-03',
-        title: '午夜霓虹天际线',
-        year: '2023',
-        description: '冷酷钢铁巨构在品红与青蓝激光照射下巍然耸立，呈现绝望而瑰丽的未来美学。',
-        imageUrl: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1200&q=80',
-        aspectRatio: 'landscape',
-        tag: '巨构建筑'
       }
     ],
     likesCount: 2310,
@@ -297,8 +405,8 @@ export const ART_STYLES: ArtStyle[] = [
     ],
     promptKeywords: {
       mjPrompt: 'Traditional Chinese ink wash painting, ethereal misty mountains with lonely pine tree and flying cranes, sweeping minimalist brush strokes, extensive negative space, rice paper bleeding texture, delicate gold foil accents, Zen tranquility, poetic masterpiece --ar 16:9 --v 6.1',
-      positiveKeywords: ['Chinese ink wash painting', 'Sumie oriental style', 'watercolor ink bleed on Xuan paper', 'Zen aesthetics', 'minimalist negative space', 'gold dust accents'],
-      negativeKeywords: ['heavy oil impasto', 'plastic 3D', 'western baroque crowded'],
+      positiveKeywords: ['Chinese ink wash painting', 'Sumie oriental style', 'watercolor ink bleed on Xuan paper', 'Zen aesthetics'],
+      negativeKeywords: ['heavy oil impasto', 'plastic 3D'],
       parameters: '--ar 16:9 --stylize 400 --v 6.1',
     },
     creationTechniques: {
@@ -307,6 +415,20 @@ export const ART_STYLES: ArtStyle[] = [
       lighting: '非传统定向光，靠墨色浓淡与留白表现空间远近与光照虚实',
       composition: '对角线破局、一河两岸或大面积留白压角',
     },
+    appliedScenarios: [
+      {
+        scenarioId: 'brand-film',
+        scenarioName: '1.1 品牌大片与影视内容',
+        useCase: '高端国潮品牌、茶叶与中式美学酒店、中国地理文旅宣传片。',
+        cameraAdvice: '极度舒缓的水平移镜与慢门长曝光，水墨随风扩散粒子动效，留白呼吸感。',
+      },
+      {
+        scenarioId: 'stylized-animation',
+        scenarioName: '1.9 动画与风格化影像',
+        useCase: '国风二次元动画短片、武侠动作短片意境段落。',
+        cameraAdvice: '快慢刀光剑影与墨滴飞溅定格，虚实交错产生诗意张力。',
+      }
+    ],
     representativeWorks: [
       {
         id: 'ink-01',
@@ -325,15 +447,6 @@ export const ART_STYLES: ArtStyle[] = [
         imageUrl: 'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?auto=format&fit=crop&w=1200&q=80',
         aspectRatio: 'portrait',
         tag: '花木清赏'
-      },
-      {
-        id: 'ink-03',
-        title: '云岫溪山清远图',
-        year: '2024',
-        description: '大面积留白展现江南烟雨蒙蒙，墨分五色，气韵生动自然。',
-        imageUrl: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=1200&q=80',
-        aspectRatio: 'landscape',
-        tag: '水墨全景'
       }
     ],
     likesCount: 1960,
@@ -349,7 +462,7 @@ export const ART_STYLES: ArtStyle[] = [
     badge: '治愈光影',
     quote: '“每一朵夏天翻滚的积雨云深处，都藏着一个未被发现的飞空之国。”',
     summary: '翠绿山野、澎湃积雨云、柔和晨昏日光与温润手绘水彩胶片质感。',
-    detailedDescription: '吉卜力风格的核心魅力在于对自然界充满深情的敏锐捕捉：翻涌厚重的层状积雨云、随风起伏的碧绿草甸、老式木屋的温润木纹与阳光穿透树叶的丁达尔光斑。手工海报水粉的层次叠加，给予观众无与伦比的心灵治愈力。',
+    detailedDescription: '吉卜力风格的核心魅力在于对自然界充满深情的敏锐捕捉：翻涌厚重的层状积雨云、随风起伏的碧绿草甸、老式木屋的温润木纹与阳光穿透树叶的丁达尔光斑。',
     visualKeyFeatures: [
       '标志性的“吉卜力云”：层次分明、体积庞大且富有雕塑感的积雨云',
       '明亮通透的自然色谱：丰茂草绿、澄澈天蓝、暖橙夕阳与纯白',
@@ -366,8 +479,8 @@ export const ART_STYLES: ArtStyle[] = [
     ],
     promptKeywords: {
       mjPrompt: 'A breathtaking scenic landscape in Studio Ghibli anime style, painted by Hayao Miyazaki and Kazuo Oga, lush rolling green hills, blooming wildflowers, massive fluffy cumulus clouds in bright blue sky, cozy wooden cottage with watermill, soft warm daylight, watercolor and poster color texture, masterpiece --ar 16:9 --v 6.1',
-      positiveKeywords: ['Studio Ghibli art style', 'painted by Kazuo Oga', 'lush vibrant green hills', 'sculpted fluffy anime clouds', 'warm natural sunlight', 'watercolor poster color painted'],
-      negativeKeywords: ['3D CGI plastic', 'dark gloomy horror', 'harsh neon photorealism'],
+      positiveKeywords: ['Studio Ghibli art style', 'painted by Kazuo Oga', 'lush green hills', 'fluffy anime clouds'],
+      negativeKeywords: ['3D CGI plastic', 'dark gloomy horror'],
       parameters: '--ar 16:9 --stylize 350 --v 6.1',
     },
     creationTechniques: {
@@ -376,6 +489,20 @@ export const ART_STYLES: ArtStyle[] = [
       lighting: '柔和漫射阳光、树荫下的透光漫反射与冷暖光渐变',
       composition: '开阔纵深三分法构图，前景细密植物引向远景辽阔云海',
     },
+    appliedScenarios: [
+      {
+        scenarioId: 'stylized-animation',
+        scenarioName: '1.9 动画与风格化影像',
+        useCase: '夏日治愈微电影、温暖成长向短剧、田园慢生活纪录短片。',
+        cameraAdvice: '自然微风吹拂草甸的摇镜（Pan Shot），阳光穿透云层的丁达尔光柱特效。',
+      },
+      {
+        scenarioId: 'product-ecommerce',
+        scenarioName: '1.6 产品与电商营销',
+        useCase: '绿色有机食品、户外露营装备、儿童绘本与温情品牌广告。',
+        cameraAdvice: '阳光洒在木桌野餐篮的暖调浅景深镜头，烘托纯真天然氛围。',
+      }
+    ],
     representativeWorks: [
       {
         id: 'gh-01',
@@ -394,138 +521,9 @@ export const ART_STYLES: ArtStyle[] = [
         imageUrl: 'https://images.unsplash.com/photo-1511497584788-87676104235f?auto=format&fit=crop&w=1200&q=80',
         aspectRatio: 'portrait',
         tag: '乡野怀旧'
-      },
-      {
-        id: 'gh-03',
-        title: '山间木屋的夕阳余晖',
-        year: '2024',
-        description: '暖橙色落日余晖洒在木屋水车与溪流上，微风轻拂，诗意盎然。',
-        imageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
-        aspectRatio: 'landscape',
-        tag: '晨昏光影'
       }
     ],
     likesCount: 2540,
-    featured: true,
-  },
-  {
-    id: 'ukiyo-e-woodblock',
-    title: '浮世绘木版画',
-    englishTitle: 'Ukiyo-e Japanese Woodblock',
-    roomNumber: 'ROOM 03 // NO. 02',
-    hall: 'traditional-zen',
-    era: '江户时代至近代新版画',
-    badge: '木刻千重',
-    quote: '“浮生若梦，当观涛生云灭；以刀代笔，刻就俗世与仙境的画卷。”',
-    summary: '葛饰北斋与歌川广重式的平涂矿物色、木版雕刻刀痕套印肌理与动人心魄的流线构图。',
-    detailedDescription: '浮世绘是日本江户时代的传统木刻版画艺术。以其波浪翻涌的戏剧性张力、普鲁士蓝的深邃渐变、以及对平民生活与自然风景的写意描绘，确立了世界艺术史上不朽的经典地位。',
-    visualKeyFeatures: [
-      '行云流水般优美的黑色木刻外轮廓线',
-      '天然矿物与植物颜料平涂（著名的普鲁士蓝、雄黄、朱砂）',
-      '版画特有的木纹肌理与套色微错位边缘（Register Shift）',
-      '平面化装饰性极强的海浪、云朵、雪景与花草几何化表现',
-      '极具冲击力的俯仰视戏剧性剪裁构图'
-    ],
-    colorPalette: [
-      { name: '北斋普鲁士蓝', hex: '#1d3557' },
-      { name: '朱红印章', hex: '#e63946' },
-      { name: '木版桑皮白', hex: '#f1faee' },
-      { name: '松针黛青', hex: '#457b9d' },
-      { name: '泥金云霞', hex: '#d4a373' },
-    ],
-    promptKeywords: {
-      mjPrompt: 'Traditional Japanese Ukiyo-e woodblock print, in the style of Hokusai and Hiroshige, majestic ocean waves crashing with foam, Mount Fuji in distance, Prussian blue and vermilion color palette, wood grain paper texture, bold black outlines, ancient Edo period masterpiece --ar 16:9 --v 6.1',
-      positiveKeywords: ['Ukiyo-e woodblock print', 'Katsushika Hokusai style', 'Utagawa Hiroshige aesthetic', 'Prussian blue gradient', 'crisp woodcut carving outlines'],
-      negativeKeywords: ['3D CGI render', 'modern photorealism', 'western oil impasto'],
-      parameters: '--ar 16:9 --stylize 350 --v 6.1',
-    },
-    creationTechniques: {
-      medium: '木版套色印刷 / 和纸 / 现代矢量版画线稿',
-      brushwork: '雕版木刀线条雕刻、马连（Baren）手工压印造成的微弱颗粒与晕色（Bokashi）',
-      lighting: '去阴影平涂光感，依赖色彩明度渐变表现天空与水体深度',
-      composition: '超强前景遮挡对比（如隔着大浪看远山），平面装饰性张力',
-    },
-    representativeWorks: [
-      {
-        id: 'uk-01',
-        title: '神奈川冲之惊涛',
-        year: '2023',
-        description: '巨浪爪牙般拍打，舟船在千重雪浪中从容穿行，远景富士山静穆。',
-        imageUrl: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80',
-        aspectRatio: 'landscape',
-        tag: '木刻版画'
-      },
-      {
-        id: 'uk-02',
-        title: '东海道之雪晴晚霞',
-        year: '2024',
-        description: '白雪覆盖的松林与远山在落日朱红映照下静谧无声，呈现绝美东瀛冬景。',
-        imageUrl: 'https://images.unsplash.com/photo-1528164344705-475426879c0d?auto=format&fit=crop&w=1200&q=80',
-        aspectRatio: 'landscape',
-        tag: '江户名所'
-      }
-    ],
-    likesCount: 2105,
-    featured: true,
-  },
-  {
-    id: 'claymation-3d',
-    title: '粘土定格与童趣雕塑',
-    englishTitle: 'Claymation & Stylized Clay 3D',
-    roomNumber: 'ROOM 05 // NO. 02',
-    hall: 'whimsical-3d',
-    era: '传统定格动画到现代 3D 材质模拟',
-    badge: '温暖手工',
-    quote: '“每一枚黏土上微小的手工指纹，都是创作者留在时间里的温度。”',
-    summary: '柔软有弹性的黏土表面、手工按压的微弱指纹肌理、温暖柔光与定格动画的可爱生命力。',
-    detailedDescription: '粘土定格风（Claymation Style）脱胎于经典手工泥塑定格动画。在现代 3D 渲染技术加持下，完美复刻了油粘土特有的指纹压痕、微小划痕与次表面散射（SSS 胶质透光感），展现出治愈、呆萌的艺术魅力。',
-    visualKeyFeatures: [
-      '具有微弱次表面散射（Subsurface Scattering）的油泥胶质温润感',
-      '雕塑表面随机分布的微小指纹印记与手工揉捏凹凸',
-      '圆润柔软的形体塑造，边缘避免锐利棱角',
-      '定格动画特有的纯真呆萌角色神态与手工小道具',
-      '暖调摄影棚柔光箱与大光圈微距浅景深'
-    ],
-    colorPalette: [
-      { name: '赤陶土红', hex: '#d96b43' },
-      { name: '奶油黏土', hex: '#f4ebd9' },
-      { name: '牛油果绿', hex: '#7ca982' },
-      { name: '芥末暖黄', hex: '#e9b44c' },
-      { name: '石板蓝泥', hex: '#597081' },
-    ],
-    promptKeywords: {
-      mjPrompt: 'Cute claymation characters in a cozy handmade miniature living room, Plasticine clay texture with visible fingerprints, stop motion animation aesthetic, warm soft studio lighting, subsurface scattering, macro tilt-shift photography, tactile, playful, masterpiece 3D --ar 16:9 --v 6.1',
-      positiveKeywords: ['Claymation art style', 'Plasticine clay material', 'visible subtle fingerprints texture', 'warm tactile handmade', 'subsurface scattering clay'],
-      negativeKeywords: ['hard metallic surface', 'sharp polygons', 'flat vector graphic'],
-      parameters: '--ar 16:9 --stylize 320 --v 6.1',
-    },
-    creationTechniques: {
-      medium: 'Blender 雕刻 / ZBrush / 物理粘土定格摄影',
-      brushwork: 'Clay 笔刷雕刻基本形体，贴图添加凹凸指纹与粗糙度噪波图层',
-      lighting: '三点柔光箱布光，增强边缘透光红润感与微距浅景深',
-      composition: '微距微缩模型舞台构图，聚焦可爱角色的互动瞬间',
-    },
-    representativeWorks: [
-      {
-        id: 'clay-01',
-        title: '黏土森林的小聚餐',
-        year: '2024',
-        description: '几只圆滚滚的泥塑小动物围坐在木桩旁分享软糯的黏土浆果，温馨呆萌。',
-        imageUrl: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1200&q=80',
-        aspectRatio: 'landscape',
-        tag: '黏土定格'
-      },
-      {
-        id: 'clay-02',
-        title: '温暖手工泥塑小镇',
-        year: '2024',
-        description: '揉捏出柔和曲面的泥塑房屋与小花坛，带有清晰的手工指纹肌理。',
-        imageUrl: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1200&q=80',
-        aspectRatio: 'square',
-        tag: '童趣雕塑'
-      }
-    ],
-    likesCount: 1720,
     featured: true,
   },
   {
@@ -554,9 +552,9 @@ export const ART_STYLES: ArtStyle[] = [
       { name: '本白画布', hex: '#f7f4ea' },
     ],
     promptKeywords: {
-      mjPrompt: 'Iconic Bauhaus exhibition poster, Walter Gropius and Wassily Kandinsky style, abstract geometric constructivism, primary colors red blue yellow black, clean grid layout, diagonal typography, vintage 1920s print texture, museum quality graphic design --ar 4:5 --v 6.1',
-      positiveKeywords: ['Bauhaus movement poster', 'Constructivism abstract shapes', 'Primary colors red yellow blue', 'Strict grid alignment', 'clean geometric composition'],
-      negativeKeywords: ['ornate rococo flourish', 'organic messy brushwork', 'neon lighting'],
+      mjPrompt: 'Iconic Bauhaus exhibition poster, Walter Gropius and Wassily Kandinsky style, abstract geometric constructivism, primary colors red blue yellow black, clean grid layout, diagonal typography --ar 4:5 --v 6.1',
+      positiveKeywords: ['Bauhaus movement poster', 'Constructivism abstract shapes', 'Primary colors red yellow blue'],
+      negativeKeywords: ['ornate rococo flourish'],
       parameters: '--ar 4:5 --stylize 180 --v 6.1',
     },
     creationTechniques: {
@@ -565,6 +563,20 @@ export const ART_STYLES: ArtStyle[] = [
       lighting: '纯平面扁平构成，无真实物理光影，依靠色块对比产生前后空间层次',
       composition: '瑞士国际主义网格法则、对角线动感平衡、强烈的留白控制',
     },
+    appliedScenarios: [
+      {
+        scenarioId: 'motion-graphics',
+        scenarioName: '1.3 动态图形、MG动画、AE特效',
+        useCase: '企业品牌宣传片MG转场、UI交互动效演示、信息图表动态可视化。',
+        cameraAdvice: '正交无透视扁平动画，红黄蓝几何图形缩放形变与斜向排版无缝转场。',
+      },
+      {
+        scenarioId: 'industrial-robot',
+        scenarioName: '1.8 硬件工业与具身智能演示',
+        useCase: '精密结构爆炸图、工业流水线自动化概念、现代建筑方案展示。',
+        cameraAdvice: '轴测图（Axonometric）视角的机械拆解与装配线框动画。',
+      }
+    ],
     representativeWorks: [
       {
         id: 'bh-01',
@@ -579,104 +591,69 @@ export const ART_STYLES: ArtStyle[] = [
     likesCount: 1680,
   },
   {
-    id: 'memphis-pop',
-    title: '孟菲斯设计与几何波普',
-    englishTitle: 'Memphis & Bold Pop',
-    roomNumber: 'ROOM 04 // NO. 01',
-    hall: 'modern-geometry',
-    era: '1980s 意大利先锋设计运动',
-    badge: '狂想撞色',
-    quote: '“设计不应该只有冷冰冰的功能主义，让我们用跳跃的色彩与几何狂欢！”',
-    summary: '打破常规的波普撞色、斑马纹波点与不对称几何狂欢，充满乐观主义与幽默感。',
-    detailedDescription: '孟菲斯设计将波普艺术的不羁、装饰艺术的几何与塑料饰面板的大胆色彩熔于一炉，创造出充满趣味性、鲜艳夺目且极具辨识度的视觉符号。',
+    id: 'claymation-3d',
+    title: '粘土定格与童趣雕塑',
+    englishTitle: 'Claymation & Stylized Clay 3D',
+    roomNumber: 'ROOM 05 // NO. 02',
+    hall: 'whimsical-3d',
+    era: '传统定格动画到现代 3D 材质模拟',
+    badge: '温暖手工',
+    quote: '“每一枚黏土上微小的手工指纹，都是创作者留在时间里的温度。”',
+    summary: '柔软有弹性的黏土表面、手工按压的微弱指纹肌理、温暖柔光与定格动画的可爱生命力。',
+    detailedDescription: '粘土定格风（Claymation Style）脱胎于经典手工泥塑定格动画。在现代 3D 渲染技术加持下，完美复刻了油粘土特有的指纹压痕、微小划痕与次表面散射（SSS 胶质透光感）。',
     visualKeyFeatures: [
-      '高饱和度对比撞色（粉红、柠檬黄、薄荷绿、天蓝、群青）',
-      '标志性几何纹理：斑马波浪线（Squiggles）、波点阵列、三角形切片',
-      '反传统的不对称结构与打破常规的物体造型组合',
-      '清晰黑实线勾边与纯色块面平涂',
-      '充满活力、童心与后现代主义的幽默狂欢'
+      '具有微弱次表面散射（Subsurface Scattering）的油泥胶质温润感',
+      '雕塑表面随机分布的微小指纹印记与手工揉捏凹凸',
+      '圆润柔软的形体塑造，边缘避免锐利棱角',
+      '定格动画特有的纯真呆萌角色神态与手工小道具',
+      '暖调摄影棚柔光箱与大光圈微距浅景深'
     ],
     colorPalette: [
-      { name: '电光柠檬', hex: '#ffee55' },
-      { name: '火烈鸟粉', hex: '#ff6b8b' },
-      { name: '薄荷苏打', hex: '#4ecdc4' },
-      { name: '皇家群青', hex: '#2e3192' },
-      { name: '漆黑波点', hex: '#1a1a1a' },
+      { name: '赤陶土红', hex: '#d96b43' },
+      { name: '奶油黏土', hex: '#f4ebd9' },
+      { name: '牛油果绿', hex: '#7ca982' },
+      { name: '芥末暖黄', hex: '#e9b44c' },
+      { name: '石板蓝泥', hex: '#597081' },
     ],
     promptKeywords: {
-      mjPrompt: 'Vibrant 1980s Memphis design movement art piece, bold geometric shapes, squiggles patterns, high contrast neon pastel colors, playful asymmetry, clean vector pop art lines, Ettore Sottsass aesthetic, studio product layout --ar 16:9 --v 6.1',
-      positiveKeywords: ['Memphis design pattern', '80s bold geometric shapes', 'playful bright color blocking', 'squiggles and dots texture', 'pop art aesthetic'],
-      negativeKeywords: ['dark gothic gloomy', 'monochrome boring', 'muddy sepia'],
-      parameters: '--ar 16:9 --stylize 200 --v 6.1',
+      mjPrompt: 'Cute claymation characters in a cozy handmade miniature living room, Plasticine clay texture with visible fingerprints, stop motion animation aesthetic --ar 16:9 --v 6.1',
+      positiveKeywords: ['Claymation art style', 'Plasticine clay material', 'visible subtle fingerprints'],
+      negativeKeywords: ['hard metallic surface', 'sharp polygons'],
+      parameters: '--ar 16:9 --stylize 320 --v 6.1',
     },
     creationTechniques: {
-      medium: '矢量插画 / 3D 渲染 (Illustrator + Spline / Blender)',
-      brushwork: '纯粹矢量几何布尔路径，无渐变平涂或明暗强烈的赛璐珞阴影',
-      lighting: '均匀无影漫射光或 45 度投影硬边阴影（Hard Shadow）',
-      composition: '几何形状层叠散落、自由重力构图与戏剧性不对称',
+      medium: 'Blender 雕刻 / ZBrush / 物理粘土定格摄影',
+      brushwork: 'Clay 笔刷雕刻基本形体，贴图添加凹凸指纹与粗糙度噪波图层',
+      lighting: '三点柔光箱布光，增强边缘透光红润感与微距浅景深',
+      composition: '微距微缩模型舞台构图，聚焦可爱角色的互动瞬间',
     },
-    representativeWorks: [
+    appliedScenarios: [
       {
-        id: 'mem-01',
-        title: '米兰 1981 狂想曲',
-        year: '2024',
-        description: '交错的柠檬黄圆台、波浪条纹拱门与粉红几何体构筑的先锋空间。',
-        imageUrl: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1200&q=80',
-        aspectRatio: 'landscape',
-        tag: '空间波普'
+        scenarioId: 'product-ecommerce',
+        scenarioName: '1.6 产品与电商营销',
+        useCase: '盲盒潮玩开箱、母婴洗护、休闲零食、文创周边的破圈爆款广告。',
+        cameraAdvice: '定格动画特有的 12 帧/秒微顿挫感，微距特写手捏质感与软糯回弹。',
+      },
+      {
+        scenarioId: 'stylized-animation',
+        scenarioName: '1.9 动画与风格化影像',
+        useCase: '趣味短视频短剧、治愈系儿童故事、搞怪幽默微动画。',
+        cameraAdvice: '摄影棚暖色顶光，角色眨眼与动作带有定格偶剧的俏皮节奏。',
       }
     ],
-    likesCount: 1150,
-  },
-  {
-    id: 'dark-gothic-baroque',
-    title: '暗黑哥特与古典巴洛克',
-    englishTitle: 'Dark Gothic & Baroque Splendor',
-    roomNumber: 'ROOM 01 // NO. 02',
-    hall: 'surreal-mystery',
-    era: '中世纪哥特到 17 世纪巴洛克华丽暗黑',
-    badge: '华丽阴郁',
-    quote: '“在繁复交织的黑蔷薇与尖顶大教堂之下，静听管风琴的深沉长鸣。”',
-    summary: '尖拱飞扶壁、繁复金银丝镂空雕花、彩绘玻璃冷光与卡拉瓦乔式明暗对照法。',
-    detailedDescription: '在强烈的卡拉瓦乔式暗色明暗对照法下，金色镂空蕾丝、幽暗大理石圣殿、暗红丝绒与神秘荆棘构筑出一种极具仪式感与戏剧张力的美学体验。',
-    visualKeyFeatures: [
-      '极度繁复的巴洛克金银丝卷草纹饰（Filigree & Acanthus）',
-      '哥特式尖肋拱顶、花窗玻璃折射冷光与十字架修道院场景',
-      '极端强烈的戏剧性明暗对比（Chiaroscuro），主体从深沉黑幕中被单束冷光照亮',
-      '暗黑华丽材质：深红天鹅绒、风化黑曜石、古董银器与干枯黑玫瑰',
-      '神圣、庄严、隐秘且略带颓废的贵族戏剧感'
-    ],
-    colorPalette: [
-      { name: '深渊墨黑', hex: '#0a0a0d' },
-      { name: '暗夜血红', hex: '#5e0b1b' },
-      { name: '古董镏金', hex: '#c69214' },
-      { name: '冷月银辉', hex: '#9ea3b0' },
-      { name: '彩窗冷青', hex: '#16425b' },
-    ],
-    promptKeywords: {
-      mjPrompt: 'Epic dark gothic baroque cathedral interior, ornate gold filigree details, dramatic Chiaroscuro lighting, single beam of moonlit cold light through stained glass, dark crimson velvet, black roses, hauntingly beautiful and cinematic, hyperdetailed 8k --ar 16:9 --v 6.1',
-      positiveKeywords: ['Dark gothic aesthetic', 'Baroque intricate architecture', 'Chiaroscuro Caravaggio lighting', 'gold filigree ornamentation', 'stained glass moonlight'],
-      negativeKeywords: ['bright flat cartoon', 'simple minimalist pastel', 'cute chibi'],
-      parameters: '--ar 16:9 --stylize 380 --v 6.1',
-    },
-    creationTechniques: {
-      medium: '古典油画技法（罩染法 Glazing）/ 高精 3D 雕花',
-      brushwork: '深色底漆打底，一层层半透明油彩叠加微光，极度细腻的高光精修',
-      lighting: '单侧聚光灯（Key Light），强光照亮局部焦点，背景彻底隐入漆黑暗部',
-      composition: '庄严肃穆的古典金字塔式或对称教堂轴线构图',
-    },
     representativeWorks: [
       {
-        id: 'dg-01',
-        title: '暗夜大圣堂的圣咏',
+        id: 'clay-01',
+        title: '黏土森林的小聚餐',
         year: '2024',
-        description: '月光穿透巨大的哥特彩绘玻璃窗，照亮大理石祭坛上的纯金雕花圣器。',
-        imageUrl: 'https://images.unsplash.com/photo-1515549832467-8783363e19b6?auto=format&fit=crop&w=1200&q=80',
+        description: '几只圆滚滚的泥塑小动物围坐在木桩旁分享软糯的黏土浆果，温馨呆萌。',
+        imageUrl: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1200&q=80',
         aspectRatio: 'landscape',
-        tag: '大教堂古典'
+        tag: '黏土定格'
       }
     ],
-    likesCount: 1640,
+    likesCount: 1720,
+    featured: true,
   },
   {
     id: 'liquid-glassmorphism',
@@ -704,9 +681,9 @@ export const ART_STYLES: ArtStyle[] = [
       { name: '暗曜石透镜', hex: '#11141a' },
     ],
     promptKeywords: {
-      mjPrompt: 'Abstract transparent liquid glass sculpture floating in clean studio, fluid curves, chromatic rainbow dispersion, realistic caustics light refractions, frosted acrylic texture, soft minimalist pastel gradient background, Octane render 8k --ar 16:9 --v 6.1',
-      positiveKeywords: ['Glassmorphism 3D render', 'transparent liquid glass fluid', 'chromatic rainbow light dispersion', 'caustics patterns', 'frosted translucent acrylic'],
-      negativeKeywords: ['dirty opaque matte', 'flat sketch', 'rustic grunge'],
+      mjPrompt: 'Abstract transparent liquid glass sculpture floating in clean studio, fluid curves, chromatic rainbow dispersion --ar 16:9 --v 6.1',
+      positiveKeywords: ['Glassmorphism 3D render', 'transparent liquid glass fluid', 'chromatic rainbow dispersion'],
+      negativeKeywords: ['dirty opaque matte'],
       parameters: '--ar 16:9 --stylize 300 --v 6.1',
     },
     creationTechniques: {
@@ -715,6 +692,20 @@ export const ART_STYLES: ArtStyle[] = [
       lighting: 'HDR 高动态范围环境贴图发光板，勾勒出玻璃物体周围极其精致的白色反光边缘',
       composition: '中心悬浮抽象形态，留白极多，呼吸感十足',
     },
+    appliedScenarios: [
+      {
+        scenarioId: 'visual-packaging',
+        scenarioName: '1.2 视觉创意与内容包装',
+        useCase: '苹果/高端数码发布会 UI 动效、护肤品精油透光广告、高奢香水先导片。',
+        cameraAdvice: '极慢镜头环绕旋转，捕捉光线穿透水晶曲面时的彩虹焦散水波纹。',
+      },
+      {
+        scenarioId: 'product-ecommerce',
+        scenarioName: '1.6 产品与电商营销',
+        useCase: '水晶质感美妆、透明探索版数码产品、高奢珠宝首饰展示。',
+        cameraAdvice: '强白光侧逆光照明，折射出璀璨纯净的高光耀斑。',
+      }
+    ],
     representativeWorks: [
       {
         id: 'lg-01',

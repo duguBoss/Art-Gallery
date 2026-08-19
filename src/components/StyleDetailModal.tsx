@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { X, Layers, ZoomIn, Share2, ChevronDown, Sparkles, Check } from 'lucide-react';
+import { X, Layers, ZoomIn, Share2, ChevronDown, Sparkles, Check, Clapperboard, Video } from 'lucide-react';
 import type { ArtStyle, Artwork } from '../types/art';
 import { playSpotlightClick, playSuccessChime } from '../utils/audio';
 
@@ -14,7 +14,7 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
   onClose,
   onInspectArtwork,
 }) => {
-  const [activeTab, setActiveTab] = useState<'gallery' | 'critique' | 'techniques'>('gallery');
+  const [activeTab, setActiveTab] = useState<'gallery' | 'critique' | 'scenarios' | 'techniques'>('gallery');
   const [copiedHex, setCopiedHex] = useState<string | null>(null);
   const [showPromptBox, setShowPromptBox] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState(false);
@@ -49,6 +49,7 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md overflow-y-auto animate-fadeIn">
       <div className="relative w-full max-w-5xl bg-gallery-950 border border-gold-500/40 rounded-2xl shadow-gallery-lg overflow-hidden my-auto max-h-[92vh] flex flex-col">
+        {/* Header Bar */}
         <div className="p-5 sm:p-6 border-b border-gallery-800 bg-gallery-900/90 flex items-start justify-between gap-4 shrink-0">
           <div>
             <div className="flex items-center gap-2.5">
@@ -84,10 +85,11 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
           </div>
         </div>
 
+        {/* Tab Switcher */}
         <div className="flex items-center gap-2 px-6 pt-3 pb-2 border-b border-gallery-800 bg-gallery-900/50 shrink-0 overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveTab('gallery')}
-            className={`px-4 py-2 rounded-lg text-xs font-serif font-bold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-lg text-xs font-serif font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'gallery'
                 ? 'bg-gold-500 text-gallery-950 shadow-sm'
                 : 'text-gallery-400 hover:text-gallery-200'
@@ -96,8 +98,19 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
             🖼️ 专题画作大展 ({style.representativeWorks.length}幅精选)
           </button>
           <button
+            onClick={() => setActiveTab('scenarios')}
+            className={`px-4 py-2 rounded-lg text-xs font-serif font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+              activeTab === 'scenarios'
+                ? 'bg-gold-500 text-gallery-950 shadow-sm'
+                : 'text-gallery-400 hover:text-gold-300'
+            }`}
+          >
+            <Clapperboard className="w-3.5 h-3.5" />
+            <span>🎬 商业视频与场景赋能</span>
+          </button>
+          <button
             onClick={() => setActiveTab('critique')}
-            className={`px-4 py-2 rounded-lg text-xs font-serif font-bold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-lg text-xs font-serif font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'critique'
                 ? 'bg-gold-500 text-gallery-950 shadow-sm'
                 : 'text-gallery-400 hover:text-gallery-200'
@@ -107,7 +120,7 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
           </button>
           <button
             onClick={() => setActiveTab('techniques')}
-            className={`px-4 py-2 rounded-lg text-xs font-serif font-bold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-lg text-xs font-serif font-bold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'techniques'
                 ? 'bg-gold-500 text-gallery-950 shadow-sm'
                 : 'text-gallery-400 hover:text-gallery-200'
@@ -117,7 +130,9 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
           </button>
         </div>
 
+        {/* Modal Scrollable Body */}
         <div className="p-6 overflow-y-auto space-y-6 flex-1">
+          {/* Aesthetic Quote & Color Moods Banner */}
           <div className="p-4 rounded-xl bg-gallery-900/80 border border-gallery-800 space-y-4">
             <blockquote className="text-xs sm:text-sm font-serif italic text-gold-300 leading-relaxed">
               {style.quote}
@@ -153,6 +168,7 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
             </div>
           </div>
 
+          {/* TAB 1: Visual Exhibition Gallery */}
           {activeTab === 'gallery' && (
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -194,6 +210,46 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
             </div>
           )}
 
+          {/* TAB 2: Commercial Video & Creative Scenarios */}
+          {activeTab === 'scenarios' && (
+            <div className="space-y-4">
+              <div className="p-4 rounded-xl bg-gallery-900 border border-gold-500/30">
+                <div className="flex items-center gap-2">
+                  <Video className="w-5 h-5 text-gold-400" />
+                  <h3 className="text-sm font-serif font-bold text-gallery-100">
+                    该艺术流派在 9 大商业场景中的实战落地价值
+                  </h3>
+                </div>
+                <p className="text-xs text-gallery-400 mt-1 font-sans">
+                  艺术是最高级的内容包装。将此流派的美学基因注入视频创作，可让作品具备极高的风格辨识度与情感穿透力。
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {style.appliedScenarios?.map((app, idx) => (
+                  <div key={idx} className="p-4 rounded-xl bg-gallery-900 border border-gallery-800 space-y-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded bg-gold-500/20 border border-gold-500/30 text-gold-300 font-mono text-xs font-bold">
+                        {app.scenarioName}
+                      </span>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="text-[11px] font-mono text-gallery-400">💡 推荐落地项目/用例:</div>
+                      <p className="text-xs text-gallery-200 leading-relaxed font-sans">{app.useCase}</p>
+                    </div>
+
+                    <div className="space-y-1 pt-1 border-t border-gallery-800/80">
+                      <div className="text-[11px] font-mono text-accent-cyan">🎥 镜头与动态美学建议:</div>
+                      <p className="text-xs text-gallery-300 leading-relaxed font-sans">{app.cameraAdvice}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: Critique */}
           {activeTab === 'critique' && (
             <div className="p-5 rounded-xl bg-gallery-900 border border-gallery-800 space-y-4">
               <h3 className="text-base font-serif font-bold text-gallery-100">流派发源与艺术美学解构</h3>
@@ -215,6 +271,7 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
             </div>
           )}
 
+          {/* TAB 4: Techniques */}
           {activeTab === 'techniques' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 rounded-xl bg-gallery-900 border border-gallery-800 space-y-2">
@@ -247,6 +304,7 @@ export const StyleDetailModal: React.FC<StyleDetailModalProps> = ({
             </div>
           )}
 
+          {/* Collapsible Prompt Tool */}
           <div className="pt-2">
             <button
               onClick={() => setShowPromptBox(!showPromptBox)}
