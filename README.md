@@ -1,9 +1,19 @@
 ﻿# 🏛️ 艺术画廊 · Art Gallery
 
 > **全球艺术创作流派与设计美学沉浸式画廊**  
-> 线上仓库: [https://github.com/duguBoss/Art-Gallery.git](https://github.com/duguBoss/Art-Gallery.git)
+> 🌐 **官网在线访问地址**：[https://duguboss.github.io/Art-Gallery/](https://duguboss.github.io/Art-Gallery/)  
+> 📦 **GitHub 仓库**：[https://github.com/duguBoss/Art-Gallery.git](https://github.com/duguBoss/Art-Gallery.git)
+
+[![Deploy Art Gallery to GitHub Pages](https://github.com/duguBoss/Art-Gallery/actions/workflows/deploy.yml/badge.svg)](https://github.com/duguBoss/Art-Gallery/actions/workflows/deploy.yml)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Click_to_Visit-gold?style=for-the-badge&logo=google-chrome&logoColor=white)](https://duguboss.github.io/Art-Gallery/)
 
 ![Art Gallery Preview](https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1200&q=80)
+
+---
+
+## 🔗 直接访问官网
+
+👉 **[点击直接进入艺术画廊官网](https://duguboss.github.io/Art-Gallery/)**
 
 ---
 
@@ -51,12 +61,6 @@
 本项目已预置 GitHub Actions 自动化流水线 (`.github/workflows/deploy.yml`)。  
 **每次向 `main` 分支推送代码，都会自动触发构建并自动发布到 GitHub Pages。**
 
-### 开启 GitHub Pages 步骤：
-1. 打开 GitHub 仓库页面：`https://github.com/duguBoss/Art-Gallery`；
-2. 点击 **Settings** -> **Pages**；
-3. 在 **Build and deployment** -> **Source** 下拉框中，选择 **GitHub Actions**；
-4. 随后每次 `git push`，GitHub 会在 1-2 分钟内自动部署更新并生成专属访问地址（如 `https://duguboss.github.io/Art-Gallery/`）。
-
 ---
 
 ## 💻 本地开发与构建
@@ -78,16 +82,6 @@ npm run build
 # 5. 本地预览构建产物
 npm run preview
 ```
-
----
-
-## 🛠️ 技术栈
-
-- **框架**：React 18 + TypeScript + Vite
-- **样式**：Tailwind CSS + 自定义黑曜石展厅主题
-- **动效与交互**：Framer Motion + Web Audio API 声音合成器
-- **图标**：Lucide React
-- **部署**：GitHub Actions + GitHub Pages
 
 ---
 
