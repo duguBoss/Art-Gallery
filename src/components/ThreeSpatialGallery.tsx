@@ -1,14 +1,17 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import * as THREE from 'three';
 import type { AIImageCase } from '../types/art';
+import { THEME_OPTIONS, type GalleryTheme } from '../types/theme';
 import { 
   Play, Pause, ChevronLeft, ChevronRight, Maximize2, 
-  Copy, Check, Volume2, VolumeX, Sliders, X, Sparkles, Compass, Eye, MapPin
+  Copy, Check, Volume2, VolumeX, Sliders, X, Sparkles, Compass, Eye, Filter, Layers
 } from 'lucide-react';
 import { playSpotlightClick, playSuccessChime, playMuseumFootstep, playGalleryBell, toggleAmbientSound } from '../utils/audio';
 
 interface ThreeSpatialGalleryProps {
   imageCases: AIImageCase[];
+  currentTheme?: GalleryTheme;
+  onSelectTheme?: (theme: GalleryTheme) => void;
 }
 
 interface ArtworkSpot {
@@ -21,7 +24,11 @@ interface ArtworkSpot {
   spotlight?: THREE.SpotLight;
 }
 
-export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageCases }) => {
+export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ 
+  imageCases,
+  currentTheme = 'cozy-night',
+  onSelectTheme,
+}) => {
   const mountRef = useRef<HTMLDivElement>(null);
 
   // Active artwork index
@@ -35,10 +42,31 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [ambientPlaying, setAmbientPlaying] = useState(false);
-  const [currentAtmosphere, setCurrentAtmosphere] = useState<'night' | 'daylight' | 'cyber'>('night');
+  const [filterByScene, setFilterByScene] = useState<boolean>(true);
 
   // Mini-map camera tracking state
   const [camRadar, setCamRadar] = useState({ x: 0, z: 0, angle: 0 });
+
+  // Get active theme option & 3D configs
+  const activeThemeOption = useMemo(() => {
+    return THEME_OPTIONS.find((t) => t.id === currentTheme) || THEME_OPTIONS[0];
+  }, [currentTheme]);
+
+  // Curate display cases: Prioritize matching theme categories if filterByScene is active
+  const displayedCases = useMemo(() => {
+    if (!filterByScene) return imageCases;
+    const cats = activeThemeOption.featuredCategories;
+    const matched = imageCases.filter((c) => cats.includes(c.category));
+    if (matched.length > 0) {
+      // Append others at the end if fewer than 6
+      if (matched.length < 6) {
+        const others = imageCases.filter((c) => !cats.includes(c.category));
+        return [...matched, ...others].slice(0, 10);
+      }
+      return matched.slice(0, 10);
+    }
+    return imageCases;
+  }, [imageCases, activeThemeOption, filterByScene]);
 
   // Refs for 3D engine
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -52,8 +80,162 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
   const mouseTilt = useRef({ x: 0, y: 0 });
   const animFrameRef = useRef<number | null>(null);
 
+  // Dynamic mesh/light refs for theme morphing
+  const floorMeshRef = useRef<THREE.Mesh | null>(null);
+  const ceilingMeshRef = useRef<THREE.Mesh | null>(null);
+  const wallMeshesRef = useRef<THREE.Mesh[]>([]);
+  const benchMeshRef = useRef<THREE.Mesh | null>(null);
+  const ambientLightRef = useRef<THREE.AmbientLight | null>(null);
+  const keyLightRef = useRef<THREE.PointLight | null>(null);
+  const particlesRef = useRef<THREE.Points | null>(null);
+
   const activeSpot = spotsRef.current[activeIdx] || null;
-  const activeCase = activeSpot?.caseData || imageCases[activeIdx] || imageCases[0];
+  const activeCase = activeSpot?.caseData || displayedCases[activeIdx] || displayedCases[0];
+
+  // Helper to generate procedural floor texture matching current theme
+  const createFloorTexture = (theme: GalleryTheme) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d')!;
+
+    if (theme === 'zen-mist') {
+      // Zen Dark Slate & Bamboo Lines
+      ctx.fillStyle = '#111613';
+      ctx.fillRect(0, 0, 512, 512);
+      ctx.strokeStyle = '#1d2a23';
+      ctx.lineWidth = 3;
+      for (let y = 0; y < 512; y += 64) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(512, y);
+        ctx.stroke();
+      }
+      for (let x = 0; x < 512; x += 128) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, 512);
+        ctx.stroke();
+      }
+    } else if (theme === 'cyber-neon') {
+      // Cyber Neon Wet Grid Asphalt
+      ctx.fillStyle = '#050811';
+      ctx.fillRect(0, 0, 512, 512);
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.25)';
+      ctx.lineWidth = 1.5;
+      for (let y = 0; y < 512; y += 32) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(512, y);
+        ctx.stroke();
+      }
+      for (let x = 0; x < 512; x += 32) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, 512);
+        ctx.stroke();
+      }
+      // Glowing Cyan Crossings
+      ctx.fillStyle = '#00ffff';
+      for (let x = 0; x < 512; x += 64) {
+        for (let y = 0; y < 512; y += 64) {
+          ctx.fillRect(x - 2, y - 2, 4, 4);
+        }
+      }
+    } else if (theme === 'grand-salon') {
+      // Baroque Grand Louvre Royal Parquet Marble
+      ctx.fillStyle = '#221811';
+      ctx.fillRect(0, 0, 512, 512);
+      ctx.strokeStyle = '#3e2e1f';
+      ctx.lineWidth = 2.5;
+      for (let d = -512; d < 1024; d += 64) {
+        ctx.beginPath();
+        ctx.moveTo(d, 0);
+        ctx.lineTo(d + 512, 512);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(d, 512);
+        ctx.lineTo(d + 512, 0);
+        ctx.stroke();
+      }
+    } else if (theme === 'ghibli-breeze') {
+      // Ghibli Light Wood Plank / Tatami
+      ctx.fillStyle = '#dfd6c5';
+      ctx.fillRect(0, 0, 512, 512);
+      ctx.strokeStyle = '#c5b8a1';
+      ctx.lineWidth = 2;
+      for (let y = 0; y < 512; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(512, y);
+        ctx.stroke();
+      }
+      for (let x = 0; x < 512; x += 120) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, 512);
+        ctx.stroke();
+      }
+    } else {
+      // Cozy Night: Herringbone Dark Wood Floor
+      ctx.fillStyle = '#17110c';
+      ctx.fillRect(0, 0, 512, 512);
+      ctx.strokeStyle = '#271c14';
+      ctx.lineWidth = 2;
+      for (let y = 0; y < 512; y += 32) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(512, y);
+        ctx.stroke();
+      }
+      for (let x = 0; x < 512; x += 64) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, 512);
+        ctx.stroke();
+      }
+    }
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(12, 12);
+    return tex;
+  };
+
+  // Helper to generate wall plaster texture
+  const createWallTexture = (theme: GalleryTheme) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d')!;
+
+    if (theme === 'zen-mist') {
+      ctx.fillStyle = '#161e19';
+    } else if (theme === 'cyber-neon') {
+      ctx.fillStyle = '#0a1020';
+    } else if (theme === 'grand-salon') {
+      ctx.fillStyle = '#2b1e15';
+    } else if (theme === 'ghibli-breeze') {
+      ctx.fillStyle = '#f4f8fa';
+    } else {
+      ctx.fillStyle = '#211a14';
+    }
+    ctx.fillRect(0, 0, 256, 256);
+
+    // Add subtle noise
+    for (let i = 0; i < 2200; i++) {
+      const x = Math.random() * 256;
+      const y = Math.random() * 256;
+      ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.025)' : 'rgba(0,0,0,0.035)';
+      ctx.fillRect(x, y, 2, 2);
+    }
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(8, 4);
+    return tex;
+  };
 
   // =========================================================================
   // 1. SETUP THREE.JS SPATIAL ART GALLERY ENVIRONMENT
@@ -64,11 +246,13 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
     const width = mountRef.current.clientWidth;
     const height = mountRef.current.clientHeight;
 
+    const s3d = activeThemeOption.scene3D;
+
     // --- Scene & Fog ---
     const scene = new THREE.Scene();
     sceneRef.current = scene;
-    scene.background = new THREE.Color(0x0c0907);
-    scene.fog = new THREE.FogExp2(0x0c0907, 0.025);
+    scene.background = new THREE.Color(s3d.fogColor);
+    scene.fog = new THREE.FogExp2(s3d.fogColor, s3d.fogDensity);
 
     // --- Camera ---
     const camera = new THREE.PerspectiveCamera(58, width / height, 0.1, 100);
@@ -80,7 +264,7 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
+    renderer.toneMappingExposure = currentTheme === 'ghibli-breeze' ? 1.05 : 1.18;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     rendererRef.current = renderer;
@@ -88,79 +272,42 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
     mountRef.current.appendChild(renderer.domElement);
 
     // --- Procedural Textures ---
-    // 1. Herringbone Dark Wood Floor Texture
-    const floorCanvas = document.createElement('canvas');
-    floorCanvas.width = 512;
-    floorCanvas.height = 512;
-    const fctx = floorCanvas.getContext('2d')!;
-    fctx.fillStyle = '#17110c';
-    fctx.fillRect(0, 0, 512, 512);
-    // Draw wood grain planks
-    fctx.strokeStyle = '#231a14';
-    fctx.lineWidth = 2;
-    for (let y = 0; y < 512; y += 32) {
-      fctx.beginPath();
-      fctx.moveTo(0, y);
-      fctx.lineTo(512, y);
-      fctx.stroke();
-    }
-    for (let x = 0; x < 512; x += 64) {
-      fctx.beginPath();
-      fctx.moveTo(x, 0);
-      fctx.lineTo(x, 512);
-      fctx.stroke();
-    }
-    const floorTexture = new THREE.CanvasTexture(floorCanvas);
-    floorTexture.wrapS = THREE.RepeatWrapping;
-    floorTexture.wrapT = THREE.RepeatWrapping;
-    floorTexture.repeat.set(12, 12);
+    const floorTexture = createFloorTexture(currentTheme);
+    const wallTexture = createWallTexture(currentTheme);
 
-    // 2. Concrete/Plaster Wall Texture
-    const wallCanvas = document.createElement('canvas');
-    wallCanvas.width = 256;
-    wallCanvas.height = 256;
-    const wctx = wallCanvas.getContext('2d')!;
-    wctx.fillStyle = '#211a14';
-    wctx.fillRect(0, 0, 256, 256);
-    // Add subtle noise
-    for (let i = 0; i < 2000; i++) {
-      const x = Math.random() * 256;
-      const y = Math.random() * 256;
-      wctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.03)';
-      wctx.fillRect(x, y, 2, 2);
-    }
-    const wallTexture = new THREE.CanvasTexture(wallCanvas);
-    wallTexture.wrapS = THREE.RepeatWrapping;
-    wallTexture.wrapT = THREE.RepeatWrapping;
-    wallTexture.repeat.set(8, 4);
-
-    // --- Architecture Geometry: Gallery Room (Width: 28, Height: 7, Depth: 28) ---
+    // --- Architecture Geometry ---
     // Floor
     const floorGeo = new THREE.PlaneGeometry(36, 36);
     const floorMat = new THREE.MeshStandardMaterial({
       map: floorTexture,
-      roughness: 0.35,
-      metalness: 0.15,
+      roughness: currentTheme === 'cyber-neon' ? 0.15 : 0.4,
+      metalness: currentTheme === 'cyber-neon' ? 0.6 : 0.15,
     });
     const floorMesh = new THREE.Mesh(floorGeo, floorMat);
     floorMesh.rotation.x = -Math.PI / 2;
     floorMesh.position.y = 0;
     floorMesh.receiveShadow = true;
     scene.add(floorMesh);
+    floorMeshRef.current = floorMesh;
 
     // Ceiling
-    const ceilingMat = new THREE.MeshStandardMaterial({ color: 0x14100d, roughness: 0.9 });
+    const ceilingMat = new THREE.MeshStandardMaterial({ 
+      color: s3d.ceilingColor, 
+      roughness: 0.9 
+    });
     const ceilingMesh = new THREE.Mesh(floorGeo, ceilingMat);
     ceilingMesh.rotation.x = Math.PI / 2;
     ceilingMesh.position.y = 7;
     scene.add(ceilingMesh);
+    ceilingMeshRef.current = ceilingMesh;
 
     // Walls
     const wallMat = new THREE.MeshStandardMaterial({
       map: wallTexture,
-      roughness: 0.85,
+      roughness: s3d.wallRoughness,
     });
 
+    const walls: THREE.Mesh[] = [];
     const createWall = (w: number, h: number, x: number, y: number, z: number, ry: number) => {
       const wallGeo = new THREE.PlaneGeometry(w, h);
       const wall = new THREE.Mesh(wallGeo, wallMat);
@@ -168,6 +315,7 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
       wall.rotation.y = ry;
       wall.receiveShadow = true;
       scene.add(wall);
+      walls.push(wall);
       return wall;
     };
 
@@ -182,23 +330,53 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
     createWall(10, 7, 5, 3.5, -6, 0);
     createWall(10, 7, -5, 3.5, 6, Math.PI);
     createWall(10, 7, 5, 3.5, 6, Math.PI);
+    wallMeshesRef.current = walls;
 
-    // Central Leather Gallery Bench (3D Mesh)
+    // Central Gallery Bench (3D Mesh matching theme)
     const benchGeo = new THREE.BoxGeometry(3.6, 0.6, 1.4);
-    const benchMat = new THREE.MeshStandardMaterial({ color: 0x1f1610, roughness: 0.4 });
+    const benchMat = new THREE.MeshStandardMaterial({ 
+      color: s3d.benchColor, 
+      roughness: currentTheme === 'cyber-neon' ? 0.2 : 0.5,
+      metalness: currentTheme === 'cyber-neon' ? 0.7 : 0.1
+    });
     const bench = new THREE.Mesh(benchGeo, benchMat);
     bench.position.set(0, 0.3, 0);
     bench.castShadow = true;
     bench.receiveShadow = true;
     scene.add(bench);
+    benchMeshRef.current = bench;
 
     // --- Base Lighting ---
-    const ambientLight = new THREE.AmbientLight(0xfff3e6, 0.35);
+    const ambientLight = new THREE.AmbientLight(s3d.ambientLightColor, s3d.ambientLightIntensity);
     scene.add(ambientLight);
+    ambientLightRef.current = ambientLight;
 
-    const warmFill = new THREE.PointLight(0xffb885, 1.2, 20);
-    warmFill.position.set(0, 5.5, 0);
-    scene.add(warmFill);
+    const keyFill = new THREE.PointLight(s3d.keyLightColor, s3d.keyLightIntensity, 22);
+    keyFill.position.set(0, 5.5, 0);
+    scene.add(keyFill);
+    keyLightRef.current = keyFill;
+
+    // --- Floating Volumetric Atmosphere Particles (Sparks / Motes / Rain / Pollen) ---
+    const particleGeo = new THREE.BufferGeometry();
+    const pCount = s3d.particleCount;
+    const pPos = new Float32Array(pCount * 3);
+    for (let p = 0; p < pCount * 3; p += 3) {
+      pPos[p] = (Math.random() - 0.5) * 32;     // x: -16 to 16
+      pPos[p + 1] = Math.random() * 6.5 + 0.5; // y: 0.5 to 7.0
+      pPos[p + 2] = (Math.random() - 0.5) * 32; // z: -16 to 16
+    }
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+
+    const particleMat = new THREE.PointsMaterial({
+      color: s3d.particleColor,
+      size: s3d.particleSize,
+      transparent: true,
+      opacity: 0.65,
+      blending: THREE.AdditiveBlending,
+    });
+    const particles = new THREE.Points(particleGeo, particleMat);
+    scene.add(particles);
+    particlesRef.current = particles;
 
     // =========================================================================
     // 2. CREATE 3D PHYSICAL PAINTING MESHES & DIRECTIONAL SPOTLIGHTS
@@ -208,7 +386,7 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
 
     // Curate up to 10 exhibition slots on gallery walls
     const wallSlots = [
-      // Central North Wall (Room 01)
+      // Central North Wall (Room 01 - Hero Art)
       { pos: new THREE.Vector3(0, 3.4, -5.9), rot: new THREE.Euler(0, 0, 0), cPos: new THREE.Vector3(0, 3.2, -1.8), cLook: new THREE.Vector3(0, 3.2, -5.9) },
       // Left North Wall
       { pos: new THREE.Vector3(-6, 3.4, -5.9), rot: new THREE.Euler(0, 0, 0), cPos: new THREE.Vector3(-6, 3.2, -1.8), cLook: new THREE.Vector3(-6, 3.2, -5.9) },
@@ -227,35 +405,38 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
       { pos: new THREE.Vector3(4, 3.4, 5.9), rot: new THREE.Euler(0, Math.PI, 0), cPos: new THREE.Vector3(4, 3.2, 1.8), cLook: new THREE.Vector3(4, 3.2, 5.9) },
     ];
 
-    const slotCount = Math.min(wallSlots.length, imageCases.length);
+    const slotCount = Math.min(wallSlots.length, displayedCases.length);
 
     for (let i = 0; i < slotCount; i++) {
       const slot = wallSlots[i];
-      const cData = imageCases[i];
+      const cData = displayedCases[i];
 
       const artGroup = new THREE.Group();
       artGroup.position.copy(slot.pos);
       artGroup.rotation.copy(slot.rot);
 
-      // Outer Frame (Walnut wood / Gilded edge)
+      // Outer Frame (Walnut wood / Gilded edge / Cyber Titanium)
       const frameW = 3.6;
       const frameH = 2.4;
       const frameD = 0.12;
 
       const frameGeo = new THREE.BoxGeometry(frameW, frameH, frameD);
       const frameMat = new THREE.MeshStandardMaterial({
-        color: 0x362316,
-        roughness: 0.35,
-        metalness: 0.25,
+        color: s3d.frameColor,
+        roughness: s3d.frameRoughness,
+        metalness: s3d.frameMetalness,
       });
       const frameMesh = new THREE.Mesh(frameGeo, frameMat);
       frameMesh.castShadow = true;
       frameMesh.receiveShadow = true;
       artGroup.add(frameMesh);
 
-      // Mat Board (Ivory card)
+      // Mat Board
       const matGeo = new THREE.PlaneGeometry(frameW - 0.24, frameH - 0.24);
-      const matMat = new THREE.MeshStandardMaterial({ color: 0xf5eee4, roughness: 0.8 });
+      const matMat = new THREE.MeshStandardMaterial({ 
+        color: currentTheme === 'cyber-neon' ? 0x080d1a : 0xf5eee4, 
+        roughness: 0.8 
+      });
       const matMesh = new THREE.Mesh(matGeo, matMat);
       matMesh.position.z = frameD / 2 + 0.005;
       artGroup.add(matMesh);
@@ -270,9 +451,9 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
       tempCanvas.width = 512;
       tempCanvas.height = 340;
       const tctx = tempCanvas.getContext('2d')!;
-      tctx.fillStyle = '#1c1510';
+      tctx.fillStyle = currentTheme === 'ghibli-breeze' ? '#e2ecf1' : '#1c1510';
       tctx.fillRect(0, 0, 512, 340);
-      tctx.fillStyle = '#d4af37';
+      tctx.fillStyle = activeThemeOption.accentColor;
       tctx.font = 'bold 22px serif';
       tctx.textAlign = 'center';
       tctx.fillText(cData.title, 256, 170);
@@ -280,13 +461,13 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
 
       const canvasMat = new THREE.MeshStandardMaterial({
         map: tempTexture,
-        roughness: 0.4,
+        roughness: 0.35,
       });
       const canvasMesh = new THREE.Mesh(canvasGeo, canvasMat);
       canvasMesh.position.z = frameD / 2 + 0.015;
       artGroup.add(canvasMesh);
 
-      // Asynchronously load real image texture with crossOrigin
+      // Asynchronously load real image texture
       textureLoader.load(
         cData.imageUrl,
         (loadedTex) => {
@@ -295,14 +476,20 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
           canvasMat.needsUpdate = true;
         },
         undefined,
-        (err) => {
-          console.warn('Fallback procedural texture for', cData.title);
+        () => {
+          console.warn('Procedural fallback used for', cData.title);
         }
       );
 
-      // Dedicated Track Spotlight (Top angled down at the painting)
-      const spotLight = new THREE.SpotLight(0xffedd8, i === 0 ? 5.0 : 1.2, 10, Math.PI / 4, 0.4, 1.2);
-      // Position spotlight in front and above the painting
+      // Dedicated Track Spotlight (Tuned to theme color)
+      const spotLight = new THREE.SpotLight(
+        s3d.spotlightColor, 
+        i === 0 ? s3d.spotlightIntensity : 1.0, 
+        11, 
+        Math.PI / 4, 
+        0.4, 
+        1.2
+      );
       const spotOffset = new THREE.Vector3(0, 2.2, 2.8).applyEuler(slot.rot);
       spotLight.position.copy(slot.pos).add(spotOffset);
       spotLight.target = frameMesh;
@@ -326,16 +513,18 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
 
     spotsRef.current = spots;
 
-    // Initial camera target set to slot 0
-    if (spots[0]) {
-      targetCamPos.current.copy(spots[0].cameraPos);
-      targetLookAt.current.copy(spots[0].cameraLookAt);
-      currentCamPos.current.copy(spots[0].cameraPos);
-      currentLookAt.current.copy(spots[0].cameraLookAt);
+    // Reset or clamp active index
+    const validIdx = activeIdx < spots.length ? activeIdx : 0;
+    setActiveIdx(validIdx);
+    if (spots[validIdx]) {
+      targetCamPos.current.copy(spots[validIdx].cameraPos);
+      targetLookAt.current.copy(spots[validIdx].cameraLookAt);
+      currentCamPos.current.copy(spots[validIdx].cameraPos);
+      currentLookAt.current.copy(spots[validIdx].cameraLookAt);
     }
 
     // =========================================================================
-    // 3. RENDER LOOP WITH CAMERA LERP & MINI-MAP RADAR UPDATE
+    // 3. RENDER LOOP WITH CAMERA LERP & FLOATING PARTICLES
     // =========================================================================
     const animate = () => {
       // Lerp camera position & target
@@ -343,9 +532,9 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
       currentCamPos.current.lerp(targetCamPos.current, lerpSpeed);
       currentLookAt.current.lerp(targetLookAt.current, lerpSpeed);
 
-      // Mouse Parallax Tilt
-      const tiltX = mouseTilt.current.x * 0.4;
-      const tiltY = mouseTilt.current.y * 0.2;
+      // Micro parallax tilt from mouse
+      const tiltX = mouseTilt.current.x * 0.35;
+      const tiltY = mouseTilt.current.y * 0.25;
 
       camera.position.set(
         currentCamPos.current.x + tiltX,
@@ -353,6 +542,20 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
         currentCamPos.current.z
       );
       camera.lookAt(currentLookAt.current);
+
+      // Animate floating particles
+      if (particlesRef.current) {
+        const pPositions = particlesRef.current.geometry.attributes.position.array as Float32Array;
+        const speed = s3d.particleSpeed;
+        for (let j = 1; j < pPositions.length; j += 3) {
+          pPositions[j] += speed;
+          if (pPositions[j] > 7.0) {
+            pPositions[j] = 0.5;
+          }
+        }
+        particlesRef.current.geometry.attributes.position.needsUpdate = true;
+        particlesRef.current.rotation.y += 0.0008;
+      }
 
       // Update radar state for mini-map
       setCamRadar({
@@ -387,7 +590,7 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
         mountRef.current.removeChild(renderer.domElement);
       }
     };
-  }, [imageCases]);
+  }, [displayedCases, currentTheme, activeThemeOption]);
 
   // =========================================================================
   // 4. FLY CAMERA TO SELECTED ARTWORK SPOT
@@ -401,9 +604,10 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
     playGalleryBell(480 + (idx % 6) * 20);
 
     // Dim all spotlights, boost active spotlight
+    const maxSpotIntensity = activeThemeOption.scene3D.spotlightIntensity;
     spots.forEach((sp, i) => {
       if (sp.spotlight) {
-        sp.spotlight.intensity = i === idx ? 5.5 : 0.8;
+        sp.spotlight.intensity = i === idx ? maxSpotIntensity : 0.8;
       }
     });
 
@@ -466,7 +670,7 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
     const w = window.innerWidth;
     const h = window.innerHeight;
     mouseTilt.current = {
-      x: (e.clientX / w - 0.5) * 2, // -1 to 1
+      x: (e.clientX / w - 0.5) * 2,
       y: -(e.clientY / h - 0.5) * 2,
     };
   };
@@ -481,7 +685,7 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
   };
 
   const handleToggleAmbient = () => {
-    const isNow = toggleAmbientSound();
+    const isNow = toggleAmbientSound(currentTheme);
     setAmbientPlaying(isNow);
   };
 
@@ -494,18 +698,72 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
       <div ref={mountRef} className="absolute inset-0 z-0 w-full h-full cursor-grab active:cursor-grabbing" />
 
       {/* 2. TOP MINIMALIST MUSEUM CONTROL BAR (Floating Glass) */}
-      <header className="absolute top-4 inset-x-4 sm:inset-x-8 z-20 flex items-center justify-between pointer-events-none">
-        {/* Brand */}
-        <div className="flex items-center gap-3 pointer-events-auto">
-          <div className="px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/20 shadow-2xl flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-            <span className="font-serif font-black tracking-wider text-xs uppercase">
-              ART GALLERY · 3D SPATIAL HALL
+      <header className="absolute top-4 inset-x-4 sm:inset-x-8 z-20 flex items-center justify-between pointer-events-none gap-2">
+        {/* Brand & Active Scene Info */}
+        <div className="flex items-center gap-2 pointer-events-auto">
+          <div className="px-3 py-1.5 rounded-full bg-black/65 backdrop-blur-xl border border-white/20 shadow-2xl flex items-center gap-2">
+            <div 
+              className="w-2.5 h-2.5 rounded-full animate-pulse shadow-[0_0_8px_currentColor]" 
+              style={{ color: activeThemeOption.accentColor, backgroundColor: activeThemeOption.accentColor }} 
+            />
+            <span className="font-serif font-black tracking-wider text-xs uppercase hidden md:inline">
+              ART GALLERY · {activeThemeOption.enName}
+            </span>
+            <span className="font-serif font-bold text-xs md:hidden">
+              {activeThemeOption.name}
             </span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-amber-300 border border-white/15">
               ROOM 0{Math.floor(activeIdx / 3) + 1}
             </span>
           </div>
+
+          {/* Quick Scenario Preset Chips */}
+          <div className="hidden lg:flex items-center gap-1.5 p-1 rounded-full bg-black/55 backdrop-blur-xl border border-white/15">
+            {THEME_OPTIONS.map((opt) => {
+              const isSelected = opt.id === currentTheme;
+              return (
+                <button
+                  key={opt.id}
+                  onClick={() => {
+                    playSpotlightClick();
+                    onSelectTheme?.(opt.id);
+                  }}
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-serif transition-all duration-300 cursor-pointer flex items-center gap-1.5 ${
+                    isSelected
+                      ? 'bg-white/20 text-white font-bold shadow-md border border-white/30'
+                      : 'text-stone-400 hover:text-white hover:bg-white/10'
+                  }`}
+                  style={{
+                    color: isSelected ? opt.accentColor : undefined,
+                  }}
+                  title={`${opt.name} · ${opt.atmosphere}`}
+                >
+                  <span 
+                    className="w-1.5 h-1.5 rounded-full" 
+                    style={{ backgroundColor: opt.accentColor }} 
+                  />
+                  <span>{opt.name}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Curated Theme Artwork Filter Toggle */}
+          <button
+            onClick={() => {
+              playSpotlightClick();
+              setFilterByScene((prev) => !prev);
+            }}
+            className={`px-2.5 py-1.5 rounded-full text-[11px] font-mono border transition-all cursor-pointer flex items-center gap-1.5 backdrop-blur-md ${
+              filterByScene
+                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-[0_0_12px_rgba(245,158,11,0.25)]'
+                : 'bg-black/50 text-stone-400 border-white/15 hover:text-white'
+            }`}
+            title="切换：仅展出当前场景专属流派作品 / 展出全部典藏作品"
+          >
+            <Filter className="w-3 h-3" />
+            <span className="hidden sm:inline">{filterByScene ? '场景专属展' : '全部典藏'}</span>
+          </button>
         </div>
 
         {/* Right Action Tools */}
@@ -513,8 +771,12 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
           {/* Ambient Soundscape */}
           <button
             onClick={handleToggleAmbient}
-            className="p-2 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-stone-300 hover:text-white transition-all cursor-pointer shadow-lg hover:bg-white/10"
-            title="展厅静谧音效"
+            className={`p-2 rounded-full backdrop-blur-md border transition-all cursor-pointer shadow-lg ${
+              ambientPlaying 
+                ? 'bg-amber-500/25 border-amber-400/50 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.4)]' 
+                : 'bg-black/60 border-white/15 text-stone-300 hover:text-white hover:bg-white/10'
+            }`}
+            title={`展厅静谧音效 · ${activeThemeOption.name}声景`}
           >
             {ambientPlaying ? <Volume2 className="w-4 h-4 text-amber-400" /> : <VolumeX className="w-4 h-4" />}
           </button>
@@ -592,12 +854,24 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
 
       {/* 4. RIGHT FLOATING FROSTED GLASS PLACARD (Reference Panel 2 & 5) */}
       {isPlacardOpen && activeCase && (
-        <aside className="absolute right-4 sm:right-8 top-20 sm:top-24 w-80 sm:w-96 max-h-[70vh] overflow-y-auto rounded-2xl p-6 bg-black/65 backdrop-blur-2xl border border-white/15 shadow-2xl text-left z-20 space-y-4 animate-placard-slide">
+        <aside 
+          className="absolute right-4 sm:right-8 top-20 sm:top-24 w-80 sm:w-96 max-h-[70vh] overflow-y-auto rounded-2xl p-6 backdrop-blur-2xl border shadow-2xl text-left z-20 space-y-4 animate-placard-slide"
+          style={{
+            backgroundColor: 'rgba(18, 14, 10, 0.78)',
+            borderColor: 'rgba(255, 255, 255, 0.15)',
+            boxShadow: `0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px ${activeThemeOption.glowColor}`,
+          }}
+        >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-white/15 pb-3">
-            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-amber-400">
-              EXHIBITION PLACARD · 典藏展签
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span 
+                className="text-[10px] font-mono font-bold tracking-widest uppercase"
+                style={{ color: activeThemeOption.accentColor }}
+              >
+                EXHIBITION PLACARD · {activeThemeOption.name}
+              </span>
+            </div>
             <button
               onClick={() => setIsPlacardOpen(false)}
               className="p-1 rounded-full text-stone-400 hover:text-white transition-colors cursor-pointer"
@@ -610,7 +884,14 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
           {/* Title & Metadata */}
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              <span 
+                className="text-[10px] font-mono px-2 py-0.5 rounded-full border"
+                style={{
+                  backgroundColor: `${activeThemeOption.accentColor}22`,
+                  color: activeThemeOption.accentColor,
+                  borderColor: `${activeThemeOption.accentColor}44`,
+                }}
+              >
                 {activeCase.badge}
               </span>
               <span className="text-xs font-mono text-stone-400">
@@ -621,12 +902,17 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
               {activeCase.title}
             </h2>
             <p className="text-[11px] font-mono text-stone-400">
-              The Museum of Digital Arts · Room 0{Math.floor(activeIdx / 3) + 1}
+              The Museum of Digital Arts · {activeThemeOption.sceneTitle}
             </p>
           </div>
 
           {/* Curator Aesthetics Quote */}
-          <blockquote className="text-xs font-serif italic text-stone-200 leading-relaxed border-l-2 border-amber-500/60 pl-3 py-0.5">
+          <blockquote 
+            className="text-xs font-serif italic text-stone-200 leading-relaxed pl-3 py-0.5"
+            style={{
+              borderLeft: `2px solid ${activeThemeOption.accentColor}`,
+            }}
+          >
             "{activeCase.description}"
           </blockquote>
 
@@ -636,7 +922,7 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
               onClick={handleCopyPrompt}
               className="flex-1 py-2 px-3 rounded-xl font-sans text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-lg hover:brightness-110 active:scale-98"
               style={{
-                backgroundColor: copiedPrompt ? '#10B981' : '#E07A5F',
+                backgroundColor: copiedPrompt ? '#10B981' : activeThemeOption.accentColor,
                 color: '#14100D',
               }}
             >
@@ -648,7 +934,7 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
               onClick={() => setIsDrawerOpen(true)}
               className="py-2 px-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 text-xs font-sans font-semibold transition-all cursor-pointer flex items-center gap-1 hover:scale-105 active:scale-95"
             >
-              <Sliders className="w-3.5 h-3.5 text-amber-400" />
+              <Sliders className="w-3.5 h-3.5" style={{ color: activeThemeOption.accentColor }} />
               <span>配方</span>
             </button>
           </div>
@@ -659,7 +945,8 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
       {!isPlacardOpen && (
         <button
           onClick={() => setIsPlacardOpen(true)}
-          className="absolute right-6 top-24 z-20 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/20 text-xs font-serif font-bold text-amber-300 shadow-xl hover:bg-white/10 cursor-pointer flex items-center gap-1.5"
+          className="absolute right-6 top-24 z-20 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/20 text-xs font-serif font-bold shadow-xl hover:bg-white/10 cursor-pointer flex items-center gap-1.5"
+          style={{ color: activeThemeOption.accentColor }}
         >
           <Eye className="w-3.5 h-3.5" />
           <span>展开展签档案</span>
@@ -667,17 +954,27 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
       )}
 
       {/* 5. BOTTOM-RIGHT 2D MINI-MAP RADAR (Exact Reference Panel 3 match!) */}
-      <div className="absolute right-4 sm:right-8 bottom-28 sm:bottom-24 z-20 p-3 rounded-2xl bg-black/70 backdrop-blur-xl border border-white/15 shadow-2xl text-left hidden md:block">
+      <div 
+        className="absolute right-4 sm:right-8 bottom-28 sm:bottom-24 z-20 p-3 rounded-2xl bg-black/75 backdrop-blur-xl border border-white/15 shadow-2xl text-left hidden md:block"
+        style={{
+          boxShadow: `0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px ${activeThemeOption.glowColor}`,
+        }}
+      >
         <div className="flex items-center justify-between text-[9px] font-mono text-stone-400 mb-2 border-b border-white/10 pb-1">
-          <span className="flex items-center gap-1 text-amber-400 font-bold">
+          <span className="flex items-center gap-1 font-bold" style={{ color: activeThemeOption.accentColor }}>
             <Compass className="w-3 h-3" />
-            <span>GALLERY RADAR</span>
+            <span>{activeThemeOption.enName.toUpperCase()} · RADAR</span>
           </span>
-          <span>ROOM 0{Math.floor(activeIdx / 3) + 1}</span>
+          <span className="text-stone-400">ROOM 0{Math.floor(activeIdx / 3) + 1}</span>
         </div>
 
-        {/* 2D Architectural Floorplan Canvas */}
-        <div className="relative w-36 h-28 bg-[#120e0a] rounded-lg border border-white/10 overflow-hidden">
+        {/* 2D Architectural Floorplan Canvas with theme-specific backdrop */}
+        <div 
+          className="relative w-36 h-28 rounded-lg border border-white/10 overflow-hidden"
+          style={{
+            backgroundColor: currentTheme === 'zen-mist' ? '#0d1310' : currentTheme === 'cyber-neon' ? '#040711' : currentTheme === 'grand-salon' ? '#18110b' : currentTheme === 'ghibli-breeze' ? '#c8d6df' : '#140f0c',
+          }}
+        >
           {/* Partition Wall Lines */}
           <div className="absolute inset-x-4 top-1/3 h-0.5 bg-white/20" />
           <div className="absolute inset-x-4 bottom-1/3 h-0.5 bg-white/20" />
@@ -688,7 +985,6 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
 
           {/* Artwork Pins on Walls */}
           {spotsRef.current.map((sp, i) => {
-            // Map 3D coordinate (-18 to 18) into mini-map (0 to 144px width, 0 to 112px height)
             const mapX = ((sp.position.x + 18) / 36) * 144;
             const mapY = ((sp.position.z + 18) / 36) * 112;
             const isActive = i === activeIdx;
@@ -698,9 +994,14 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
                 key={i}
                 onClick={() => flyToArtwork(i)}
                 className={`absolute w-2 h-2 rounded-full -translate-x-1/2 -translate-y-1/2 transition-all cursor-pointer ${
-                  isActive ? 'bg-amber-400 shadow-[0_0_8px_#fbbf24] scale-150 z-20' : 'bg-white/40 hover:bg-white'
+                  isActive ? 'scale-150 z-20 shadow-md' : 'bg-white/40 hover:bg-white'
                 }`}
-                style={{ left: `${mapX}px`, top: `${mapY}px` }}
+                style={{ 
+                  left: `${mapX}px`, 
+                  top: `${mapY}px`,
+                  backgroundColor: isActive ? activeThemeOption.accentColor : undefined,
+                  boxShadow: isActive ? `0 0 10px ${activeThemeOption.accentColor}` : undefined,
+                }}
                 title={sp.caseData.title}
               />
             );
@@ -718,11 +1019,20 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
                 style={{ left: `${camX}px`, top: `${camY}px` }}
               >
                 {/* Camera dot */}
-                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 block shadow-[0_0_8px_#22d3ee]" />
+                <span 
+                  className="w-2.5 h-2.5 rounded-full block" 
+                  style={{
+                    backgroundColor: activeThemeOption.accentColor,
+                    boxShadow: `0 0 8px ${activeThemeOption.accentColor}`,
+                  }}
+                />
                 {/* Viewing cone triangle */}
                 <div 
-                  className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[14px] border-b-cyan-400/30 absolute left-1/2 -top-3.5 -translate-x-1/2 origin-bottom"
-                  style={{ transform: `rotate(${deg}deg)` }}
+                  className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[14px] absolute left-1/2 -top-3.5 -translate-x-1/2 origin-bottom"
+                  style={{ 
+                    borderBottomColor: `${activeThemeOption.accentColor}55`,
+                    transform: `rotate(${deg}deg)`,
+                  }}
                 />
               </div>
             );
@@ -766,9 +1076,13 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({ imageC
                 onClick={() => flyToArtwork(idx)}
                 className={`relative shrink-0 w-16 sm:w-20 aspect-[16/10] rounded-lg overflow-hidden border transition-all duration-300 cursor-pointer ${
                   isCur 
-                    ? 'ring-2 ring-amber-400 scale-110 shadow-[0_0_15px_rgba(245,158,11,0.5)] border-amber-400' 
+                    ? 'ring-2 scale-110' 
                     : 'opacity-50 hover:opacity-100 border-white/20 hover:scale-105'
                 }`}
+                style={{
+                  borderColor: isCur ? activeThemeOption.accentColor : undefined,
+                  boxShadow: isCur ? `0 0 16px ${activeThemeOption.accentColor}` : undefined,
+                }}
               >
                 <img
                   src={sp.caseData.imageUrl}

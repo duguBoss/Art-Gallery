@@ -1,4 +1,4 @@
-﻿// Synthesized Audio System for Art Gallery Immersion
+// Synthesized Audio System for Art Gallery Immersion
 let audioCtx: AudioContext | null = null;
 let ambientGain: GainNode | null = null;
 let ambientOsc1: OscillatorNode | null = null;
@@ -119,41 +119,75 @@ export function playSuccessChime() {
   }
 }
 
-// Ambient Museum Hall Soundscape
-export function toggleAmbientSound(): boolean {
+// Ambient Museum Hall Soundscape customized per theme
+export function toggleAmbientSound(theme: string = 'cozy-night'): boolean {
   try {
     const ctx = getAudioContext();
 
     if (isAmbientPlaying) {
       if (ambientGain) {
-        ambientGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1);
+        ambientGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.8);
         setTimeout(() => {
           ambientOsc1?.stop();
           ambientOsc2?.stop();
           ambientOsc1?.disconnect();
           ambientOsc2?.disconnect();
           ambientGain?.disconnect();
-        }, 1000);
+          ambientGain = null;
+        }, 800);
       }
       isAmbientPlaying = false;
       return false;
     } else {
       ambientGain = ctx.createGain();
       ambientGain.gain.setValueAtTime(0.0001, ctx.currentTime);
-      ambientGain.gain.exponentialRampToValueAtTime(0.04, ctx.currentTime + 2);
+      ambientGain.gain.exponentialRampToValueAtTime(0.035, ctx.currentTime + 1.8);
 
       ambientOsc1 = ctx.createOscillator();
       ambientOsc2 = ctx.createOscillator();
-
-      ambientOsc1.type = 'sine';
-      ambientOsc1.frequency.setValueAtTime(110, ctx.currentTime); // A2
-
-      ambientOsc2.type = 'triangle';
-      ambientOsc2.frequency.setValueAtTime(164.81, ctx.currentTime); // E3
-
       const filter = ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(280, ctx.currentTime);
+
+      if (theme === 'zen-mist') {
+        // Oriental Zen: Bamboo rain, high serene harmonics
+        ambientOsc1.type = 'sine';
+        ambientOsc1.frequency.setValueAtTime(146.83, ctx.currentTime); // D3
+        ambientOsc2.type = 'sine';
+        ambientOsc2.frequency.setValueAtTime(220, ctx.currentTime); // A3
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(320, ctx.currentTime);
+      } else if (theme === 'cyber-neon') {
+        // Cyberpunk: Low synth drone with pulse
+        ambientOsc1.type = 'sawtooth';
+        ambientOsc1.frequency.setValueAtTime(65.41, ctx.currentTime); // C2
+        ambientOsc2.type = 'square';
+        ambientOsc2.frequency.setValueAtTime(98, ctx.currentTime); // G2
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(180, ctx.currentTime);
+      } else if (theme === 'grand-salon') {
+        // Grand Salon: Baroque chamber organ chord
+        ambientOsc1.type = 'triangle';
+        ambientOsc1.frequency.setValueAtTime(130.81, ctx.currentTime); // C3
+        ambientOsc2.type = 'triangle';
+        ambientOsc2.frequency.setValueAtTime(196, ctx.currentTime); // G3
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(400, ctx.currentTime);
+      } else if (theme === 'ghibli-breeze') {
+        // Ghibli Meadow: Light uplifting breeze chord
+        ambientOsc1.type = 'sine';
+        ambientOsc1.frequency.setValueAtTime(174.61, ctx.currentTime); // F3
+        ambientOsc2.type = 'triangle';
+        ambientOsc2.frequency.setValueAtTime(261.63, ctx.currentTime); // C4
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(450, ctx.currentTime);
+      } else {
+        // Cozy Night: Deep warm fireplace cello drone
+        ambientOsc1.type = 'sine';
+        ambientOsc1.frequency.setValueAtTime(110, ctx.currentTime); // A2
+        ambientOsc2.type = 'triangle';
+        ambientOsc2.frequency.setValueAtTime(164.81, ctx.currentTime); // E3
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(260, ctx.currentTime);
+      }
 
       ambientOsc1.connect(filter);
       ambientOsc2.connect(filter);

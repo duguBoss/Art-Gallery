@@ -115,9 +115,13 @@ export function App() {
         {/* Concise Hero Section */}
         <HeroGallery currentView={currentView} />
 
-        {/* View 1: Three.js 3D Spatial Virtual Art Gallery (Spotlights, Radar, 3D Camera Glide) */}
+        {/* View 1: Three.js 3D Spatial Virtual Art Gallery (Spotlights, Radar, 3D Camera Glide, Holistic Themes) */}
         {currentView === 'image-lab' && (
-          <ThreeSpatialGallery imageCases={filteredImageCases} />
+          <ThreeSpatialGallery 
+            imageCases={filteredImageCases} 
+            currentTheme={currentTheme}
+            onSelectTheme={setCurrentTheme}
+          />
         )}
 
         {/* View 2: Video Workflow Lab */}
