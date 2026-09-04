@@ -5,6 +5,7 @@ import type { GalleryTheme } from './types/theme';
 import { Navbar, type MainViewType } from './components/Navbar';
 import { HeroGallery } from './components/HeroGallery';
 import { ThreeSpatialGallery } from './components/ThreeSpatialGallery';
+import { BookOfShapesStudio } from './components/BookOfShapesStudio';
 import { AIVideoWorkflowLab } from './components/AIVideoWorkflowLab';
 import { SpotlightEffect } from './components/SpotlightEffect';
 import { AdminCMSModal } from './components/AdminCMSModal';
@@ -23,9 +24,12 @@ export function App() {
     localStorage.setItem('art_gallery_theme', currentTheme);
   }, [currentTheme]);
 
-  // Two core views: 'image-lab' (Image Prompts) & 'video-lab' (Video Workflows)
+  // Core views: 'image-lab' (3D Spatial Gallery) | 'shapes-lab' (Book of Shapes) | 'video-lab' (Video Workflows)
   const [currentView, setCurrentView] = useState<MainViewType>('image-lab');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Custom projected Book of Shapes SVG from Shapes Studio to 3D Gallery
+  const [customProjectedShape, setCustomProjectedShape] = useState<{ svg: string; title: string } | null>(null);
 
   // Local storage backed dataset
   const [imageCases, setImageCases] = useState<AIImageCase[]>(getImageCases());
@@ -121,10 +125,24 @@ export function App() {
             imageCases={filteredImageCases} 
             currentTheme={currentTheme}
             onSelectTheme={setCurrentTheme}
+            customProjectedShape={customProjectedShape}
+            onOpenShapesStudio={() => setCurrentView('shapes-lab')}
           />
         )}
 
-        {/* View 2: Video Workflow Lab */}
+        {/* View 2: Book of Shapes Algorithmic Generative SVG Studio */}
+        {currentView === 'shapes-lab' && (
+          <BookOfShapesStudio 
+            currentTheme={currentTheme}
+            onProjectToGallery={(svg, title) => {
+              setCustomProjectedShape({ svg, title });
+              setCurrentView('image-lab');
+            }}
+            onNavigateToGallery={() => setCurrentView('image-lab')}
+          />
+        )}
+
+        {/* View 3: Video Workflow Lab */}
         {currentView === 'video-lab' && (
           <AIVideoWorkflowLab workflows={filteredVideoWorkflows} />
         )}

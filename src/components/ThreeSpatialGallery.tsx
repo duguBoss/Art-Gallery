@@ -4,14 +4,17 @@ import type { AIImageCase } from '../types/art';
 import { THEME_OPTIONS, type GalleryTheme } from '../types/theme';
 import { 
   Play, Pause, ChevronLeft, ChevronRight, Maximize2, 
-  Copy, Check, Volume2, VolumeX, Sliders, X, Sparkles, Compass, Eye, Filter, Layers
+  Copy, Check, Volume2, VolumeX, Sliders, X, Sparkles, Compass, Eye, Filter, Layers, Shapes
 } from 'lucide-react';
 import { playSpotlightClick, playSuccessChime, playMuseumFootstep, playGalleryBell, toggleAmbientSound } from '../utils/audio';
+import { getShapeDataUri, type ShapeConfig } from '../utils/shapeGenerators';
 
 interface ThreeSpatialGalleryProps {
   imageCases: AIImageCase[];
   currentTheme?: GalleryTheme;
   onSelectTheme?: (theme: GalleryTheme) => void;
+  customProjectedShape?: { svg: string; title: string } | null;
+  onOpenShapesStudio?: () => void;
 }
 
 interface ArtworkSpot {
@@ -28,6 +31,8 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({
   imageCases,
   currentTheme = 'cozy-night',
   onSelectTheme,
+  customProjectedShape,
+  onOpenShapesStudio,
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
 
@@ -52,21 +57,200 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({
     return THEME_OPTIONS.find((t) => t.id === currentTheme) || THEME_OPTIONS[0];
   }, [currentTheme]);
 
-  // Curate display cases: Prioritize matching theme categories if filterByScene is active
-  const displayedCases = useMemo(() => {
-    if (!filterByScene) return imageCases;
-    const cats = activeThemeOption.featuredCategories;
-    const matched = imageCases.filter((c) => cats.includes(c.category));
-    if (matched.length > 0) {
-      // Append others at the end if fewer than 6
-      if (matched.length < 6) {
-        const others = imageCases.filter((c) => !cats.includes(c.category));
-        return [...matched, ...others].slice(0, 10);
-      }
-      return matched.slice(0, 10);
+  // Compute Book of Shapes generative piece for this theme / custom projection
+  const shapeCase = useMemo<AIImageCase>(() => {
+    if (customProjectedShape) {
+      const dataUri = `data:image/svg+xml;utf8,${encodeURIComponent(customProjectedShape.svg)}`;
+      return {
+        id: 'shape-custom-projected',
+        title: `《${customProjectedShape.title}》· 展厅中央光影装置`,
+        enTitle: 'Custom Generative SVG Installation',
+        category: activeThemeOption.featuredCategories[0] || '形态之书',
+        badge: '用户定制 · Book of Shapes',
+        description: '你在“形态之书 · 纯粹矢量数学工坊”中实时微调参数生成的生成式数学几何矢量装置，已光影投射至 3D 展厅中央主展位。',
+        coverImage: dataUri,
+        imageUrl: dataUri,
+        tags: ['形态之书', '定制投影', '算法几何', '纯净矢量', 'BookOfShapes'],
+        fullPrompt: 'custom algorithmic generative vector art, Book of Shapes style, mathematical precision, crisp vector SVG linework, minimalist bauhaus composition --v 6.0 --ar 1:1',
+        promptBlocks: {
+          subject: 'custom algorithmic generative vector art, Book of Shapes style, mathematical precision',
+          style: 'Minimalist Bauhaus algorithmic geometry',
+          texture: 'crisp vector SVG linework, high resolution vector',
+          lighting: 'gallery ambient spotlight illumination',
+          composition: 'centered generative mathematical pattern',
+          parameters: '--v 6.0 --ar 1:1 --no raster, blur'
+        },
+        colorSwatches: [
+          { name: '主题色', hex: activeThemeOption.accentColor },
+          { name: '深底色', hex: activeThemeOption.previewColor },
+        ],
+        promptRecipe: {
+          mjPrompt: 'custom algorithmic generative vector art, Book of Shapes style, mathematical precision, crisp vector SVG linework, minimalist bauhaus composition --v 6.0',
+          positiveKeywords: ['generative art', 'vector linework', 'book of shapes', 'mathematical precision', 'minimalist'],
+          negativeKeywords: ['raster blur', 'pixelated', 'low resolution', 'messy sketch'],
+          parameters: '--v 6.0 --ar 1:1',
+        },
+        techniqueGuide: {
+          medium: '纯净 SVG 矢量绘制 (Scalable Vector Graphics)',
+          brushwork: '数学参数化方程精确几何采样',
+          lighting: '3D 展厅定向聚光灯实时照射',
+          composition: '中心对称 / 黄金分割递缩'
+        }
+      };
     }
-    return imageCases;
-  }, [imageCases, activeThemeOption, filterByScene]);
+
+    let config: ShapeConfig;
+    let title = '';
+    let enTitle = '';
+    let desc = '';
+    let tags: string[] = [];
+    let subject = '';
+
+    if (currentTheme === 'cozy-night') {
+      config = {
+        type: 'joy-division',
+        density: 8,
+        strokeWidth: 1.8,
+        variance: 0.65,
+        rotation: 0,
+        colorScheme: '#E07A5F',
+        accentColor: '#F2CC8F',
+        bgColor: '#1A1410',
+        seed: 1919,
+      };
+      title = '脉冲波形与暖光声场 · PSR 1919';
+      enTitle = 'Pulsar PSR Waveforms Resonance';
+      desc = '源于阿雷西博射电望远镜对人类首颗脉冲星 PSR B1919+21 的无线电电平记录。在暖夜壁炉与琥珀灯光映照下，高斯包络函数平滑叠织出宛如山脊的深空声波。';
+      tags = ['形态之书', '高斯波形', '射电脉冲星', '温暖声场', 'BookOfShapes'];
+      subject = 'Joy Division Unknown Pleasures inspired stacked radio pulsar waveforms, PSR B1919+21 data visualization, topographical ridge lines';
+    } else if (currentTheme === 'zen-mist') {
+      config = {
+        type: 'brockmann-arcs',
+        density: 7,
+        strokeWidth: 2.2,
+        variance: 0.55,
+        rotation: 45,
+        colorScheme: '#52B788',
+        accentColor: '#D8F3DC',
+        bgColor: '#121A15',
+        seed: 88,
+      };
+      title = '布罗克曼雨痕同心弧 · 禅径';
+      enTitle = 'Brockmann Modernist Arcs in Zen Rain';
+      desc = '致敬瑞士现代主义平面设计大师布罗克曼。同心圆环被精确的角速度与间隙切割，如空山竹雨滴落在青石水潭泛起的幽静涟漪。';
+      tags = ['形态之书', '布罗克曼同心弧', '瑞士平面设计', '水墨禅意', 'BookOfShapes'];
+      subject = 'Josef Müller-Brockmann modernist Swiss graphic design, concentric broken radial arcs, geometric constructivism, precision drafting';
+    } else if (currentTheme === 'cyber-neon') {
+      config = {
+        type: 'interference-mesh',
+        density: 8,
+        strokeWidth: 1.4,
+        variance: 0.35,
+        rotation: 15,
+        colorScheme: '#00F0FF',
+        accentColor: '#FF007F',
+        bgColor: '#060913',
+        seed: 2077,
+      };
+      title = '莫尔干涉频纹与轴测晶格 · 赛博光栅';
+      enTitle = 'Moiré Interference & Cyber Mesh';
+      desc = '微小相角偏差的双层微密光栅相互旋转干涉，在湿漉霓虹街町的冷调全息立面上，投射出深邃而具催眠感的宏观物理光通量波纹。';
+      tags = ['形态之书', '莫尔干涉', '等角晶格', '赛博霓虹', 'BookOfShapes'];
+      subject = 'Moiré pattern interference mesh, optical illusion concentric grid distortion, hypnotic wave frequencies, overlapping rotated line grids';
+    } else if (currentTheme === 'grand-salon') {
+      config = {
+        type: 'sacred-polygons',
+        density: 6,
+        strokeWidth: 2.0,
+        variance: 0.45,
+        rotation: 0,
+        colorScheme: '#DFB15B',
+        accentColor: '#FAF0CA',
+        bgColor: '#1C150F',
+        seed: 1618,
+      };
+      title = '斐波那契黄金分割多边形 · 殿堂勋章';
+      enTitle = 'Sacred Fibonacci Polygons Medallion';
+      desc = '沿黄金分割比向内递缩并以恒定角速度旋转的嵌套多边形，在卢浮古典拱顶与科林斯柱廊下，宛如文艺复兴数学大师手绘的神圣几何图腾。';
+      tags = ['形态之书', '斐波那契螺旋', '神圣几何', '殿堂金叶', 'BookOfShapes'];
+      subject = 'sacred geometry nested rotating polygons, Fibonacci golden ratio scaling, star tetrahedron diagonals, ancient hermetic mathematical diagram';
+    } else {
+      config = {
+        type: 'flow-streamlines',
+        density: 7,
+        strokeWidth: 1.6,
+        variance: 0.5,
+        rotation: 0,
+        colorScheme: '#3A86FF',
+        accentColor: '#80ED99',
+        bgColor: '#0F1A1C',
+        seed: 777,
+      };
+      title = '麦浪流场引力矢量线 · 夏风轨迹';
+      enTitle = 'Curl Flow Streamlines in Summer Breeze';
+      desc = '二维向量场梯度积分前进追踪柔性气流，宛如吉卜力动画中吹拂金黄麦浪与碧绿草甸的无形夏风，在露天画架上化作轻盈跳跃的丝绸轨迹。';
+      tags = ['形态之书', '流场流线', '气动矢量', '夏日微风', 'BookOfShapes'];
+      subject = 'algorithmic vector flow field streamlines, generative fluid dynamics, organic curving lines, wind vector field visualization';
+    }
+
+    const dataUri = getShapeDataUri(config, 1024);
+
+    return {
+      id: `shape-${config.type}`,
+      title,
+      enTitle,
+      category: activeThemeOption.featuredCategories[0] || '形态之书',
+      badge: '形态之书 · 算法矢量',
+      description: desc,
+      coverImage: dataUri,
+      imageUrl: dataUri,
+      tags,
+      fullPrompt: `${subject}, vector linework, stroke width ${config.strokeWidth}px, density ${config.density}, mathematically precise generative SVG art, by Nikolaj Sokolowski Book of Shapes --v 6.0 --ar 1:1`,
+      promptBlocks: {
+        subject,
+        style: 'Book of Shapes generative Bauhaus vector',
+        texture: 'mathematically precise vector SVG, clean lines, Book of Shapes style by Nikolaj Sokolowski',
+        lighting: `${activeThemeOption.name} ambient lighting and track spotlight`,
+        composition: 'pure mathematical generative geometry',
+        parameters: '--ar 1:1 --v 6.0 --no blur, raster'
+      },
+      colorSwatches: [
+        { name: '主要线条', hex: config.colorScheme },
+        { name: '高光强调', hex: config.accentColor },
+        { name: '基底暗色', hex: config.bgColor },
+      ],
+      promptRecipe: {
+        mjPrompt: `${subject}, vector linework, stroke width ${config.strokeWidth}px, density ${config.density}, mathematically precise generative SVG art, by Nikolaj Sokolowski Book of Shapes --v 6.0`,
+        positiveKeywords: ['generative vector', 'book of shapes', 'algorithmic geometry', 'mathematical precision', 'minimalism'],
+        negativeKeywords: ['photorealistic messy texture', 'raster noise', 'low quality'],
+        parameters: '--v 6.0 --ar 1:1',
+      },
+      techniqueGuide: {
+        medium: '纯净 SVG 矢量绘制 (Scalable Vector Graphics)',
+        brushwork: '数学参数化方程精确几何采样',
+        lighting: '3D 展厅定向聚光灯实时照射',
+        composition: '中心对称 / 黄金分割递缩'
+      }
+    };
+  }, [currentTheme, customProjectedShape, activeThemeOption]);
+
+  // Curate display cases: Prepend signature Book of Shapes piece to the wall exhibits!
+  const displayedCases = useMemo(() => {
+    let baseList = imageCases;
+    if (filterByScene) {
+      const cats = activeThemeOption.featuredCategories;
+      const matched = imageCases.filter((c) => cats.includes(c.category));
+      if (matched.length > 0) {
+        if (matched.length < 6) {
+          const others = imageCases.filter((c) => !cats.includes(c.category));
+          baseList = [...matched, ...others].slice(0, 9);
+        } else {
+          baseList = matched.slice(0, 9);
+        }
+      }
+    }
+    return [shapeCase, ...baseList];
+  }, [imageCases, activeThemeOption, filterByScene, shapeCase]);
 
   // Refs for 3D engine
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -707,19 +891,35 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({
       canvasMesh.position.z = frameD / 2 + 0.015;
       artGroup.add(canvasMesh);
 
-      // Asynchronously load real image texture
-      textureLoader.load(
-        cData.imageUrl,
-        (loadedTex) => {
-          loadedTex.colorSpace = THREE.SRGBColorSpace;
-          canvasMat.map = loadedTex;
+      // Asynchronously load real image texture or Book of Shapes SVG
+      if (cData.imageUrl.startsWith('data:image/svg+xml')) {
+        const svgImg = new Image();
+        svgImg.onload = () => {
+          const cvs = document.createElement('canvas');
+          cvs.width = 1024;
+          cvs.height = 1024;
+          const sctx = cvs.getContext('2d')!;
+          sctx.drawImage(svgImg, 0, 0, 1024, 1024);
+          const svgTex = new THREE.CanvasTexture(cvs);
+          svgTex.colorSpace = THREE.SRGBColorSpace;
+          canvasMat.map = svgTex;
           canvasMat.needsUpdate = true;
-        },
-        undefined,
-        () => {
-          console.warn('Procedural fallback used for', cData.title);
-        }
-      );
+        };
+        svgImg.src = cData.imageUrl;
+      } else {
+        textureLoader.load(
+          cData.imageUrl,
+          (loadedTex) => {
+            loadedTex.colorSpace = THREE.SRGBColorSpace;
+            canvasMat.map = loadedTex;
+            canvasMat.needsUpdate = true;
+          },
+          undefined,
+          () => {
+            console.warn('Procedural fallback used for', cData.title);
+          }
+        );
+      }
 
       // Dedicated Track Spotlight (Tuned to theme color)
       const spotLight = new THREE.SpotLight(
@@ -855,6 +1055,13 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({
     targetLookAt.current.copy(spots[idx].cameraLookAt);
     setTourProgress(0);
   };
+
+  // When custom shape is projected from Book of Shapes Studio, glide camera directly to slot 0
+  useEffect(() => {
+    if (customProjectedShape && spotsRef.current.length > 0) {
+      flyToArtwork(0);
+    }
+  }, [customProjectedShape]);
 
   // Auto Tour Timer (5s per painting)
   useEffect(() => {
@@ -1008,6 +1215,38 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({
 
         {/* Right Action Tools */}
         <div className="flex items-center gap-2 pointer-events-auto">
+          {/* Quick jump to Book of Shapes centerpiece installation */}
+          <button
+            onClick={() => {
+              playSpotlightClick();
+              flyToArtwork(0);
+            }}
+            className={`px-3 py-1.5 rounded-full text-[11px] font-mono border transition-all cursor-pointer flex items-center gap-1.5 backdrop-blur-md shadow-lg hover:scale-105 active:scale-95 ${
+              activeIdx === 0
+                ? 'bg-amber-500 text-black font-bold border-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.5)]'
+                : 'bg-black/60 text-stone-200 border-white/20 hover:text-white hover:bg-white/10'
+            }`}
+            title="镜头立即切至中央 Book of Shapes 算法矢量艺术装置"
+          >
+            <Shapes className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden sm:inline">形态之书装置</span>
+          </button>
+
+          {/* Quick jump to Shapes Studio if handler provided */}
+          {onOpenShapesStudio && (
+            <button
+              onClick={() => {
+                playSpotlightClick();
+                onOpenShapesStudio();
+              }}
+              className="px-3 py-1.5 rounded-full text-[11px] font-mono border transition-all cursor-pointer flex items-center gap-1.5 backdrop-blur-md shadow-lg bg-black/60 text-amber-300 border-amber-500/40 hover:bg-amber-500/20 hover:scale-105 active:scale-95"
+              title="打开形态之书 · 纯粹矢量数学工坊，自定义微调几何参数"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden md:inline">进入矢量工坊</span>
+            </button>
+          )}
+
           {/* Ambient Soundscape */}
           <button
             onClick={handleToggleAmbient}
@@ -1157,26 +1396,42 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({
           </blockquote>
 
           {/* Action Buttons */}
-          <div className="pt-2 border-t border-white/10 flex items-center gap-2.5">
-            <button
-              onClick={handleCopyPrompt}
-              className="flex-1 py-2 px-3 rounded-xl font-sans text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-lg hover:brightness-110 active:scale-98"
-              style={{
-                backgroundColor: copiedPrompt ? '#10B981' : activeThemeOption.accentColor,
-                color: '#14100D',
-              }}
-            >
-              {copiedPrompt ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copiedPrompt ? '已复制 Prompt' : '一键复制 Prompt'}</span>
-            </button>
+          <div className="pt-2 border-t border-white/10 flex flex-col gap-2">
+            <div className="flex items-center gap-2.5">
+              <button
+                onClick={handleCopyPrompt}
+                className="flex-1 py-2 px-3 rounded-xl font-sans text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-lg hover:brightness-110 active:scale-98"
+                style={{
+                  backgroundColor: copiedPrompt ? '#10B981' : activeThemeOption.accentColor,
+                  color: '#14100D',
+                }}
+              >
+                {copiedPrompt ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copiedPrompt ? '已复制 Prompt' : '一键复制 Prompt'}</span>
+              </button>
 
-            <button
-              onClick={() => setIsDrawerOpen(true)}
-              className="py-2 px-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 text-xs font-sans font-semibold transition-all cursor-pointer flex items-center gap-1 hover:scale-105 active:scale-95"
-            >
-              <Sliders className="w-3.5 h-3.5" style={{ color: activeThemeOption.accentColor }} />
-              <span>配方</span>
-            </button>
+              <button
+                onClick={() => setIsDrawerOpen(true)}
+                className="py-2 px-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 text-xs font-sans font-semibold transition-all cursor-pointer flex items-center gap-1 hover:scale-105 active:scale-95"
+              >
+                <Sliders className="w-3.5 h-3.5" style={{ color: activeThemeOption.accentColor }} />
+                <span>配方</span>
+              </button>
+            </div>
+
+            {/* Special Book of Shapes Quick Actions */}
+            {activeCase.id.startsWith('shape-') && onOpenShapesStudio && (
+              <button
+                onClick={() => {
+                  playSpotlightClick();
+                  onOpenShapesStudio();
+                }}
+                className="w-full py-2 px-3 rounded-xl font-mono text-xs font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30 active:scale-98 shadow-md"
+              >
+                <Shapes className="w-3.5 h-3.5 text-amber-400" />
+                <span>📐 打开形态之书工坊 · 微调本装置参数</span>
+              </button>
+            )}
           </div>
         </aside>
       )}

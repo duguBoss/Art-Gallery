@@ -1,10 +1,10 @@
-﻿import React from 'react';
-import { Sparkles, Search, Film, Image as ImageIcon } from 'lucide-react';
+import React from 'react';
+import { Sparkles, Search, Film, Image as ImageIcon, Shapes } from 'lucide-react';
 import { playSpotlightClick } from '../utils/audio';
 import { ThemeSwitcher } from './ThemeSwitcher';
 import type { GalleryTheme } from '../types/theme';
 
-export type MainViewType = 'image-lab' | 'video-lab';
+export type MainViewType = 'image-lab' | 'shapes-lab' | 'video-lab';
 
 interface NavbarProps {
   currentView: MainViewType;
@@ -60,7 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </span>
             </div>
             <p className="text-[11px] font-sans hidden sm:block" style={{ color: 'var(--text-muted)' }}>
-              提示词积木拆解 · 视频分步工作流
+              提示词积木拆解 · 形态之书矢量 · 视频分步工作流
             </p>
           </div>
         </div>
@@ -78,14 +78,29 @@ export const Navbar: React.FC<NavbarProps> = ({
               playSpotlightClick();
               onSwitchView('image-lab');
             }}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-sans font-bold transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-sans font-bold transition-all cursor-pointer"
             style={{
               backgroundColor: currentView === 'image-lab' ? 'var(--pill-active-bg)' : 'transparent',
               color: currentView === 'image-lab' ? 'var(--pill-active-text)' : 'var(--text-muted)',
             }}
           >
             <ImageIcon className="w-3.5 h-3.5" />
-            <span>🎨 图片风格提示词</span>
+            <span>🎨 3D 虚拟展厅</span>
+          </button>
+
+          <button
+            onClick={() => {
+              playSpotlightClick();
+              onSwitchView('shapes-lab');
+            }}
+            className="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-sans font-bold transition-all cursor-pointer"
+            style={{
+              backgroundColor: currentView === 'shapes-lab' ? 'var(--pill-active-bg)' : 'transparent',
+              color: currentView === 'shapes-lab' ? 'var(--pill-active-text)' : 'var(--text-muted)',
+            }}
+          >
+            <Shapes className="w-3.5 h-3.5 text-amber-500" />
+            <span>📐 形态之书 (SVG)</span>
           </button>
 
           <button
@@ -93,7 +108,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               playSpotlightClick();
               onSwitchView('video-lab');
             }}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-sans font-bold transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-sans font-bold transition-all cursor-pointer"
             style={{
               backgroundColor: currentView === 'video-lab' ? 'var(--pill-active-bg)' : 'transparent',
               color: currentView === 'video-lab' ? 'var(--pill-active-text)' : 'var(--text-muted)',
