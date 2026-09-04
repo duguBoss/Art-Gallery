@@ -1,9 +1,12 @@
 ﻿import { useState, useMemo } from 'react';
 import { ART_STYLES } from './data/stylesData';
-import type { ArtStyle, Artwork, HallCategory } from './types/art';
+import { getImageCases, getVideoWorkflows } from './data/workflowStore';
+import type { ArtStyle, Artwork, HallCategory, AIImageCase, AIVideoWorkflow } from './types/art';
 import { SpotlightEffect } from './components/SpotlightEffect';
-import { Navbar } from './components/Navbar';
+import { Navbar, type MainViewType } from './components/Navbar';
 import { HeroGallery } from './components/HeroGallery';
+import { AIImagePromptLab } from './components/AIImagePromptLab';
+import { AIVideoWorkflowLab } from './components/AIVideoWorkflowLab';
 import { SpatialGalleryRoom } from './components/SpatialGalleryRoom';
 import { ArtworkWall } from './components/ArtworkWall';
 import { StyleGrid } from './components/StyleGrid';
@@ -14,14 +17,21 @@ import { PaletteInspectorModal } from './components/PaletteInspectorModal';
 import { VirtualTourModal } from './components/VirtualTourModal';
 import { SubmitStyleModal } from './components/SubmitStyleModal';
 import { ScenarioExplorerModal } from './components/ScenarioExplorerModal';
+import { AdminCMSModal } from './components/AdminCMSModal';
 import { Footer } from './components/Footer';
 
 export function App() {
-  const [currentView, setCurrentView] = useState<'spatial' | 'wall' | 'styles'>('spatial');
+  // Main view defaults to 'image-lab' for AI Prompt deconstruction and 'video-lab' for multi-step workflows
+  const [currentView, setCurrentView] = useState<MainViewType>('image-lab');
   const [selectedHall, setSelectedHall] = useState<HallCategory>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  
+
+  // AI Prompt and Video Workflow stores backed by localStorage
+  const [imageCases, setImageCases] = useState<AIImageCase[]>(getImageCases());
+  const [videoWorkflows, setVideoWorkflows] = useState<AIVideoWorkflow[]>(getVideoWorkflows());
+
   // Modals state
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState<ArtStyle | null>(null);
   const [inspectedArtwork, setInspectedArtwork] = useState<{ artwork: Artwork; style: ArtStyle } | null>(null);
   const [isMixerOpen, setIsMixerOpen] = useState(false);
@@ -60,6 +70,7 @@ export function App() {
     <div className="min-h-screen bg-gallery-950 text-gallery-100 relative">
       <SpotlightEffect />
 
+      {/* Primary Top Navigation */}
       <Navbar
         currentView={currentView}
         onSwitchView={setCurrentView}
@@ -69,10 +80,11 @@ export function App() {
         onOpenPalette={() => setIsPaletteOpen(true)}
         onOpenSubmit={() => setIsSubmitOpen(true)}
         onOpenTour={() => setIsTourOpen(true)}
-        onOpenScenarios={() => setIsScenariosOpen(true)}
+        onOpenAdmin={() => setIsAdminOpen(true)}
       />
 
       <main>
+        {/* Dynamic Hero Facade */}
         <HeroGallery
           featuredStyles={featuredStyles}
           onSelectStyle={setSelectedStyle}
@@ -80,7 +92,25 @@ export function App() {
           onSwitchView={setCurrentView}
         />
 
+        {/* Dynamic Studio Stage Anchor */}
         <div id="exhibition-content">
+          {/* VIEW 1: AI Image Prompt Deconstruction Lab */}
+          {currentView === 'image-lab' && (
+            <AIImagePromptLab
+              imageCases={imageCases}
+              onOpenAdmin={() => setIsAdminOpen(true)}
+            />
+          )}
+
+          {/* VIEW 2: AI Multi-Step Video Workflow Pipeline */}
+          {currentView === 'video-lab' && (
+            <AIVideoWorkflowLab
+              workflows={videoWorkflows}
+              onOpenAdmin={() => setIsAdminOpen(true)}
+            />
+          )}
+
+          {/* VIEW 3: 3D Spatial Museum Room */}
           {currentView === 'spatial' && (
             <SpatialGalleryRoom
               styles={filteredStyles}
@@ -91,6 +121,7 @@ export function App() {
             />
           )}
 
+          {/* VIEW 4: Art Wall Masonry */}
           {currentView === 'wall' && (
             <ArtworkWall
               styles={filteredStyles}
@@ -100,6 +131,7 @@ export function App() {
             />
           )}
 
+          {/* VIEW 5: Styles Salons List */}
           {currentView === 'styles' && (
             <StyleGrid
               styles={filteredStyles}
@@ -112,6 +144,17 @@ export function App() {
         </div>
       </main>
 
+      {/* Admin CMS Modal */}
+      <AdminCMSModal
+        isOpen={isAdminOpen}
+        onClose={() => setIsAdminOpen(false)}
+        imageCases={imageCases}
+        videoWorkflows={videoWorkflows}
+        onUpdateImageCases={setImageCases}
+        onUpdateVideoWorkflows={setVideoWorkflows}
+      />
+
+      {/* Artwork Inspection & Style Details */}
       {selectedStyle && (
         <StyleDetailModal
           style={selectedStyle}
@@ -128,6 +171,7 @@ export function App() {
         />
       )}
 
+      {/* Auxiliary Tools */}
       <ScenarioExplorerModal
         isOpen={isScenariosOpen}
         onClose={() => setIsScenariosOpen(false)}

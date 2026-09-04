@@ -105,3 +105,56 @@ export interface StyleMixResult {
   combinedPalette: ColorSwatch[];
   curatorNotes: string;
 }
+
+// =================== AI PROMPT & WORKFLOW TYPES ===================
+
+export interface PromptDeconstruction {
+  subject: string;       // 核心主体（可替换，如: a cozy ramen shop at night）
+  style: string;         // 艺术风格（如: VOX 3D isometric diorama, MagicaVoxel）
+  texture: string;       // 材质纹理（如: cubic micro blocks, glossy water reflections）
+  lighting: string;      // 光影氛围（如: warm volumetric raytracing glow, neon rim light）
+  composition: string;   // 构图视角（如: isometric tilt-shift view, centered miniature）
+  parameters: string;    // 模型参数（如: --ar 16:9 --v 6.1 --stylize 300）
+  negative?: string;     // 负向提示词
+}
+
+export interface AIImageCase {
+  id: string;
+  title: string;
+  category: string;
+  badge: string;
+  description: string;
+  imageUrl: string;
+  promptBlocks: PromptDeconstruction;
+  fullPrompt: string;
+  author?: string;
+  createdDate?: string;
+  tags: string[];
+}
+
+export interface VideoWorkflowStep {
+  stepNumber: number;
+  stepTitle: string;
+  toolUsed: string;
+  toolCategory: 'image-gen' | 'video-gen' | 'motion-track' | 'post-edit' | 'audio-sfx';
+  purpose: string;
+  stepPrompt: string;
+  parameters: string;
+  keyTechniques: string[];
+  outputPreviewUrl?: string;
+}
+
+export interface AIVideoWorkflow {
+  id: string;
+  title: string;
+  category: string;
+  badge: string;
+  summary: string;
+  previewVideoUrl: string;
+  totalSteps: number;
+  difficulty: '入门' | '进阶' | '专家';
+  toolsChain: string[];
+  steps: VideoWorkflowStep[];
+  author?: string;
+  createdDate?: string;
+}

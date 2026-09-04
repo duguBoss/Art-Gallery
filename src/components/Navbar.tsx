@@ -1,17 +1,19 @@
 ﻿import React, { useState } from 'react';
-import { Volume2, VolumeX, Sparkles, Compass, Palette, Send, Search, LayoutGrid, Image as ImageIcon, Clapperboard, Building2 } from 'lucide-react';
+import { Volume2, VolumeX, Sparkles, Compass, Palette, Send, Search, Film, Image as ImageIcon, Building2, Wrench } from 'lucide-react';
 import { toggleAmbientSound, playSpotlightClick } from '../utils/audio';
 
+export type MainViewType = 'image-lab' | 'video-lab' | 'spatial' | 'wall' | 'styles';
+
 interface NavbarProps {
-  currentView: 'spatial' | 'wall' | 'styles';
-  onSwitchView: (view: 'spatial' | 'wall' | 'styles') => void;
+  currentView: MainViewType;
+  onSwitchView: (view: MainViewType) => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
   onOpenMixer: () => void;
   onOpenPalette: () => void;
   onOpenSubmit: () => void;
   onOpenTour: () => void;
-  onOpenScenarios: () => void;
+  onOpenAdmin: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -23,7 +25,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenPalette,
   onOpenSubmit,
   onOpenTour,
-  onOpenScenarios,
+  onOpenAdmin,
 }) => {
   const [isAudioOn, setIsAudioOn] = useState(false);
 
@@ -40,71 +42,69 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center gap-3.5 shrink-0">
           <a href="#" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gallery-800 to-gallery-900 border border-gold-500/40 p-2 flex items-center justify-center shadow-glow-gold/20 group-hover:border-gold-400 transition-all duration-300">
-              <svg viewBox="0 0 24 24" className="w-6 h-6 text-gold-400 fill-current opacity-90" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-              </svg>
+              <Sparkles className="w-6 h-6 text-gold-400 fill-current opacity-90" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-serif font-black tracking-widest text-lg text-gallery-100 group-hover:text-gold-300 transition-colors">
-                  ART GALLERY
+                  AI ART & LAB
                 </span>
                 <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-gold-500/10 text-gold-400 border border-gold-500/20">
-                  万象艺术画廊
+                  视听灵感工坊
                 </span>
               </div>
               <p className="text-[11px] text-gallery-400 tracking-wider font-sans">
-                实体美学展厅与万象艺术博览馆
+                提示词积木拆解 × 分步视频工作流
               </p>
             </div>
           </a>
         </div>
 
-        {/* View Switcher Tabs (Center) */}
+        {/* Primary View Switcher Tabs (Center) */}
         <div className="hidden lg:flex items-center p-1 rounded-full bg-gallery-900 border border-gallery-800 shadow-inner">
+          <button
+            onClick={() => {
+              playSpotlightClick();
+              onSwitchView('image-lab');
+            }}
+            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-serif font-bold transition-all cursor-pointer ${
+              currentView === 'image-lab'
+                ? 'bg-gradient-to-r from-gold-500 to-gold-600 text-gallery-950 shadow-glow-gold'
+                : 'text-gallery-300 hover:text-white'
+            }`}
+          >
+            <ImageIcon className="w-3.5 h-3.5" />
+            <span>🎨 AI 图像提示词拆解</span>
+          </button>
+
+          <button
+            onClick={() => {
+              playSpotlightClick();
+              onSwitchView('video-lab');
+            }}
+            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-serif font-bold transition-all cursor-pointer ${
+              currentView === 'video-lab'
+                ? 'bg-gradient-to-r from-accent-violet to-purple-600 text-white shadow-glow-gold'
+                : 'text-gallery-300 hover:text-white'
+            }`}
+          >
+            <Film className="w-3.5 h-3.5" />
+            <span>🎬 AI 视频分步工作流</span>
+          </button>
+
           <button
             onClick={() => {
               playSpotlightClick();
               onSwitchView('spatial');
             }}
             className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-serif font-bold transition-all cursor-pointer ${
-              currentView === 'spatial'
-                ? 'bg-gradient-to-r from-gold-500 to-gold-600 text-gallery-950 shadow-glow-gold'
-                : 'text-gallery-300 hover:text-white'
+              currentView === 'spatial' || currentView === 'wall' || currentView === 'styles'
+                ? 'bg-gallery-800 text-gold-300 border border-gold-500/30'
+                : 'text-gallery-400 hover:text-white'
             }`}
           >
             <Building2 className="w-3.5 h-3.5" />
-            <span>🏛️ 3D 实景展厅</span>
-          </button>
-
-          <button
-            onClick={() => {
-              playSpotlightClick();
-              onSwitchView('wall');
-            }}
-            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-serif font-bold transition-all cursor-pointer ${
-              currentView === 'wall'
-                ? 'bg-gradient-to-r from-gold-500 to-gold-600 text-gallery-950 shadow-glow-gold'
-                : 'text-gallery-300 hover:text-white'
-            }`}
-          >
-            <ImageIcon className="w-3.5 h-3.5" />
-            <span>🖼️ 全景画墙</span>
-          </button>
-
-          <button
-            onClick={() => {
-              playSpotlightClick();
-              onSwitchView('styles');
-            }}
-            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-serif font-bold transition-all cursor-pointer ${
-              currentView === 'styles'
-                ? 'bg-gradient-to-r from-gold-500 to-gold-600 text-gallery-950 shadow-glow-gold'
-                : 'text-gallery-300 hover:text-white'
-            }`}
-          >
-            <LayoutGrid className="w-3.5 h-3.5" />
-            <span>📑 分馆总览</span>
+            <span>🏛️ 实体美学展厅</span>
           </button>
         </div>
 
@@ -115,24 +115,24 @@ export const Navbar: React.FC<NavbarProps> = ({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="搜索流派、画作或场景，如 锈湖, VOX..."
+            placeholder="搜索提示词、工具或风格..."
             className="w-full pl-9 pr-3 py-1.5 bg-gallery-900 border border-gallery-700/80 rounded-full text-xs text-gallery-200 placeholder-gallery-400 focus:outline-none focus:border-gold-500/60 transition-all"
           />
         </div>
 
         {/* Action Tools */}
         <div className="flex items-center gap-2">
-          {/* Scenario Explorer Button */}
+          {/* Admin CMS Access Button */}
           <button
             onClick={() => {
               playSpotlightClick();
-              onOpenScenarios();
+              onOpenAdmin();
             }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-accent-violet/15 border border-accent-violet/40 text-accent-violet hover:border-gold-400 hover:text-gold-200 text-xs font-sans font-medium transition-all cursor-pointer shadow-sm"
-            title="查看 9 大商业视频场景与美学赋能矩阵"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-gold-500/15 border border-gold-500/40 text-gold-300 hover:bg-gold-500 hover:text-gallery-950 text-xs font-serif font-bold transition-all cursor-pointer shadow-sm"
+            title="打开管理员后台 (录入/编辑图片与视频工作流)"
           >
-            <Clapperboard className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">场景赋能</span>
+            <Wrench className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">管理后台</span>
           </button>
 
           {/* Virtual Tour */}
@@ -141,26 +141,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               playSpotlightClick();
               onOpenTour();
             }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-gallery-900 border border-gold-500/30 text-gold-300 hover:border-gold-400 hover:text-gold-200 text-xs font-sans font-medium transition-all cursor-pointer"
-            title="开启沉浸式展厅漫步巡礼"
+            className="p-2.5 rounded-full bg-gallery-900 border border-gallery-700 text-gallery-300 hover:border-gold-400 hover:text-gold-200 text-xs transition-all cursor-pointer"
+            title="开启沉浸漫游"
           >
-            <Compass className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">沉浸漫游</span>
+            <Compass className="w-4 h-4" />
           </button>
 
-          {/* Palette Inspector */}
-          <button
-            onClick={() => {
-              playSpotlightClick();
-              onOpenPalette();
-            }}
-            className="p-2.5 rounded-full bg-gallery-900 border border-gallery-700 text-gallery-300 hover:text-gold-300 hover:border-gold-500/40 text-xs transition-all cursor-pointer"
-            title="全馆色谱基因"
-          >
-            <Palette className="w-4 h-4 text-accent-cyan" />
-          </button>
-
-          {/* Style Mixer / Alchemist */}
+          {/* Style Mixer */}
           <button
             onClick={() => {
               playSpotlightClick();
@@ -192,7 +179,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onOpenSubmit();
             }}
             className="p-2.5 rounded-full bg-gallery-900 border border-gallery-700 text-gallery-400 hover:text-gold-300 transition-all cursor-pointer"
-            title="推荐新艺术流派"
+            title="投稿新灵感"
           >
             <Send className="w-4 h-4" />
           </button>
@@ -216,6 +203,26 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="lg:hidden px-4 pb-3 flex items-center gap-2">
         <div className="flex-1 flex items-center justify-center p-1 rounded-full bg-gallery-900 border border-gallery-800">
           <button
+            onClick={() => onSwitchView('image-lab')}
+            className={`flex-1 py-1 rounded-full text-xs font-serif font-bold transition-all ${
+              currentView === 'image-lab'
+                ? 'bg-gold-500 text-gallery-950'
+                : 'text-gallery-300'
+            }`}
+          >
+            🎨 图像提示词
+          </button>
+          <button
+            onClick={() => onSwitchView('video-lab')}
+            className={`flex-1 py-1 rounded-full text-xs font-serif font-bold transition-all ${
+              currentView === 'video-lab'
+                ? 'bg-accent-violet text-white'
+                : 'text-gallery-300'
+            }`}
+          >
+            🎬 视频工作流
+          </button>
+          <button
             onClick={() => onSwitchView('spatial')}
             className={`flex-1 py-1 rounded-full text-xs font-serif font-bold transition-all ${
               currentView === 'spatial'
@@ -223,35 +230,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                 : 'text-gallery-300'
             }`}
           >
-            🏛️ 实景展厅
-          </button>
-          <button
-            onClick={() => onSwitchView('wall')}
-            className={`flex-1 py-1 rounded-full text-xs font-serif font-bold transition-all ${
-              currentView === 'wall'
-                ? 'bg-gold-500 text-gallery-950'
-                : 'text-gallery-300'
-            }`}
-          >
-            🖼️ 全景画墙
-          </button>
-          <button
-            onClick={() => onSwitchView('styles')}
-            className={`flex-1 py-1 rounded-full text-xs font-serif font-bold transition-all ${
-              currentView === 'styles'
-                ? 'bg-gold-500 text-gallery-950'
-                : 'text-gallery-300'
-            }`}
-          >
-            📑 分馆
+            🏛️ 展厅
           </button>
         </div>
 
         <button
-          onClick={onOpenScenarios}
-          className="px-3 py-1.5 rounded-full bg-accent-violet/20 border border-accent-violet/40 text-accent-violet text-xs font-serif font-bold"
+          onClick={onOpenAdmin}
+          className="px-3 py-1.5 rounded-full bg-gold-500/20 border border-gold-500/40 text-gold-300 text-xs font-serif font-bold"
         >
-          🎬 场景
+          ⚙️ 后台
         </button>
       </div>
     </header>
