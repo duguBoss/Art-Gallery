@@ -5,7 +5,7 @@ import type { GalleryTheme } from './types/theme';
 import { Navbar, type MainViewType } from './components/Navbar';
 import { HeroGallery } from './components/HeroGallery';
 import { ThreeSpatialGallery } from './components/ThreeSpatialGallery';
-import { BookOfShapesStudio } from './components/BookOfShapesStudio';
+import { GenerativePosterStudio } from './components/GenerativePosterStudio';
 import { AIVideoWorkflowLab } from './components/AIVideoWorkflowLab';
 import { SpotlightEffect } from './components/SpotlightEffect';
 import { AdminCMSModal } from './components/AdminCMSModal';
@@ -24,8 +24,8 @@ export function App() {
     localStorage.setItem('art_gallery_theme', currentTheme);
   }, [currentTheme]);
 
-  // Core views: 'image-lab' (3D Spatial Gallery) | 'shapes-lab' (Book of Shapes) | 'video-lab' (Video Workflows)
-  const [currentView, setCurrentView] = useState<MainViewType>('image-lab');
+  // Core views: 'shapes-lab' (Generative Poster Studio) as default! | 'image-lab' | 'video-lab'
+  const [currentView, setCurrentView] = useState<MainViewType>('shapes-lab');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Custom projected Book of Shapes SVG from Shapes Studio to 3D Gallery
@@ -119,7 +119,15 @@ export function App() {
         {/* Concise Hero Section */}
         <HeroGallery currentView={currentView} />
 
-        {/* View 1: Three.js 3D Spatial Virtual Art Gallery (Spotlights, Radar, 3D Camera Glide, Holistic Themes) */}
+        {/* View 1: Book of Shapes Generative Algorithmic Poster Design Studio (Flagship View) */}
+        {currentView === 'shapes-lab' && (
+          <GenerativePosterStudio 
+            currentTheme={currentTheme}
+            onSelectTheme={setCurrentTheme}
+          />
+        )}
+
+        {/* View 2: Curated Art Salon (3D Virtual Spatial Gallery & Prompt Deconstruction) */}
         {currentView === 'image-lab' && (
           <ThreeSpatialGallery 
             imageCases={filteredImageCases} 
@@ -127,18 +135,6 @@ export function App() {
             onSelectTheme={setCurrentTheme}
             customProjectedShape={customProjectedShape}
             onOpenShapesStudio={() => setCurrentView('shapes-lab')}
-          />
-        )}
-
-        {/* View 2: Book of Shapes Algorithmic Generative SVG Studio */}
-        {currentView === 'shapes-lab' && (
-          <BookOfShapesStudio 
-            currentTheme={currentTheme}
-            onProjectToGallery={(svg, title) => {
-              setCustomProjectedShape({ svg, title });
-              setCurrentView('image-lab');
-            }}
-            onNavigateToGallery={() => setCurrentView('image-lab')}
           />
         )}
 

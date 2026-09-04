@@ -76,21 +76,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={() => {
               playSpotlightClick();
-              onSwitchView('image-lab');
-            }}
-            className="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-sans font-bold transition-all cursor-pointer"
-            style={{
-              backgroundColor: currentView === 'image-lab' ? 'var(--pill-active-bg)' : 'transparent',
-              color: currentView === 'image-lab' ? 'var(--pill-active-text)' : 'var(--text-muted)',
-            }}
-          >
-            <ImageIcon className="w-3.5 h-3.5" />
-            <span>🎨 3D 虚拟展厅</span>
-          </button>
-
-          <button
-            onClick={() => {
-              playSpotlightClick();
               onSwitchView('shapes-lab');
             }}
             className="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-sans font-bold transition-all cursor-pointer"
@@ -100,7 +85,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
           >
             <Shapes className="w-3.5 h-3.5 text-amber-500" />
-            <span>📐 形态之书 (SVG)</span>
+            <span>📐 算法海报设计台</span>
+          </button>
+
+          <button
+            onClick={() => {
+              playSpotlightClick();
+              onSwitchView('image-lab');
+            }}
+            className="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-sans font-bold transition-all cursor-pointer"
+            style={{
+              backgroundColor: currentView === 'image-lab' ? 'var(--pill-active-bg)' : 'transparent',
+              color: currentView === 'image-lab' ? 'var(--pill-active-text)' : 'var(--text-muted)',
+            }}
+          >
+            <ImageIcon className="w-3.5 h-3.5" />
+            <span>🎨 风格灵感典藏</span>
           </button>
 
           <button
