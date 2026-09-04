@@ -1,10 +1,10 @@
-import React from 'react';
-import { Sparkles, Search, Film, Image as ImageIcon, Shapes } from 'lucide-react';
+﻿import React from 'react';
+import { Sparkles, Shapes, Film, Atom, Compass, LayoutGrid } from 'lucide-react';
 import { playSpotlightClick } from '../utils/audio';
 import { ThemeSwitcher } from './ThemeSwitcher';
 import type { GalleryTheme } from '../types/theme';
 
-export type MainViewType = 'image-lab' | 'shapes-lab' | 'video-lab';
+export type MainViewType = 'atoms' | 'styles' | 'motion' | 'atlas' | 'shapes-lab';
 
 interface NavbarProps {
   currentView: MainViewType;
@@ -23,6 +23,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   currentTheme,
   onSelectTheme,
 }) => {
+  const navTabs: { id: MainViewType; label: string; icon: React.ReactNode }[] = [
+    { id: 'atoms', label: '视觉原子', icon: <Atom className="w-3.5 h-3.5" /> },
+    { id: 'styles', label: '风格规则', icon: <Compass className="w-3.5 h-3.5" /> },
+    { id: 'motion', label: '动态与镜头', icon: <Film className="w-3.5 h-3.5" /> },
+    { id: 'atlas', label: '作品图鉴', icon: <LayoutGrid className="w-3.5 h-3.5" /> },
+    { id: 'shapes-lab', label: '算法工坊', icon: <Shapes className="w-3.5 h-3.5 text-amber-400" /> },
+  ];
+
   return (
     <header
       className="sticky top-0 z-40 w-full border-b backdrop-blur-md transition-all duration-300"
@@ -33,7 +41,10 @@ export const Navbar: React.FC<NavbarProps> = ({
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Brand */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div 
+          className="flex items-center gap-3 shrink-0 cursor-pointer"
+          onClick={() => onSwitchView('atoms')}
+        >
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm"
             style={{
@@ -46,99 +57,57 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="text-left">
             <div className="flex items-center gap-2">
               <span className="font-serif font-black tracking-tight text-base" style={{ color: 'var(--text-main)' }}>
-                万象视听灵感
+                视觉设计图鉴
               </span>
               <span
-                className="text-[10px] font-mono px-2 py-0.5 rounded-full border font-medium"
+                className="text-[10px] font-mono px-2 py-0.5 rounded-full border font-medium hidden sm:inline-block"
                 style={{
                   backgroundColor: 'var(--tag-bg)',
                   borderColor: 'var(--border-subtle)',
                   color: 'var(--tag-text)',
                 }}
               >
-                Art & Motion AI
+                Visual Design Atlas
               </span>
             </div>
-            <p className="text-[11px] font-sans hidden sm:block" style={{ color: 'var(--text-muted)' }}>
-              提示词积木拆解 · 形态之书矢量 · 视频分步工作流
+            <p className="text-[11px] font-sans hidden md:block" style={{ color: 'var(--text-muted)' }}>
+              看见 · 理解 · 拆解 · 重构
             </p>
           </div>
         </div>
 
         {/* View Switcher Tabs (Center Pill) */}
         <div
-          className="flex items-center p-1 rounded-full border shadow-inner"
+          className="flex items-center p-1 rounded-full border shadow-inner overflow-x-auto max-w-full"
           style={{
             backgroundColor: 'var(--bg-card)',
             borderColor: 'var(--border-subtle)',
           }}
         >
-          <button
-            onClick={() => {
-              playSpotlightClick();
-              onSwitchView('shapes-lab');
-            }}
-            className="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-sans font-bold transition-all cursor-pointer"
-            style={{
-              backgroundColor: currentView === 'shapes-lab' ? 'var(--pill-active-bg)' : 'transparent',
-              color: currentView === 'shapes-lab' ? 'var(--pill-active-text)' : 'var(--text-muted)',
-            }}
-          >
-            <Shapes className="w-3.5 h-3.5 text-amber-500" />
-            <span>📐 算法海报设计台</span>
-          </button>
-
-          <button
-            onClick={() => {
-              playSpotlightClick();
-              onSwitchView('image-lab');
-            }}
-            className="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-sans font-bold transition-all cursor-pointer"
-            style={{
-              backgroundColor: currentView === 'image-lab' ? 'var(--pill-active-bg)' : 'transparent',
-              color: currentView === 'image-lab' ? 'var(--pill-active-text)' : 'var(--text-muted)',
-            }}
-          >
-            <ImageIcon className="w-3.5 h-3.5" />
-            <span>🎨 风格灵感典藏</span>
-          </button>
-
-          <button
-            onClick={() => {
-              playSpotlightClick();
-              onSwitchView('video-lab');
-            }}
-            className="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-sans font-bold transition-all cursor-pointer"
-            style={{
-              backgroundColor: currentView === 'video-lab' ? 'var(--pill-active-bg)' : 'transparent',
-              color: currentView === 'video-lab' ? 'var(--pill-active-text)' : 'var(--text-muted)',
-            }}
-          >
-            <Film className="w-3.5 h-3.5" />
-            <span>🎬 视频分步工作流</span>
-          </button>
+          {navTabs.map((tab) => {
+            const isActive = currentView === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  playSpotlightClick();
+                  onSwitchView(tab.id);
+                }}
+                className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-sans font-bold transition-all cursor-pointer whitespace-nowrap"
+                style={{
+                  backgroundColor: isActive ? 'var(--pill-active-bg)' : 'transparent',
+                  color: isActive ? 'var(--pill-active-text)' : 'var(--text-muted)',
+                }}
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
 
-        {/* Right Tools: Search + Theme Switcher */}
+        {/* Right Tools: Artistic Atmosphere Theme Switcher */}
         <div className="flex items-center gap-3">
-          {/* Global Search */}
-          <div className="hidden md:flex items-center max-w-[200px] w-full relative">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 opacity-50" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="搜索风格或工具..."
-              className="w-full pl-8 pr-3 py-1.5 rounded-full text-xs focus:outline-none transition-all border"
-              style={{
-                backgroundColor: 'var(--bg-input)',
-                borderColor: 'var(--border-subtle)',
-                color: 'var(--text-main)',
-              }}
-            />
-          </div>
-
-          {/* Artistic Mood Switcher */}
           <ThemeSwitcher currentTheme={currentTheme} onSelectTheme={onSelectTheme} />
         </div>
       </div>

@@ -25,18 +25,26 @@ export const HeroGallery: React.FC<HeroGalleryProps> = ({ currentView }) => {
                 color: 'var(--tag-text)',
               }}
             >
-              {currentView === 'image-lab' 
-                ? 'CURATED ART SALON · 艺术流派典藏展' 
-                : currentView === 'shapes-lab'
-                ? 'BOOK OF SHAPES · 算法几何灵感工坊'
-                : 'CINEMATIC MOTION STUDIO · 影视分镜放映厅'}
+              {currentView === 'atoms' 
+                ? 'VISUAL ATOMS · 视觉基础原子库' 
+                : currentView === 'styles'
+                ? 'STYLE MATRIX · 风格规则矩阵'
+                : currentView === 'motion'
+                ? 'MOTION & CAMERA · 动态镜头实验室'
+                : currentView === 'atlas'
+                ? 'DESIGN ATLAS · 作品知识网络'
+                : 'BOOK OF SHAPES · 算法海报工坊'}
             </span>
             <span className="text-[11px] font-mono hidden sm:inline" style={{ color: 'var(--accent)' }}>
-              {currentView === 'image-lab' 
-                ? '◆ 空间实体透视 · 3D 画作反光' 
-                : currentView === 'shapes-lab'
-                ? '◆ 参考 Nikolaj Sokolowski · 纯粹矢量数学'
-                : '◆ 工业级多镜头连贯生成流'}
+              {currentView === 'atoms' 
+                ? '◆ 构图 · 色彩 · 排版 · 光影 · 材质' 
+                : currentView === 'styles'
+                ? '◆ 规则方程 · 组合美学'
+                : currentView === 'motion'
+                ? '◆ 运镜推拉 · 遮罩转场 · 时序分镜'
+                : currentView === 'atlas'
+                ? '◆ 一个作品 = 一个入口'
+                : '◆ 参考 Nikolaj Sokolowski · 纯粹矢量数学'}
             </span>
           </div>
 
@@ -44,22 +52,30 @@ export const HeroGallery: React.FC<HeroGalleryProps> = ({ currentView }) => {
             className="text-2xl sm:text-3xl font-serif font-black tracking-tight"
             style={{ color: 'var(--text-main)' }}
           >
-            {currentView === 'image-lab'
-              ? '万象视听 · 殿堂级空间艺术画廊'
-              : currentView === 'shapes-lab'
-              ? '形态之书 · 纯粹生成式矢量数学工坊'
-              : '光影流转 · 影视级 AI 视频分步制作工程'}
+            {currentView === 'atoms'
+              ? '视觉设计图鉴 · 底层材料解构'
+              : currentView === 'styles'
+              ? '视觉风格图谱 · 规则方程矩阵'
+              : currentView === 'motion'
+              ? '动态与镜头语言 · 电影分镜时序'
+              : currentView === 'atlas'
+              ? '设计知识网络 · 多维交叉探索'
+              : '形态之书 · 纯粹生成式矢量数学工坊'}
           </h1>
           
           <p
             className="text-xs sm:text-sm max-w-3xl leading-relaxed font-sans"
             style={{ color: 'var(--text-muted)' }}
           >
-            {currentView === 'image-lab'
-              ? '汇聚东方水墨、微缩体素、赛博霓虹与包豪斯等十三大标志性流派。通过空间画框与 3D 物理光泽呈现，支持一键电影级自动漫步巡礼与积木咒语解构。'
-              : currentView === 'shapes-lab'
-              ? '参考 Nikolaj Sokolowski 的 Book of Shapes 经典生成式几何算法 —— 特鲁歇方圆迷宫、布罗克曼同心弧、脉冲星波形山脊与莫尔频纹。实时微调参数、导出纯净 SVG 矢量文件，或一键挂载至 3D 虚拟展厅中央光影艺术装置。'
-              : '解构好莱坞大片与先锋短片的工业化生产管线。从核心角色定妆、物理运镜控制到胶片级调色插帧，让高质量 AI 影像制作有章可循。'}
+            {currentView === 'atoms'
+              ? '深入探究画面为何成立，解构色彩对撞、负空间留白、极端尺度与丁达尔体积光等核心原子。'
+              : currentView === 'styles'
+              ? '风格不是标签，而是一组规则方程。探索瑞士国际、粗野主义、赛博朋克与杂志画报的构成逻辑。'
+              : currentView === 'motion'
+              ? '将视频拆解为镜头推拉摇移、转场遮罩与动作时序，让动态设计真正有体系。'
+              : currentView === 'atlas'
+              ? '一个作品就是一个入口，跨越 Web、UI、海报、3D 与动态，多维探索视觉灵感。'
+              : '参考 Nikolaj Sokolowski Book of Shapes，通过算法参数即时生成具有高审美价值的几何向量艺术。'}
           </p>
         </div>
       </div>

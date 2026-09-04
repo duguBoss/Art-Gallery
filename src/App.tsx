@@ -1,18 +1,20 @@
-import { useState, useMemo, useEffect } from 'react';
-import { getImageCases, getVideoWorkflows } from './data/workflowStore';
-import type { AIImageCase, AIVideoWorkflow } from './types/art';
+﻿import { useState, useEffect } from 'react';
 import type { GalleryTheme } from './types/theme';
 import { Navbar, type MainViewType } from './components/Navbar';
-import { HeroGallery } from './components/HeroGallery';
-import { ThreeSpatialGallery } from './components/ThreeSpatialGallery';
+import { VisualJourneyHero } from './components/VisualJourneyHero';
+import { VisualAtomsView } from './components/VisualAtomsView';
+import { StyleMatrixView } from './components/StyleMatrixView';
+import { MotionCameraLab } from './components/MotionCameraLab';
+import { DesignAtlasView } from './components/DesignAtlasView';
 import { GenerativePosterStudio } from './components/GenerativePosterStudio';
-import { AIVideoWorkflowLab } from './components/AIVideoWorkflowLab';
 import { SpotlightEffect } from './components/SpotlightEffect';
 import { AdminCMSModal } from './components/AdminCMSModal';
 import { Footer } from './components/Footer';
+import { getImageCases, getVideoWorkflows } from './data/workflowStore';
+import type { AIImageCase, AIVideoWorkflow } from './types/art';
 
 export function App() {
-  // Scenario-Based Artistic Atmosphere Theme (Cozy Night, Zen Mist, Cyber Neon, Grand Salon, Ghibli Breeze)
+  // Scenario-Based Artistic Atmosphere Theme
   const [currentTheme, setCurrentTheme] = useState<GalleryTheme>(() => {
     const saved = localStorage.getItem('art_gallery_theme');
     const validThemes: GalleryTheme[] = ['cozy-night', 'zen-mist', 'cyber-neon', 'grand-salon', 'ghibli-breeze'];
@@ -24,50 +26,37 @@ export function App() {
     localStorage.setItem('art_gallery_theme', currentTheme);
   }, [currentTheme]);
 
-  // Core views: 'shapes-lab' (Generative Poster Studio) as default! | 'image-lab' | 'video-lab'
-  const [currentView, setCurrentView] = useState<MainViewType>('shapes-lab');
+  // Core Visual Atlas Views: 'atoms' | 'styles' | 'motion' | 'atlas' | 'shapes-lab'
+  const [currentView, setCurrentView] = useState<MainViewType>('atoms');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Custom projected Book of Shapes SVG from Shapes Studio to 3D Gallery
-  const [customProjectedShape, setCustomProjectedShape] = useState<{ svg: string; title: string } | null>(null);
-
-  // Local storage backed dataset
-  const [imageCases, setImageCases] = useState<AIImageCase[]>(getImageCases());
-  const [videoWorkflows, setVideoWorkflows] = useState<AIVideoWorkflow[]>(getVideoWorkflows());
+  // Cross-Dimension Filters
+  const [activeAtomFilter, setActiveAtomFilter] = useState<string | null>(null);
+  const [activeStyleFilter, setActiveStyleFilter] = useState<string | null>(null);
 
   // Stealth Admin Modal State
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [imageCases, setImageCases] = useState<AIImageCase[]>(getImageCases());
+  const [videoWorkflows, setVideoWorkflows] = useState<AIVideoWorkflow[]>(getVideoWorkflows());
 
-  // Filtered Image Cases
-  const filteredImageCases = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return imageCases;
-    return imageCases.filter(
-      (c) =>
-        c.title.toLowerCase().includes(q) ||
-        c.category.toLowerCase().includes(q) ||
-        c.badge.toLowerCase().includes(q) ||
-        c.description.toLowerCase().includes(q) ||
-        c.tags?.some((t) => t.toLowerCase().includes(q)) ||
-        c.promptBlocks?.subject.toLowerCase().includes(q)
-    );
-  }, [imageCases, searchQuery]);
+  // Cross-Navigation Handler: Explore Atom in Works
+  const handleExploreAtomInWorks = (atomName: string) => {
+    setActiveAtomFilter(atomName);
+    setActiveStyleFilter(null);
+    setCurrentView('atlas');
+  };
 
-  // Filtered Video Workflows
-  const filteredVideoWorkflows = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return videoWorkflows;
-    return videoWorkflows.filter(
-      (w) =>
-        w.title.toLowerCase().includes(q) ||
-        w.category.toLowerCase().includes(q) ||
-        w.summary.toLowerCase().includes(q) ||
-        w.toolsChain?.some((t) => t.toLowerCase().includes(q)) ||
-        w.steps?.some(
-          (s) => s.stepTitle.toLowerCase().includes(q) || s.toolUsed.toLowerCase().includes(q)
-        )
-    );
-  }, [videoWorkflows, searchQuery]);
+  // Cross-Navigation Handler: Explore Style in Works
+  const handleExploreStyleInWorks = (styleId: string) => {
+    setActiveStyleFilter(styleId);
+    setActiveAtomFilter(null);
+    setCurrentView('atlas');
+  };
+
+  const handleClearFilters = () => {
+    setActiveAtomFilter(null);
+    setActiveStyleFilter(null);
+  };
 
   // Stealth Trigger 1: Global Shortcut Ctrl + Shift + A
   useEffect(() => {
@@ -81,18 +70,6 @@ export function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Stealth Trigger 2: Secret URL parameter ?curator=1 or ?vault=1
-  useEffect(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('curator') === '1' || params.get('vault') === '1') {
-        setIsAdminOpen(true);
-      }
-    } catch (e) {
-      // silent
-    }
-  }, []);
-
   return (
     <div
       className="min-h-screen flex flex-col font-sans transition-colors duration-300 relative"
@@ -104,7 +81,7 @@ export function App() {
       {/* Subtle Museum Spotlight Tracking Mouse */}
       <SpotlightEffect />
 
-      {/* Top Navbar */}
+      {/* Top Global Navigation */}
       <Navbar
         currentView={currentView}
         onSwitchView={setCurrentView}
@@ -114,40 +91,55 @@ export function App() {
         onSelectTheme={setCurrentTheme}
       />
 
-      {/* Main Container */}
-      <main className="flex-1">
-        {/* Concise Hero Section */}
-        <HeroGallery currentView={currentView} />
+      {/* Main Visual Atlas Container */}
+      <main className="flex-1 pb-16">
+        {/* Visual Journey Hero & Progression Roadmap */}
+        <VisualJourneyHero
+          currentTab={currentView}
+          onSelectTab={(tab) => {
+            setCurrentView(tab as MainViewType);
+          }}
+        />
 
-        {/* View 1: Book of Shapes Generative Algorithmic Poster Design Studio (Flagship View) */}
+        {/* View 1: LEVEL 01 · 视觉基础原子库 (Visual Atoms) */}
+        {currentView === 'atoms' && (
+          <VisualAtomsView onExploreAtomInWorks={handleExploreAtomInWorks} />
+        )}
+
+        {/* View 2: LEVEL 02 · 风格规则矩阵与方程 (Style Matrix) */}
+        {currentView === 'styles' && (
+          <StyleMatrixView onExploreStyleInWorks={handleExploreStyleInWorks} />
+        )}
+
+        {/* View 3: LEVEL 03 · 动态与镜头语言实验室 (Motion & Camera Lab) */}
+        {currentView === 'motion' && (
+          <MotionCameraLab />
+        )}
+
+        {/* View 4: LEVEL 04 · 作品与多维知识网络 (Design Atlas Works & Deconstruction) */}
+        {currentView === 'atlas' && (
+          <DesignAtlasView
+            initialAtomFilter={activeAtomFilter}
+            initialStyleFilter={activeStyleFilter}
+            onClearFilter={handleClearFilters}
+            onSelectAtom={handleExploreAtomInWorks}
+            onSelectStyle={handleExploreStyleInWorks}
+          />
+        )}
+
+        {/* View 5: LEVEL 05 · 算法海报重构工坊 (Book of Shapes Generative Studio) */}
         {currentView === 'shapes-lab' && (
-          <GenerativePosterStudio 
+          <GenerativePosterStudio
             currentTheme={currentTheme}
             onSelectTheme={setCurrentTheme}
           />
-        )}
-
-        {/* View 2: Curated Art Salon (3D Virtual Spatial Gallery & Prompt Deconstruction) */}
-        {currentView === 'image-lab' && (
-          <ThreeSpatialGallery 
-            imageCases={filteredImageCases} 
-            currentTheme={currentTheme}
-            onSelectTheme={setCurrentTheme}
-            customProjectedShape={customProjectedShape}
-            onOpenShapesStudio={() => setCurrentView('shapes-lab')}
-          />
-        )}
-
-        {/* View 3: Video Workflow Lab */}
-        {currentView === 'video-lab' && (
-          <AIVideoWorkflowLab workflows={filteredVideoWorkflows} />
         )}
       </main>
 
-      {/* Clean Footer with Secret Easter Egg */}
+      {/* Clean Footer with Secret Trigger */}
       <Footer onSecretTrigger={() => setIsAdminOpen(true)} />
 
-      {/* Stealth Admin Modal */}
+      {/* Stealth Curator Admin Modal */}
       <AdminCMSModal
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
