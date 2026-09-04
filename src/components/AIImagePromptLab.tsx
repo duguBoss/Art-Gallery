@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import type { AIImageCase, PromptDeconstruction } from '../types/art';
 import { Sparkles, Copy, Check, RotateCcw, Filter, Eye, Layers, Sliders, ExternalLink } from 'lucide-react';
 import { playSpotlightClick, playSuccessChime } from '../utils/audio';
@@ -126,12 +126,6 @@ export const AIImagePromptLab: React.FC<AIImagePromptLabProps> = ({
             <span className="text-xs font-mono text-gallery-400 tracking-wider">
               精选风格案例 ({filteredCases.length})
             </span>
-            <button
-              onClick={onOpenAdmin}
-              className="text-xs font-mono text-gold-400 hover:text-gold-300 underline cursor-pointer"
-            >
-              + 后台录入新案例
-            </button>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-1 gap-3 max-h-[780px] overflow-y-auto pr-1">

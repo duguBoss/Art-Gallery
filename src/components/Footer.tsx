@@ -1,7 +1,29 @@
-﻿import React from 'react';
+﻿import React, { useState } from 'react';
 import { CheckCircle2 } from 'lucide-react';
+import { playGalleryBell } from '../utils/audio';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onSecretTrigger?: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onSecretTrigger }) => {
+  const [clickCount, setClickCount] = useState(0);
+
+  const handleSecretClick = () => {
+    setClickCount((prev) => {
+      const next = prev + 1;
+      if (next >= 3) {
+        playGalleryBell(880);
+        onSecretTrigger?.();
+        return 0;
+      }
+      return next;
+    });
+
+    // Reset after 1.5 seconds if 3 clicks not reached
+    setTimeout(() => setClickCount(0), 1500);
+  };
+
   return (
     <footer className="border-t border-gallery-800/80 bg-gallery-950 pt-12 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
@@ -34,7 +56,12 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="pt-6 border-t border-gallery-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gallery-400 font-mono">
-          <div>
+          {/* Secret Easter Egg: Click 3 times to open vault */}
+          <div 
+            onClick={handleSecretClick}
+            className="cursor-default select-none transition-colors hover:text-gallery-300"
+            title=""
+          >
             © 2026 Art Gallery. Open Source under MIT License.
           </div>
           <div className="flex items-center gap-4">

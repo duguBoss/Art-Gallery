@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import type { AIVideoWorkflow, VideoWorkflowStep } from '../types/art';
 import { Film, Sparkles, Copy, Check, ArrowRight, Layers, Sliders, Video, CheckCircle2, ChevronRight, Wrench } from 'lucide-react';
 import { playSpotlightClick, playSuccessChime } from '../utils/audio';
@@ -43,14 +43,6 @@ export const AIVideoWorkflowLab: React.FC<AIVideoWorkflowLabProps> = ({
             AI 视频不是一蹴而就的黑盒。我们将其拆解为清晰的链式步骤（资产生成 ➔ 运镜与微动 ➔ 节奏与后期），每个步骤都有专属提示词与核心技巧，小白也能照着做出大片！
           </p>
         </div>
-
-        <button
-          onClick={onOpenAdmin}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gallery-900 border border-gold-500/40 text-gold-300 hover:border-gold-400 hover:bg-gold-500/10 text-xs font-serif font-bold transition-all cursor-pointer shadow-md shrink-0"
-        >
-          <Wrench className="w-3.5 h-3.5" />
-          <span>+ 管理/新增视频工作流</span>
-        </button>
       </div>
 
       {/* Top Workflow Switcher Cards */}

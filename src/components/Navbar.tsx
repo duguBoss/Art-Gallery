@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { Volume2, VolumeX, Sparkles, Compass, Palette, Send, Search, Film, Image as ImageIcon, Building2, Wrench } from 'lucide-react';
+import { Volume2, VolumeX, Sparkles, Compass, Search, Film, Image as ImageIcon, Building2, Send } from 'lucide-react';
 import { toggleAmbientSound, playSpotlightClick } from '../utils/audio';
 
 export type MainViewType = 'image-lab' | 'video-lab' | 'spatial' | 'wall' | 'styles';
@@ -13,7 +13,6 @@ interface NavbarProps {
   onOpenPalette: () => void;
   onOpenSubmit: () => void;
   onOpenTour: () => void;
-  onOpenAdmin: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -22,10 +21,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   searchQuery,
   onSearchChange,
   onOpenMixer,
-  onOpenPalette,
-  onOpenSubmit,
   onOpenTour,
-  onOpenAdmin,
+  onOpenSubmit,
 }) => {
   const [isAudioOn, setIsAudioOn] = useState(false);
 
@@ -122,19 +119,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Action Tools */}
         <div className="flex items-center gap-2">
-          {/* Admin CMS Access Button */}
-          <button
-            onClick={() => {
-              playSpotlightClick();
-              onOpenAdmin();
-            }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-gold-500/15 border border-gold-500/40 text-gold-300 hover:bg-gold-500 hover:text-gallery-950 text-xs font-serif font-bold transition-all cursor-pointer shadow-sm"
-            title="打开管理员后台 (录入/编辑图片与视频工作流)"
-          >
-            <Wrench className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">管理后台</span>
-          </button>
-
           {/* Virtual Tour */}
           <button
             onClick={() => {
@@ -233,13 +217,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             🏛️ 展厅
           </button>
         </div>
-
-        <button
-          onClick={onOpenAdmin}
-          className="px-3 py-1.5 rounded-full bg-gold-500/20 border border-gold-500/40 text-gold-300 text-xs font-serif font-bold"
-        >
-          ⚙️ 后台
-        </button>
       </div>
     </header>
   );

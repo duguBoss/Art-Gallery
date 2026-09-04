@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import type { AIImageCase, AIVideoWorkflow, VideoWorkflowStep } from '../types/art';
 import { 
   X, Plus, Trash2, Edit3, Save, RotateCcw, Download, ShieldCheck, 
@@ -51,13 +51,29 @@ export const AdminCMSModal: React.FC<AdminCMSModalProps> = ({
     setTimeout(() => setSaveSuccessMsg(null), 2500);
   };
 
-  const handleLogin = () => {
-    if (passwordInput.trim() === 'admin' || passwordInput.trim() === 'admin888' || passwordInput.trim() === '') {
-      playSuccessChime();
-      setAdminAuth(true);
-      setIsAuthed(true);
-      setAuthError(false);
-    } else {
+  const VAULT_HASH = '59862fa8b4938b453edbd92404eb85242b273b8f23b7c071bb8ff9eac7c00a3d';
+
+  const handleLogin = async () => {
+    if (!passwordInput.trim()) {
+      setAuthError(true);
+      return;
+    }
+    try {
+      const buffer = new TextEncoder().encode(passwordInput.trim());
+      const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hash = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+
+      if (hash === VAULT_HASH) {
+        playSuccessChime();
+        setAdminAuth(true);
+        setIsAuthed(true);
+        setAuthError(false);
+        setPasswordInput('');
+      } else {
+        setAuthError(true);
+      }
+    } catch (e) {
       setAuthError(true);
     }
   };
@@ -235,33 +251,47 @@ export const AdminCMSModal: React.FC<AdminCMSModalProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 rounded bg-gold-500/20 text-gold-400 font-mono text-[10px] font-bold border border-gold-500/30">
-                ADMIN CONTROL PANEL · 后台管理系统
+                CURATOR VAULT // 私人策展工作台
               </span>
               {isAuthed && (
                 <span className="flex items-center gap-1 text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800">
                   <ShieldCheck className="w-3 h-3" />
-                  <span>管理员已登录</span>
+                  <span>已通过主密钥授权</span>
                 </span>
               )}
             </div>
             <h2 className="text-xl sm:text-2xl font-serif font-black text-gallery-100 mt-1">
-              AI 提示词案例与分步工作流管理后台
+              AI 视觉提示词与多步骤工作流典藏库
             </h2>
             <p className="text-xs text-gallery-400 font-sans mt-0.5">
-              直接在线录入、编辑图片提示词拆解与多步骤视频生成管线，支持持久化存储与导出。
+              结构化管理图片拆解积木与视频链式生成管线，支持离线加密持久化与跨端导出。
             </p>
           </div>
 
-          <button
-            onClick={() => {
-              playSpotlightClick();
-              onClose();
-            }}
-            className="p-2.5 rounded-full bg-gallery-800 border border-gallery-700 text-gallery-300 hover:text-white hover:border-gold-500 transition-all cursor-pointer"
-            title="关闭后台"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {isAuthed && (
+              <button
+                onClick={() => {
+                  setAdminAuth(false);
+                  setIsAuthed(false);
+                  onClose();
+                }}
+                className="px-3 py-1.5 rounded-xl bg-gallery-900 border border-gallery-700 text-gallery-400 hover:text-white text-xs font-mono transition-colors cursor-pointer"
+              >
+                锁闭并登出
+              </button>
+            )}
+            <button
+              onClick={() => {
+                playSpotlightClick();
+                onClose();
+              }}
+              className="p-2.5 rounded-full bg-gallery-800 border border-gallery-700 text-gallery-300 hover:text-white hover:border-gold-500 transition-all cursor-pointer"
+              title="关闭"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Toast Notification */}
@@ -278,10 +308,12 @@ export const AdminCMSModal: React.FC<AdminCMSModalProps> = ({
             <div className="w-14 h-14 rounded-2xl bg-gold-500/10 border border-gold-500/30 flex items-center justify-center mx-auto text-gold-400">
               <KeyRound className="w-7 h-7" />
             </div>
-            <div className="space-y-1">
-              <h3 className="text-lg font-serif font-bold text-gallery-100">管理员权限验证</h3>
-              <p className="text-xs text-gallery-400">
-                请输入管理员口令（默认口令为 <code className="text-gold-400 font-mono">admin</code>，或直接点击一键进入）：
+            <div className="space-y-1.5">
+              <h3 className="text-lg font-serif font-bold text-gallery-100">
+                CURATOR'S VAULT ACCESS
+              </h3>
+              <p className="text-xs text-gallery-400 font-sans leading-relaxed">
+                此区域受高强度加密保护，请输入安全主授权密钥以解锁维护权限：
               </p>
             </div>
 
@@ -290,16 +322,17 @@ export const AdminCMSModal: React.FC<AdminCMSModalProps> = ({
                 type="password"
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
-                placeholder="输入管理密码 (默认为 admin 或直接登录)"
-                className="w-full px-4 py-2.5 bg-gallery-900 border border-gallery-700 rounded-xl text-xs text-gallery-100 text-center focus:outline-none focus:border-gold-500"
+                onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                placeholder="输入主授权密钥 (Master Key)"
+                className="w-full px-4 py-2.5 bg-gallery-900 border border-gallery-700 rounded-xl text-xs text-gallery-100 text-center font-mono focus:outline-none focus:border-gold-500 shadow-inner"
               />
-              {authError && <p className="text-xs text-accent-crimson">密码错误，请尝试 admin</p>}
+              {authError && <p className="text-xs text-accent-crimson font-mono animate-shake">⚠️ 鉴权失败：密钥不匹配，拒绝访问</p>}
 
               <button
                 onClick={handleLogin}
                 className="w-full py-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-gold-600 text-gallery-950 font-serif font-bold text-xs shadow-glow-gold hover:from-gold-400 hover:to-gold-500 transition-all cursor-pointer"
               >
-                立即验证并进入管理后台
+                验证密钥并开启密室
               </button>
             </div>
           </div>

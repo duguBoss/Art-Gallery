@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ART_STYLES } from './data/stylesData';
 import { getImageCases, getVideoWorkflows } from './data/workflowStore';
 import type { ArtStyle, Artwork, HallCategory, AIImageCase, AIVideoWorkflow } from './types/art';
@@ -66,6 +66,30 @@ export function App() {
     setInspectedArtwork({ artwork: art, style });
   };
 
+  // Stealth Trigger 1: Global Shortcut Ctrl + Shift + A
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        setIsAdminOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Stealth Trigger 2: Secret URL parameter ?curator=1 or ?vault=1
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('curator') === '1' || params.get('vault') === '1') {
+        setIsAdminOpen(true);
+      }
+    } catch (e) {
+      // silent
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-gallery-950 text-gallery-100 relative">
       <SpotlightEffect />
@@ -80,7 +104,6 @@ export function App() {
         onOpenPalette={() => setIsPaletteOpen(true)}
         onOpenSubmit={() => setIsSubmitOpen(true)}
         onOpenTour={() => setIsTourOpen(true)}
-        onOpenAdmin={() => setIsAdminOpen(true)}
       />
 
       <main>
@@ -203,7 +226,7 @@ export function App() {
         onSelectStyle={(s) => setSelectedStyle(s)}
       />
 
-      <Footer />
+      <Footer onSecretTrigger={() => setIsAdminOpen(true)} />
     </div>
   );
 }
