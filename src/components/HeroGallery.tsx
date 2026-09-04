@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import type { MainViewType } from './Navbar';
 
 interface HeroGalleryProps {
@@ -15,32 +15,39 @@ export const HeroGallery: React.FC<HeroGalleryProps> = ({ currentView }) => {
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="space-y-1 text-left">
-          <div
-            className="inline-block text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded-full border"
-            style={{
-              backgroundColor: 'var(--tag-bg)',
-              borderColor: 'var(--border-subtle)',
-              color: 'var(--tag-text)',
-            }}
-          >
-            {currentView === 'image-lab' ? 'IMAGE PROMPT LAB · 提示词工程' : 'MOTION PIPELINE · 分步影视工作流'}
+        <div className="space-y-1.5 text-left">
+          <div className="flex items-center gap-2">
+            <span
+              className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full border uppercase tracking-wider"
+              style={{
+                backgroundColor: 'var(--tag-bg)',
+                borderColor: 'var(--border-subtle)',
+                color: 'var(--tag-text)',
+              }}
+            >
+              {currentView === 'image-lab' ? 'CURATED ART SALON · 艺术流派典藏展' : 'CINEMATIC MOTION STUDIO · 影视分镜放映厅'}
+            </span>
+            <span className="text-[11px] font-mono hidden sm:inline" style={{ color: 'var(--accent)' }}>
+              {currentView === 'image-lab' ? '◆ 空间实体透视 · 3D 画作反光' : '◆ 工业级多镜头连贯生成流'}
+            </span>
           </div>
+
           <h1
             className="text-2xl sm:text-3xl font-serif font-black tracking-tight"
             style={{ color: 'var(--text-main)' }}
           >
             {currentView === 'image-lab'
-              ? 'AI 图像风格展示与积木式提示词拆解'
-              : 'AI 视频分步生成工作流 · 第一步干啥，第二步干啥'}
+              ? '万象视听 · 殿堂级空间艺术画廊'
+              : '光影流转 · 影视级 AI 视频分步制作工程'}
           </h1>
+          
           <p
-            className="text-xs sm:text-sm max-w-3xl leading-relaxed"
+            className="text-xs sm:text-sm max-w-3xl leading-relaxed font-sans"
             style={{ color: 'var(--text-muted)' }}
           >
             {currentView === 'image-lab'
-              ? '探索各类经典与前沿图像风格。成图由核心主体、风格基底、材质、光影与构图模块化组合而成，你可以自由替换任意积木，一键复制专属 Prompt！'
-              : '复杂的高质量 AI 视频不是一蹴而就的黑盒。我们将其拆解为清晰连贯的执行步骤，每步标注所用工具、运动提示词与实战技巧，轻松照着做大片！'}
+              ? '汇聚东方水墨、微缩体素、赛博霓虹与包豪斯等十三大标志性流派。通过空间画框与 3D 物理光泽呈现，支持一键电影级自动漫步巡礼与积木咒语解构。'
+              : '解构好莱坞大片与先锋短片的工业化生产管线。从核心角色定妆、物理运镜控制到胶片级调色插帧，让高质量 AI 影像制作有章可循。'}
           </p>
         </div>
       </div>

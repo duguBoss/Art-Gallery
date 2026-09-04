@@ -4,8 +4,9 @@ import type { AIImageCase, AIVideoWorkflow } from './types/art';
 import type { GalleryTheme } from './types/theme';
 import { Navbar, type MainViewType } from './components/Navbar';
 import { HeroGallery } from './components/HeroGallery';
-import { AIImagePromptLab } from './components/AIImagePromptLab';
+import { CinematicGalleryStage } from './components/CinematicGalleryStage';
 import { AIVideoWorkflowLab } from './components/AIVideoWorkflowLab';
+import { SpotlightEffect } from './components/SpotlightEffect';
 import { AdminCMSModal } from './components/AdminCMSModal';
 import { Footer } from './components/Footer';
 
@@ -89,12 +90,15 @@ export function App() {
 
   return (
     <div
-      className="min-h-screen flex flex-col font-sans transition-colors duration-300"
+      className="min-h-screen flex flex-col font-sans transition-colors duration-300 relative"
       style={{
         backgroundColor: 'var(--bg-page)',
         color: 'var(--text-main)',
       }}
     >
+      {/* Subtle Museum Spotlight Tracking Mouse */}
+      <SpotlightEffect />
+
       {/* Top Navbar */}
       <Navbar
         currentView={currentView}
@@ -110,9 +114,9 @@ export function App() {
         {/* Concise Hero Section */}
         <HeroGallery currentView={currentView} />
 
-        {/* View 1: Image Prompts Lab */}
+        {/* View 1: Cinematic Gallery Stage (3D Perspective, Auto-Tour for Video Recording) */}
         {currentView === 'image-lab' && (
-          <AIImagePromptLab imageCases={filteredImageCases} />
+          <CinematicGalleryStage imageCases={filteredImageCases} />
         )}
 
         {/* View 2: Video Workflow Lab */}
