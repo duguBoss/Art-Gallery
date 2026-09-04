@@ -275,136 +275,376 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({
     const floorTexture = createFloorTexture(currentTheme);
     const wallTexture = createWallTexture(currentTheme);
 
-    // --- Architecture Geometry ---
-    // Floor
-    const floorGeo = new THREE.PlaneGeometry(36, 36);
-    const floorMat = new THREE.MeshStandardMaterial({
-      map: floorTexture,
-      roughness: currentTheme === 'cyber-neon' ? 0.15 : 0.4,
-      metalness: currentTheme === 'cyber-neon' ? 0.6 : 0.15,
-    });
-    const floorMesh = new THREE.Mesh(floorGeo, floorMat);
-    floorMesh.rotation.x = -Math.PI / 2;
-    floorMesh.position.y = 0;
-    floorMesh.receiveShadow = true;
-    scene.add(floorMesh);
-    floorMeshRef.current = floorMesh;
+    // =========================================================================
+    // 2. BUILD DISTINCT 3D ARCHITECTURAL WORLD PER THEME
+    // =========================================================================
+    const archStyle = s3d.architecturalStyle;
+    const wallSlots: { pos: THREE.Vector3; rot: THREE.Euler; cPos: THREE.Vector3; cLook: THREE.Vector3 }[] = [];
 
-    // Ceiling
-    const ceilingMat = new THREE.MeshStandardMaterial({ 
-      color: s3d.ceilingColor, 
-      roughness: 0.9 
-    });
-    const ceilingMesh = new THREE.Mesh(floorGeo, ceilingMat);
-    ceilingMesh.rotation.x = Math.PI / 2;
-    ceilingMesh.position.y = 7;
-    scene.add(ceilingMesh);
-    ceilingMeshRef.current = ceilingMesh;
+    // --- Scene 1: Cabin (暖夜微光 · 壁炉老木屋) ---
+    if (archStyle === 'cabin') {
+      // 1. Slanted Timber Roof / Low warm cabin ceiling
+      const roofLGeo = new THREE.PlaneGeometry(36, 20);
+      const roofMat = new THREE.MeshStandardMaterial({ color: 0x1a120b, roughness: 0.9 });
+      const roofL = new THREE.Mesh(roofLGeo, roofMat);
+      roofL.position.set(-8, 5.5, 0);
+      roofL.rotation.set(0, 0, Math.PI / 6);
+      scene.add(roofL);
 
-    // Walls
-    const wallMat = new THREE.MeshStandardMaterial({
-      map: wallTexture,
-      roughness: s3d.wallRoughness,
-    });
+      const roofR = new THREE.Mesh(roofLGeo, roofMat);
+      roofR.position.set(8, 5.5, 0);
+      roofR.rotation.set(0, 0, -Math.PI / 6);
+      scene.add(roofR);
 
-    const walls: THREE.Mesh[] = [];
-    const createWall = (w: number, h: number, x: number, y: number, z: number, ry: number) => {
-      const wallGeo = new THREE.PlaneGeometry(w, h);
-      const wall = new THREE.Mesh(wallGeo, wallMat);
-      wall.position.set(x, y, z);
-      wall.rotation.y = ry;
-      wall.receiveShadow = true;
-      scene.add(wall);
-      walls.push(wall);
-      return wall;
-    };
+      // Heavy rustic wood crossbeams
+      const beamGeo = new THREE.BoxGeometry(28, 0.4, 0.4);
+      const beamMat = new THREE.MeshStandardMaterial({ color: 0x24170e, roughness: 0.8 });
+      for (let bz = -12; bz <= 12; bz += 6) {
+        const beam = new THREE.Mesh(beamGeo, beamMat);
+        beam.position.set(0, 4.8, bz);
+        scene.add(beam);
+      }
 
-    // Outer Perimeter Walls
-    createWall(36, 7, 0, 3.5, -18, 0); // North
-    createWall(36, 7, 0, 3.5, 18, Math.PI); // South
-    createWall(36, 7, -18, 3.5, 0, Math.PI / 2); // West
-    createWall(36, 7, 18, 3.5, 0, -Math.PI / 2); // East
+      // 2. Real 3D Stone Fireplace with dancing firelight
+      const hearthGroup = new THREE.Group();
+      hearthGroup.position.set(0, 0, -11.5);
+      
+      const hearthBaseGeo = new THREE.BoxGeometry(6.5, 3.8, 2.0);
+      const hearthMat = new THREE.MeshStandardMaterial({ color: 0x2a1e16, roughness: 0.95 });
+      const hearthBase = new THREE.Mesh(hearthBaseGeo, hearthMat);
+      hearthBase.position.y = 1.9;
+      hearthGroup.add(hearthBase);
 
-    // Inner Partitions (Creating Exhibition Room Zones)
-    createWall(10, 7, -5, 3.5, -6, 0);
-    createWall(10, 7, 5, 3.5, -6, 0);
-    createWall(10, 7, -5, 3.5, 6, Math.PI);
-    createWall(10, 7, 5, 3.5, 6, Math.PI);
-    wallMeshesRef.current = walls;
+      const chimneyGeo = new THREE.BoxGeometry(2.4, 4.0, 1.8);
+      const chimney = new THREE.Mesh(chimneyGeo, hearthMat);
+      chimney.position.set(0, 4.8, 0);
+      hearthGroup.add(chimney);
 
-    // Central Gallery Bench (3D Mesh matching theme)
-    const benchGeo = new THREE.BoxGeometry(3.6, 0.6, 1.4);
-    const benchMat = new THREE.MeshStandardMaterial({ 
-      color: s3d.benchColor, 
-      roughness: currentTheme === 'cyber-neon' ? 0.2 : 0.5,
-      metalness: currentTheme === 'cyber-neon' ? 0.7 : 0.1
-    });
-    const bench = new THREE.Mesh(benchGeo, benchMat);
-    bench.position.set(0, 0.3, 0);
-    bench.castShadow = true;
-    bench.receiveShadow = true;
-    scene.add(bench);
-    benchMeshRef.current = bench;
+      // Fireplace pit cavity
+      const firePitGeo = new THREE.BoxGeometry(3.0, 1.8, 1.2);
+      const firePitMat = new THREE.MeshBasicMaterial({ color: 0x0a0604 });
+      const firePit = new THREE.Mesh(firePitGeo, firePitMat);
+      firePit.position.set(0, 1.0, 0.5);
+      hearthGroup.add(firePit);
 
-    // --- Base Lighting ---
-    const ambientLight = new THREE.AmbientLight(s3d.ambientLightColor, s3d.ambientLightIntensity);
-    scene.add(ambientLight);
-    ambientLightRef.current = ambientLight;
+      // Fire glowing embers
+      const emberGeo = new THREE.DodecahedronGeometry(0.5);
+      const emberMat = new THREE.MeshBasicMaterial({ color: 0xff4500 });
+      const ember = new THREE.Mesh(emberGeo, emberMat);
+      ember.position.set(0, 0.8, 0.5);
+      hearthGroup.add(ember);
 
-    const keyFill = new THREE.PointLight(s3d.keyLightColor, s3d.keyLightIntensity, 22);
-    keyFill.position.set(0, 5.5, 0);
-    scene.add(keyFill);
-    keyLightRef.current = keyFill;
+      // Fire light flickering
+      const fireLight = new THREE.PointLight(0xff7722, 2.8, 15);
+      fireLight.position.set(0, 1.2, 0.8);
+      hearthGroup.add(fireLight);
 
-    // --- Floating Volumetric Atmosphere Particles (Sparks / Motes / Rain / Pollen) ---
-    const particleGeo = new THREE.BufferGeometry();
-    const pCount = s3d.particleCount;
-    const pPos = new Float32Array(pCount * 3);
-    for (let p = 0; p < pCount * 3; p += 3) {
-      pPos[p] = (Math.random() - 0.5) * 32;     // x: -16 to 16
-      pPos[p + 1] = Math.random() * 6.5 + 0.5; // y: 0.5 to 7.0
-      pPos[p + 2] = (Math.random() - 0.5) * 32; // z: -16 to 16
+      scene.add(hearthGroup);
+
+      // 3. Wooden Walls and Partitions
+      const wallMat = new THREE.MeshStandardMaterial({ map: wallTexture, roughness: 0.9 });
+      const createCabinWall = (w: number, h: number, x: number, y: number, z: number, ry: number) => {
+        const wall = new THREE.Mesh(new THREE.PlaneGeometry(w, h), wallMat);
+        wall.position.set(x, y, z);
+        wall.rotation.y = ry;
+        scene.add(wall);
+        return wall;
+      };
+
+      createCabinWall(28, 6, 0, 3, -12, 0);
+      createCabinWall(28, 6, 0, 3, 12, Math.PI);
+      createCabinWall(24, 6, -14, 3, 0, Math.PI / 2);
+      createCabinWall(24, 6, 14, 3, 0, -Math.PI / 2);
+
+      // Bookshelves partitions
+      const shelfGeo = new THREE.BoxGeometry(4.5, 4.2, 0.8);
+      const shelfMat = new THREE.MeshStandardMaterial({ color: 0x22150d, roughness: 0.7 });
+      const shelfL = new THREE.Mesh(shelfGeo, shelfMat);
+      shelfL.position.set(-6, 2.1, -4);
+      scene.add(shelfL);
+
+      const shelfR = new THREE.Mesh(shelfGeo, shelfMat);
+      shelfR.position.set(6, 2.1, -4);
+      scene.add(shelfR);
+
+      // Cabin Artwork Positions (Above Fireplace, Wooden Walls, Cozy Nook)
+      wallSlots.push(
+        { pos: new THREE.Vector3(0, 3.2, -10.4), rot: new THREE.Euler(0, 0, 0), cPos: new THREE.Vector3(0, 2.8, -6.5), cLook: new THREE.Vector3(0, 3.0, -10.4) },
+        { pos: new THREE.Vector3(-6, 2.9, -3.4), rot: new THREE.Euler(0, 0, 0), cPos: new THREE.Vector3(-6, 2.8, 0.2), cLook: new THREE.Vector3(-6, 2.8, -3.4) },
+        { pos: new THREE.Vector3(6, 2.9, -3.4), rot: new THREE.Euler(0, 0, 0), cPos: new THREE.Vector3(6, 2.8, 0.2), cLook: new THREE.Vector3(6, 2.8, -3.4) },
+        { pos: new THREE.Vector3(-13.8, 3.0, -5), rot: new THREE.Euler(0, Math.PI / 2, 0), cPos: new THREE.Vector3(-9.8, 2.8, -5), cLook: new THREE.Vector3(-13.8, 2.8, -5) },
+        { pos: new THREE.Vector3(-13.8, 3.0, 5), rot: new THREE.Euler(0, Math.PI / 2, 0), cPos: new THREE.Vector3(-9.8, 2.8, 5), cLook: new THREE.Vector3(-13.8, 2.8, 5) },
+        { pos: new THREE.Vector3(13.8, 3.0, -5), rot: new THREE.Euler(0, -Math.PI / 2, 0), cPos: new THREE.Vector3(9.8, 2.8, -5), cLook: new THREE.Vector3(13.8, 2.8, -5) },
+        { pos: new THREE.Vector3(13.8, 3.0, 5), rot: new THREE.Euler(0, -Math.PI / 2, 0), cPos: new THREE.Vector3(9.8, 2.8, 5), cLook: new THREE.Vector3(13.8, 2.8, 5) },
+        { pos: new THREE.Vector3(0, 3.0, 11.8), rot: new THREE.Euler(0, Math.PI, 0), cPos: new THREE.Vector3(0, 2.8, 7.8), cLook: new THREE.Vector3(0, 2.8, 11.8) }
+      );
+    } 
+    // --- Scene 2: Zen Pavilion (空山新雨 · 东方水墨水榭) ---
+    else if (archStyle === 'zen-pavilion') {
+      // 1. Water Basin (Reflective dark jade water)
+      const waterGeo = new THREE.PlaneGeometry(36, 36);
+      const waterMat = new THREE.MeshStandardMaterial({ color: 0x0a1410, roughness: 0.1, metalness: 0.9 });
+      const water = new THREE.Mesh(waterGeo, waterMat);
+      water.rotation.x = -Math.PI / 2;
+      water.position.y = -0.3;
+      scene.add(water);
+
+      // Elevated Slate Deck (悬空临水木台)
+      const deckGeo = new THREE.BoxGeometry(26, 0.4, 26);
+      const deckMat = new THREE.MeshStandardMaterial({ map: floorTexture, roughness: 0.85 });
+      const deck = new THREE.Mesh(deckGeo, deckMat);
+      deck.position.set(0, 0, 0);
+      scene.add(deck);
+
+      // Eaves & Curved Roof Overhang (青瓦飞檐长廊)
+      const roofGeo = new THREE.ConeGeometry(22, 4, 4);
+      const roofMat = new THREE.MeshStandardMaterial({ color: 0x0f1612, roughness: 0.9 });
+      const roof = new THREE.Mesh(roofGeo, roofMat);
+      roof.position.set(0, 8.5, 0);
+      roof.rotation.y = Math.PI / 4;
+      scene.add(roof);
+
+      // 2. Traditional Moon Gate Wall (经典圆形月亮门拱墙)
+      const moonWallGeo = new THREE.BoxGeometry(10, 6, 0.4);
+      const moonMat = new THREE.MeshStandardMaterial({ color: 0x152019, roughness: 0.95 });
+      const moonWallL = new THREE.Mesh(new THREE.BoxGeometry(3.5, 6, 0.4), moonMat);
+      moonWallL.position.set(-4.5, 3, -4);
+      scene.add(moonWallL);
+
+      const moonWallR = new THREE.Mesh(new THREE.BoxGeometry(3.5, 6, 0.4), moonMat);
+      moonWallR.position.set(4.5, 3, -4);
+      scene.add(moonWallR);
+
+      // Moon Gate Ring (圆形木质拱门框)
+      const ringGeo = new THREE.TorusGeometry(2.4, 0.15, 16, 32);
+      const ringMat = new THREE.MeshStandardMaterial({ color: 0x2b1e15, roughness: 0.5 });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.position.set(0, 3, -4);
+      scene.add(ring);
+
+      // 3. Wabi-sabi Rock Garden Sculpture (中庭枯山水石笋)
+      const rockGeo = new THREE.DodecahedronGeometry(1.2, 1);
+      const rockMat = new THREE.MeshStandardMaterial({ color: 0x1d2720, roughness: 0.9 });
+      const rock1 = new THREE.Mesh(rockGeo, rockMat);
+      rock1.position.set(0, 0.8, -8);
+      rock1.scale.set(1.1, 2.2, 0.9);
+      scene.add(rock1);
+
+      // Zen Screen Panels (细木格栅与宣纸屏风)
+      const screenGeo = new THREE.BoxGeometry(0.1, 4.5, 6.0);
+      const screenMat = new THREE.MeshStandardMaterial({ color: 0x18261e, roughness: 0.8 });
+      const screenW = new THREE.Mesh(screenGeo, screenMat);
+      screenW.position.set(-10, 2.25, 0);
+      scene.add(screenW);
+
+      const screenE = new THREE.Mesh(screenGeo, screenMat);
+      screenE.position.set(10, 2.25, 0);
+      scene.add(screenE);
+
+      // Zen Artwork Placements (Along screen walls & beyond moon gate)
+      wallSlots.push(
+        { pos: new THREE.Vector3(-4.5, 3.2, -3.7), rot: new THREE.Euler(0, 0, 0), cPos: new THREE.Vector3(-4.5, 3.0, 0.2), cLook: new THREE.Vector3(-4.5, 3.0, -3.7) },
+        { pos: new THREE.Vector3(4.5, 3.2, -3.7), rot: new THREE.Euler(0, 0, 0), cPos: new THREE.Vector3(4.5, 3.0, 0.2), cLook: new THREE.Vector3(4.5, 3.0, -3.7) },
+        { pos: new THREE.Vector3(0, 3.5, -12.5), rot: new THREE.Euler(0, 0, 0), cPos: new THREE.Vector3(0, 3.2, -7.5), cLook: new THREE.Vector3(0, 3.3, -12.5) },
+        { pos: new THREE.Vector3(-9.8, 3.2, 0), rot: new THREE.Euler(0, Math.PI / 2, 0), cPos: new THREE.Vector3(-5.8, 3.0, 0), cLook: new THREE.Vector3(-9.8, 3.0, 0) },
+        { pos: new THREE.Vector3(9.8, 3.2, 0), rot: new THREE.Euler(0, -Math.PI / 2, 0), cPos: new THREE.Vector3(5.8, 3.0, 0), cLook: new THREE.Vector3(9.8, 3.0, 0) },
+        { pos: new THREE.Vector3(-4.5, 3.2, 8), rot: new THREE.Euler(0, Math.PI, 0), cPos: new THREE.Vector3(-4.5, 3.0, 4), cLook: new THREE.Vector3(-4.5, 3.0, 8) },
+        { pos: new THREE.Vector3(4.5, 3.2, 8), rot: new THREE.Euler(0, Math.PI, 0), cPos: new THREE.Vector3(4.5, 3.0, 4), cLook: new THREE.Vector3(4.5, 3.0, 8) }
+      );
     }
-    particleGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    // --- Scene 3: Cyber Street (赛博雨夜 · 霓虹全息街町) ---
+    else if (archStyle === 'cyber-street') {
+      // 1. Skyscraper Walls (高耸深巷建筑立面 Height: 14m)
+      const towerMatL = new THREE.MeshStandardMaterial({ color: 0x060a14, roughness: 0.3, metalness: 0.7 });
+      const towerL = new THREE.Mesh(new THREE.BoxGeometry(6, 16, 36), towerMatL);
+      towerL.position.set(-11, 8, 0);
+      scene.add(towerL);
 
-    const particleMat = new THREE.PointsMaterial({
-      color: s3d.particleColor,
-      size: s3d.particleSize,
-      transparent: true,
-      opacity: 0.65,
-      blending: THREE.AdditiveBlending,
-    });
-    const particles = new THREE.Points(particleGeo, particleMat);
-    scene.add(particles);
-    particlesRef.current = particles;
+      const towerR = new THREE.Mesh(new THREE.BoxGeometry(6, 16, 36), towerMatL);
+      towerR.position.set(11, 8, 0);
+      scene.add(towerR);
 
-    // =========================================================================
-    // 2. CREATE 3D PHYSICAL PAINTING MESHES & DIRECTIONAL SPOTLIGHTS
-    // =========================================================================
+      // Overpass Highway Bridge (上方悬空高架桥)
+      const bridgeGeo = new THREE.BoxGeometry(22, 1.2, 5.0);
+      const bridgeMat = new THREE.MeshStandardMaterial({ color: 0x081020, metalness: 0.9, roughness: 0.2 });
+      const bridge = new THREE.Mesh(bridgeGeo, bridgeMat);
+      bridge.position.set(0, 9.5, -4);
+      scene.add(bridge);
+
+      // 2. Glowing Neon Columns & Holographic Bilboards (3D 全息霓虹灯柱)
+      const pillarGeo = new THREE.CylinderGeometry(0.3, 0.3, 10, 16);
+      const neonCyanMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
+      const neonPinkMat = new THREE.MeshBasicMaterial({ color: 0xff007f });
+
+      const pillar1 = new THREE.Mesh(pillarGeo, neonCyanMat);
+      pillar1.position.set(-7.5, 5, -8);
+      scene.add(pillar1);
+
+      const pillar2 = new THREE.Mesh(pillarGeo, neonPinkMat);
+      pillar2.position.set(7.5, 5, -8);
+      scene.add(pillar2);
+
+      const pillar3 = new THREE.Mesh(pillarGeo, neonPinkMat);
+      pillar3.position.set(-7.5, 5, 8);
+      scene.add(pillar3);
+
+      const pillar4 = new THREE.Mesh(pillarGeo, neonCyanMat);
+      pillar4.position.set(7.5, 5, 8);
+      scene.add(pillar4);
+
+      // Hanging Industrial Ventilation Ducts (金属工业管道)
+      const ductGeo = new THREE.CylinderGeometry(0.6, 0.6, 16, 16);
+      const ductMat = new THREE.MeshStandardMaterial({ color: 0x111c2e, metalness: 0.9, roughness: 0.3 });
+      const duct = new THREE.Mesh(ductGeo, ductMat);
+      duct.rotation.z = Math.PI / 2;
+      duct.position.set(0, 7.5, 4);
+      scene.add(duct);
+
+      // Street Artwork Positions (Hung on towering cyber facades & end of alley)
+      wallSlots.push(
+        { pos: new THREE.Vector3(-7.8, 3.6, -10), rot: new THREE.Euler(0, Math.PI / 2, 0), cPos: new THREE.Vector3(-3.5, 3.2, -10), cLook: new THREE.Vector3(-7.8, 3.4, -10) },
+        { pos: new THREE.Vector3(-7.8, 3.6, -3), rot: new THREE.Euler(0, Math.PI / 2, 0), cPos: new THREE.Vector3(-3.5, 3.2, -3), cLook: new THREE.Vector3(-7.8, 3.4, -3) },
+        { pos: new THREE.Vector3(-7.8, 3.6, 5), rot: new THREE.Euler(0, Math.PI / 2, 0), cPos: new THREE.Vector3(-3.5, 3.2, 5), cLook: new THREE.Vector3(-7.8, 3.4, 5) },
+        { pos: new THREE.Vector3(7.8, 3.6, -10), rot: new THREE.Euler(0, -Math.PI / 2, 0), cPos: new THREE.Vector3(3.5, 3.2, -10), cLook: new THREE.Vector3(7.8, 3.4, -10) },
+        { pos: new THREE.Vector3(7.8, 3.6, -3), rot: new THREE.Euler(0, -Math.PI / 2, 0), cPos: new THREE.Vector3(3.5, 3.2, -3), cLook: new THREE.Vector3(7.8, 3.4, -3) },
+        { pos: new THREE.Vector3(7.8, 3.6, 5), rot: new THREE.Euler(0, -Math.PI / 2, 0), cPos: new THREE.Vector3(3.5, 3.2, 5), cLook: new THREE.Vector3(7.8, 3.4, 5) },
+        { pos: new THREE.Vector3(0, 4.0, -17.5), rot: new THREE.Euler(0, 0, 0), cPos: new THREE.Vector3(0, 3.5, -12.5), cLook: new THREE.Vector3(0, 3.8, -17.5) },
+        { pos: new THREE.Vector3(0, 4.0, 17.5), rot: new THREE.Euler(0, Math.PI, 0), cPos: new THREE.Vector3(0, 3.5, 12.5), cLook: new THREE.Vector3(0, 3.8, 17.5) }
+      );
+    }
+    // --- Scene 4: Grand Salon (永恒殿堂 · 卢浮古典双列拱柱大厅) ---
+    else if (archStyle === 'grand-salon') {
+      // 1. Vaulted Classical Ceiling (高挑半圆拱顶)
+      const archGeo = new THREE.CylinderGeometry(14, 14, 36, 32, 1, true, Math.PI, Math.PI);
+      const archMat = new THREE.MeshStandardMaterial({ color: 0x1f1610, roughness: 0.85, side: THREE.BackSide });
+      const archCeiling = new THREE.Mesh(archGeo, archMat);
+      archCeiling.rotation.x = Math.PI / 2;
+      archCeiling.position.set(0, 4, 0);
+      scene.add(archCeiling);
+
+      // 2. Colonnade of Corinthian Columns (宏伟双列大理石拱柱群)
+      const colGeo = new THREE.CylinderGeometry(0.7, 0.8, 8, 24);
+      const colMat = new THREE.MeshStandardMaterial({ color: 0x3a291b, roughness: 0.35, metalness: 0.2 });
+      const colCapGeo = new THREE.BoxGeometry(2.0, 0.5, 2.0);
+
+      [-6, 6].forEach((cx) => {
+        for (let cz = -12; cz <= 12; cz += 6) {
+          const col = new THREE.Mesh(colGeo, colMat);
+          col.position.set(cx, 4, cz);
+          scene.add(col);
+
+          const capTop = new THREE.Mesh(colCapGeo, colMat);
+          capTop.position.set(cx, 8, cz);
+          scene.add(capTop);
+
+          const capBottom = new THREE.Mesh(colCapGeo, colMat);
+          capBottom.position.set(cx, 0.25, cz);
+          scene.add(capBottom);
+        }
+      });
+
+      // Classical Statue Pedestals in center (大理石古典雕塑台座)
+      const pedGeo = new THREE.BoxGeometry(1.6, 1.2, 1.6);
+      const ped1 = new THREE.Mesh(pedGeo, colMat);
+      ped1.position.set(0, 0.6, -6);
+      scene.add(ped1);
+
+      const ped2 = new THREE.Mesh(pedGeo, colMat);
+      ped2.position.set(0, 0.6, 6);
+      scene.add(ped2);
+
+      // Salon Perimeter Walls
+      const wallMat = new THREE.MeshStandardMaterial({ map: wallTexture, roughness: 0.8 });
+      const createSalonWall = (w: number, h: number, x: number, y: number, z: number, ry: number) => {
+        const wall = new THREE.Mesh(new THREE.PlaneGeometry(w, h), wallMat);
+        wall.position.set(x, y, z);
+        wall.rotation.y = ry;
+        scene.add(wall);
+      };
+      createSalonWall(30, 8, 0, 4, -18, 0);
+      createSalonWall(30, 8, 0, 4, 18, Math.PI);
+      createSalonWall(36, 8, -14, 4, 0, Math.PI / 2);
+      createSalonWall(36, 8, 14, 4, 0, -Math.PI / 2);
+
+      // Grand Salon Art Placements (Symmetric Grand Hall)
+      wallSlots.push(
+        { pos: new THREE.Vector3(0, 4.2, -17.6), rot: new THREE.Euler(0, 0, 0), cPos: new THREE.Vector3(0, 3.8, -12.5), cLook: new THREE.Vector3(0, 4.0, -17.6) },
+        { pos: new THREE.Vector3(-13.6, 4.0, -9), rot: new THREE.Euler(0, Math.PI / 2, 0), cPos: new THREE.Vector3(-9.0, 3.6, -9), cLook: new THREE.Vector3(-13.6, 3.8, -9) },
+        { pos: new THREE.Vector3(-13.6, 4.0, 0), rot: new THREE.Euler(0, Math.PI / 2, 0), cPos: new THREE.Vector3(-9.0, 3.6, 0), cLook: new THREE.Vector3(-13.6, 3.8, 0) },
+        { pos: new THREE.Vector3(-13.6, 4.0, 9), rot: new THREE.Euler(0, Math.PI / 2, 0), cPos: new THREE.Vector3(-9.0, 3.6, 9), cLook: new THREE.Vector3(-13.6, 3.8, 9) },
+        { pos: new THREE.Vector3(13.6, 4.0, -9), rot: new THREE.Euler(0, -Math.PI / 2, 0), cPos: new THREE.Vector3(9.0, 3.6, -9), cLook: new THREE.Vector3(13.6, 3.8, -9) },
+        { pos: new THREE.Vector3(13.6, 4.0, 0), rot: new THREE.Euler(0, -Math.PI / 2, 0), cPos: new THREE.Vector3(9.0, 3.6, 0), cLook: new THREE.Vector3(13.6, 3.8, 0) },
+        { pos: new THREE.Vector3(13.6, 4.0, 9), rot: new THREE.Euler(0, -Math.PI / 2, 0), cPos: new THREE.Vector3(9.0, 3.6, 9), cLook: new THREE.Vector3(13.6, 3.8, 9) },
+        { pos: new THREE.Vector3(0, 4.2, 17.6), rot: new THREE.Euler(0, Math.PI, 0), cPos: new THREE.Vector3(0, 3.8, 12.5), cLook: new THREE.Vector3(0, 4.0, 17.6) }
+      );
+    }
+    // --- Scene 5: Meadow Pavilion (夏日晴风 · 云海草甸露天展廊) ---
+    else {
+      // 1. Open-air Deck (露天木质平展台)
+      const deckGeo = new THREE.BoxGeometry(24, 0.4, 24);
+      const deckMat = new THREE.MeshStandardMaterial({ map: floorTexture, roughness: 0.6 });
+      const deck = new THREE.Mesh(deckGeo, deckMat);
+      deck.position.set(0, 0, 0);
+      scene.add(deck);
+
+      // Surrounding Green Meadow Terrain (四周连绵起伏青草丘陵)
+      const hillGeo = new THREE.PlaneGeometry(80, 80, 24, 24);
+      const hillMat = new THREE.MeshStandardMaterial({ color: 0x76b852, roughness: 0.95 });
+      const hill = new THREE.Mesh(hillGeo, hillMat);
+      hill.rotation.x = -Math.PI / 2;
+      hill.position.y = -0.2;
+      scene.add(hill);
+
+      // 2. Open Wooden Pergola Pillars (露天白色木质凉亭立柱与横梁，无封闭屋顶，阳光直泻)
+      const postGeo = new THREE.CylinderGeometry(0.18, 0.18, 5, 12);
+      const postMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
+      [-8, 8].forEach((px) => {
+        for (let pz = -8; pz <= 8; pz += 8) {
+          const post = new THREE.Mesh(postGeo, postMat);
+          post.position.set(px, 2.5, pz);
+          scene.add(post);
+        }
+      });
+
+      // Pergola open lattice beams (顶部透光木格架)
+      const latticeGeo = new THREE.BoxGeometry(18, 0.12, 0.2);
+      for (let lz = -8; lz <= 8; lz += 2) {
+        const lattice = new THREE.Mesh(latticeGeo, postMat);
+        lattice.position.set(0, 5, lz);
+        scene.add(lattice);
+      }
+
+      // 3. Independent Wooden Exhibition Easels (独立立式木画架结构)
+      const easelStandGeo = new THREE.BoxGeometry(4.0, 3.0, 0.2);
+      const easelMat = new THREE.MeshStandardMaterial({ color: 0xecd9be, roughness: 0.7 });
+
+      const createEaselStand = (x: number, z: number, ry: number) => {
+        const stand = new THREE.Mesh(easelStandGeo, easelMat);
+        stand.position.set(x, 2.6, z);
+        stand.rotation.y = ry;
+        scene.add(stand);
+      };
+
+      createEaselStand(0, -6, 0);
+      createEaselStand(-6, 0, Math.PI / 2);
+      createEaselStand(6, 0, -Math.PI / 2);
+      createEaselStand(0, 6, Math.PI);
+      createEaselStand(-6, -6, Math.PI / 4);
+      createEaselStand(6, -6, -Math.PI / 4);
+
+      // Meadow Art Placements (On open airy easel stands under blue sky)
+      wallSlots.push(
+        { pos: new THREE.Vector3(0, 2.8, -5.8), rot: new THREE.Euler(0, 0, 0), cPos: new THREE.Vector3(0, 2.7, -2.2), cLook: new THREE.Vector3(0, 2.7, -5.8) },
+        { pos: new THREE.Vector3(-5.8, 2.8, 0), rot: new THREE.Euler(0, Math.PI / 2, 0), cPos: new THREE.Vector3(-2.2, 2.7, 0), cLook: new THREE.Vector3(-5.8, 2.7, 0) },
+        { pos: new THREE.Vector3(5.8, 2.8, 0), rot: new THREE.Euler(0, -Math.PI / 2, 0), cPos: new THREE.Vector3(2.2, 2.7, 0), cLook: new THREE.Vector3(5.8, 2.7, 0) },
+        { pos: new THREE.Vector3(0, 2.8, 5.8), rot: new THREE.Euler(0, Math.PI, 0), cPos: new THREE.Vector3(0, 2.7, 2.2), cLook: new THREE.Vector3(0, 2.7, 5.8) },
+        { pos: new THREE.Vector3(-5.8, 2.8, -5.8), rot: new THREE.Euler(0, Math.PI / 4, 0), cPos: new THREE.Vector3(-2.8, 2.7, -2.8), cLook: new THREE.Vector3(-5.8, 2.7, -5.8) },
+        { pos: new THREE.Vector3(5.8, 2.8, -5.8), rot: new THREE.Euler(0, -Math.PI / 4, 0), cPos: new THREE.Vector3(2.8, 2.7, -2.8), cLook: new THREE.Vector3(5.8, 2.7, -5.8) }
+      );
+    }
+
     const textureLoader = new THREE.TextureLoader();
     const spots: ArtworkSpot[] = [];
-
-    // Curate up to 10 exhibition slots on gallery walls
-    const wallSlots = [
-      // Central North Wall (Room 01 - Hero Art)
-      { pos: new THREE.Vector3(0, 3.4, -5.9), rot: new THREE.Euler(0, 0, 0), cPos: new THREE.Vector3(0, 3.2, -1.8), cLook: new THREE.Vector3(0, 3.2, -5.9) },
-      // Left North Wall
-      { pos: new THREE.Vector3(-6, 3.4, -5.9), rot: new THREE.Euler(0, 0, 0), cPos: new THREE.Vector3(-6, 3.2, -1.8), cLook: new THREE.Vector3(-6, 3.2, -5.9) },
-      // Right North Wall
-      { pos: new THREE.Vector3(6, 3.4, -5.9), rot: new THREE.Euler(0, 0, 0), cPos: new THREE.Vector3(6, 3.2, -1.8), cLook: new THREE.Vector3(6, 3.2, -5.9) },
-      // Far North Main Wall
-      { pos: new THREE.Vector3(0, 3.6, -17.8), rot: new THREE.Euler(0, 0, 0), cPos: new THREE.Vector3(0, 3.4, -13.5), cLook: new THREE.Vector3(0, 3.4, -17.8) },
-      // West Gallery Wall (Room 02)
-      { pos: new THREE.Vector3(-17.8, 3.4, -6), rot: new THREE.Euler(0, Math.PI / 2, 0), cPos: new THREE.Vector3(-13.5, 3.2, -6), cLook: new THREE.Vector3(-17.8, 3.2, -6) },
-      { pos: new THREE.Vector3(-17.8, 3.4, 6), rot: new THREE.Euler(0, Math.PI / 2, 0), cPos: new THREE.Vector3(-13.5, 3.2, 6), cLook: new THREE.Vector3(-17.8, 3.2, 6) },
-      // East Gallery Wall (Room 03)
-      { pos: new THREE.Vector3(17.8, 3.4, -6), rot: new THREE.Euler(0, -Math.PI / 2, 0), cPos: new THREE.Vector3(13.5, 3.2, -6), cLook: new THREE.Vector3(17.8, 3.2, -6) },
-      { pos: new THREE.Vector3(17.8, 3.4, 6), rot: new THREE.Euler(0, -Math.PI / 2, 0), cPos: new THREE.Vector3(13.5, 3.2, 6), cLook: new THREE.Vector3(17.8, 3.2, 6) },
-      // South Partition Walls (Room 04)
-      { pos: new THREE.Vector3(-4, 3.4, 5.9), rot: new THREE.Euler(0, Math.PI, 0), cPos: new THREE.Vector3(-4, 3.2, 1.8), cLook: new THREE.Vector3(-4, 3.2, 5.9) },
-      { pos: new THREE.Vector3(4, 3.4, 5.9), rot: new THREE.Euler(0, Math.PI, 0), cPos: new THREE.Vector3(4, 3.2, 1.8), cLook: new THREE.Vector3(4, 3.2, 5.9) },
-    ];
-
     const slotCount = Math.min(wallSlots.length, displayedCases.length);
 
     for (let i = 0; i < slotCount; i++) {
@@ -975,13 +1215,75 @@ export const ThreeSpatialGallery: React.FC<ThreeSpatialGalleryProps> = ({
             backgroundColor: currentTheme === 'zen-mist' ? '#0d1310' : currentTheme === 'cyber-neon' ? '#040711' : currentTheme === 'grand-salon' ? '#18110b' : currentTheme === 'ghibli-breeze' ? '#c8d6df' : '#140f0c',
           }}
         >
-          {/* Partition Wall Lines */}
-          <div className="absolute inset-x-4 top-1/3 h-0.5 bg-white/20" />
-          <div className="absolute inset-x-4 bottom-1/3 h-0.5 bg-white/20" />
-          <div className="absolute inset-y-4 left-1/2 w-0.5 bg-white/10" />
-
-          {/* Central Bench in radar */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-2 bg-stone-700 rounded-xs" />
+          {/* Dynamic Architectural Floorplan Overlay per Scene Theme */}
+          {currentTheme === 'cozy-night' ? (
+            <>
+              {/* Cozy Cabin: Slanted timber walls & central stone fireplace */}
+              <div className="absolute inset-x-3 top-2 bottom-2 border border-amber-800/40 rounded-sm" />
+              {/* Fireplace Hearth Icon */}
+              <div className="absolute left-1/2 top-2 -translate-x-1/2 w-10 h-3 bg-red-900/60 border border-orange-500/50 rounded-xs flex items-center justify-center">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-ping" />
+              </div>
+              {/* Wooden beam lines */}
+              <div className="absolute inset-y-2 left-1/3 w-px bg-amber-900/30" />
+              <div className="absolute inset-y-2 right-1/3 w-px bg-amber-900/30" />
+              {/* Reading corner sofa */}
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-7 h-3 bg-amber-950/70 border border-amber-700/40 rounded-sm" />
+            </>
+          ) : currentTheme === 'zen-mist' ? (
+            <>
+              {/* Zen Pavilion: Water pond with central moon gate */}
+              <div className="absolute inset-2 border border-emerald-900/40 bg-emerald-950/20" />
+              {/* Moon Gate Circle */}
+              <div className="absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full border border-emerald-500/50 border-dashed" />
+              {/* Rock Garden */}
+              <div className="absolute left-1/2 top-2/3 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-stone-700/80 border border-emerald-400/30" />
+              {/* Partition screens */}
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 w-0.5 h-10 bg-emerald-700/40" />
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 w-0.5 h-10 bg-emerald-700/40" />
+            </>
+          ) : currentTheme === 'cyber-neon' ? (
+            <>
+              {/* Cyber Street: Towering Alley facades & High-tech highway bridge */}
+              <div className="absolute inset-y-0 left-0 w-8 bg-slate-900/90 border-r border-cyan-500/30" />
+              <div className="absolute inset-y-0 right-0 w-8 bg-slate-900/90 border-l border-cyan-500/30" />
+              {/* Overpass Bridge */}
+              <div className="absolute inset-x-8 top-1/3 h-2.5 bg-blue-950/80 border-y border-pink-500/40" />
+              {/* Neon Pillars */}
+              <span className="absolute left-10 top-4 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_#00f0ff]" />
+              <span className="absolute right-10 top-4 w-1.5 h-1.5 rounded-full bg-pink-500 shadow-[0_0_6px_#ec4899]" />
+              <span className="absolute left-10 bottom-4 w-1.5 h-1.5 rounded-full bg-pink-500 shadow-[0_0_6px_#ec4899]" />
+              <span className="absolute right-10 bottom-4 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_#00f0ff]" />
+            </>
+          ) : currentTheme === 'grand-salon' ? (
+            <>
+              {/* Grand Louvre Salon: Vaulted arch hall & double row of columns */}
+              <div className="absolute inset-x-2 top-2 bottom-2 border-2 border-yellow-700/30 rounded-t-3xl" />
+              {/* Columns on left row */}
+              <span className="absolute left-7 top-6 w-2 h-2 rounded-full bg-amber-600/70 border border-yellow-400/40" />
+              <span className="absolute left-7 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-amber-600/70 border border-yellow-400/40" />
+              <span className="absolute left-7 bottom-6 w-2 h-2 rounded-full bg-amber-600/70 border border-yellow-400/40" />
+              {/* Columns on right row */}
+              <span className="absolute right-7 top-6 w-2 h-2 rounded-full bg-amber-600/70 border border-yellow-400/40" />
+              <span className="absolute right-7 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-amber-600/70 border border-yellow-400/40" />
+              <span className="absolute right-7 bottom-6 w-2 h-2 rounded-full bg-amber-600/70 border border-yellow-400/40" />
+              {/* Center statue pedestals */}
+              <div className="absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-yellow-500/50 rounded-xs" />
+              <div className="absolute left-1/2 top-2/3 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-yellow-500/50 rounded-xs" />
+            </>
+          ) : (
+            <>
+              {/* Summer Meadow: Open air wooden terrace & easel stands */}
+              <div className="absolute inset-4 rounded-xl border border-sky-600/40 bg-sky-200/10" />
+              {/* Open Pergola posts */}
+              <span className="absolute left-5 top-5 w-1.5 h-1.5 rounded-full bg-white border border-sky-400" />
+              <span className="absolute right-5 top-5 w-1.5 h-1.5 rounded-full bg-white border border-sky-400" />
+              <span className="absolute left-5 bottom-5 w-1.5 h-1.5 rounded-full bg-white border border-sky-400" />
+              <span className="absolute right-5 bottom-5 w-1.5 h-1.5 rounded-full bg-white border border-sky-400" />
+              {/* Central wooden table */}
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-4 bg-amber-800/40 rounded-sm border border-amber-600/30" />
+            </>
+          )}
 
           {/* Artwork Pins on Walls */}
           {spotsRef.current.map((sp, i) => {

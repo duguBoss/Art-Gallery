@@ -6,6 +6,7 @@ export type GalleryTheme =
   | 'ghibli-breeze'; // 夏日晴风 · 云海草甸（吉卜力治愈蓝天与金麦浪）
 
 export interface Spatial3DConfig {
+  architecturalStyle: 'cabin' | 'zen-pavilion' | 'cyber-street' | 'grand-salon' | 'meadow-pavilion';
   floorType: 'herringbone-wood' | 'zen-slate' | 'cyber-grid' | 'royal-marble' | 'meadow-tatami';
   floorBaseColor: number;
   floorLineColor: number;
@@ -59,6 +60,7 @@ export const THEME_OPTIONS: ThemeOption[] = [
     glowColor: 'rgba(224, 122, 95, 0.25)',
     featuredCategories: ['暖夜温馨', '童话治愈'],
     scene3D: {
+      architecturalStyle: 'cabin',
       floorType: 'herringbone-wood',
       floorBaseColor: 0x18110c,
       floorLineColor: 0x271c14,
@@ -96,6 +98,7 @@ export const THEME_OPTIONS: ThemeOption[] = [
     glowColor: 'rgba(82, 183, 136, 0.22)',
     featuredCategories: ['东方意境'],
     scene3D: {
+      architecturalStyle: 'zen-pavilion',
       floorType: 'zen-slate',
       floorBaseColor: 0x111613,
       floorLineColor: 0x1d2922,
@@ -133,6 +136,7 @@ export const THEME_OPTIONS: ThemeOption[] = [
     glowColor: 'rgba(0, 240, 255, 0.28)',
     featuredCategories: ['赛博未来', '先锋3D'],
     scene3D: {
+      architecturalStyle: 'cyber-street',
       floorType: 'cyber-grid',
       floorBaseColor: 0x050811,
       floorLineColor: 0x00e5ff,
@@ -170,6 +174,7 @@ export const THEME_OPTIONS: ThemeOption[] = [
     glowColor: 'rgba(212, 175, 55, 0.25)',
     featuredCategories: ['古典高雅', '电影质感'],
     scene3D: {
+      architecturalStyle: 'grand-salon',
       floorType: 'royal-marble',
       floorBaseColor: 0x221811,
       floorLineColor: 0x3d2c1d,
@@ -207,6 +212,7 @@ export const THEME_OPTIONS: ThemeOption[] = [
     glowColor: 'rgba(29, 112, 184, 0.2)',
     featuredCategories: ['童话治愈', '暖夜温馨', '东方意境'],
     scene3D: {
+      architecturalStyle: 'meadow-pavilion',
       floorType: 'meadow-tatami',
       floorBaseColor: 0xdbe7db,
       floorLineColor: 0xa8c2a8,
