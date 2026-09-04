@@ -11,10 +11,11 @@ import { AdminCMSModal } from './components/AdminCMSModal';
 import { Footer } from './components/Footer';
 
 export function App() {
-  // Artistic Gallery Theme State (Raw Concrete, Vintage Salon, Nordic Sage, Midnight Cinema)
+  // Scenario-Based Artistic Atmosphere Theme (Cozy Night, Zen Mist, Cyber Neon, Grand Salon, Ghibli Breeze)
   const [currentTheme, setCurrentTheme] = useState<GalleryTheme>(() => {
     const saved = localStorage.getItem('art_gallery_theme');
-    return (saved as GalleryTheme) || 'concrete';
+    const validThemes: GalleryTheme[] = ['cozy-night', 'zen-mist', 'cyber-neon', 'grand-salon', 'ghibli-breeze'];
+    return (validThemes.includes(saved as GalleryTheme) ? (saved as GalleryTheme) : 'cozy-night');
   });
 
   useEffect(() => {

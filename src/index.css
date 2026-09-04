@@ -1,107 +1,225 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ===================================================
-   4 ARTISTIC GALLERY THEMES (BEYOND BLACK & WHITE)
+   5 SCENARIO-BASED ARTISTIC THEMES (场景化沉浸主题)
    =================================================== */
 
-:root, [data-theme="concrete"] {
-  --bg-page: #EBE9E4;
-  --bg-page-subtle: #F4F2EE;
-  --bg-card: #FAF8F5;
-  --bg-card-hover: #FFFFFF;
+/* 1. 暖夜微光 (Warm Night Hearth) - 用户的核心参考：夜晚灯光下的温馨场景 */
+:root, [data-theme="cozy-night"] {
+  --bg-page: #14100D;
+  --bg-page-subtle: #1C1612;
+  --bg-card: #231B15;
+  --bg-card-hover: #2C221B;
+  --bg-input: #17120E;
+  --border-subtle: #382B21;
+  --border-strong: #543F30;
+  --text-main: #F7EFE8;
+  --text-muted: #BBA99B;
+  --text-dim: #8A7667;
+  --accent: #E07A5F;
+  --accent-light: #332019;
+  --accent-border: #6B3D2F;
+  --accent-hover: #F28E73;
+  --pill-active-bg: #E07A5F;
+  --pill-active-text: #14100D;
+  --tag-bg: #2B1E16;
+  --tag-text: #F3DACD;
+  --ambient-glow: radial-gradient(circle at 50% 25%, rgba(224, 122, 95, 0.16) 0%, rgba(244, 162, 97, 0.08) 45%, rgba(0, 0, 0, 0) 75%);
+}
+
+/* 2. 空山新雨 (Misty Rain Zen) - 水墨青石、东方禅茶 */
+[data-theme="zen-mist"] {
+  --bg-page: #101613;
+  --bg-page-subtle: #151E19;
+  --bg-card: #1A2520;
+  --bg-card-hover: #212F28;
+  --bg-input: #121915;
+  --border-subtle: #293B32;
+  --border-strong: #3C5548;
+  --text-main: #EAF4EE;
+  --text-muted: #A0B9AB;
+  --text-dim: #708A7B;
+  --accent: #52B788;
+  --accent-light: #162E22;
+  --accent-border: #2D6A4F;
+  --accent-hover: #74C69D;
+  --pill-active-bg: #52B788;
+  --pill-active-text: #0E1712;
+  --tag-bg: #1B2D24;
+  --tag-text: #C7E8D6;
+  --ambient-glow: radial-gradient(circle at 50% 25%, rgba(82, 183, 136, 0.14) 0%, rgba(45, 106, 79, 0.07) 50%, rgba(0, 0, 0, 0) 80%);
+}
+
+/* 3. 赛博雨夜 (Neon Cyber Alley) - 全息冷蓝、潮湿霓虹沥青 */
+[data-theme="cyber-neon"] {
+  --bg-page: #060911;
+  --bg-page-subtle: #0B101E;
+  --bg-card: #10182C;
+  --bg-card-hover: #16213B;
+  --bg-input: #080D1A;
+  --border-subtle: #1E2D4E;
+  --border-strong: #2D4373;
+  --text-main: #F0F6FF;
+  --text-muted: #9BB0D8;
+  --text-dim: #657B9E;
+  --accent: #00F0FF;
+  --accent-light: #062836;
+  --accent-border: #008899;
+  --accent-hover: #38F8FF;
+  --pill-active-bg: #00F0FF;
+  --pill-active-text: #040811;
+  --tag-bg: #121E36;
+  --tag-text: #BCEEFF;
+  --ambient-glow: radial-gradient(circle at 50% 25%, rgba(0, 240, 255, 0.16) 0%, rgba(189, 0, 255, 0.07) 50%, rgba(0, 0, 0, 0) 80%);
+}
+
+/* 4. 永恒殿堂 (Grand Louvre Salon) - 卢浮宫巴洛克鎏金与古典沙龙 */
+[data-theme="grand-salon"] {
+  --bg-page: #201710;
+  --bg-page-subtle: #291F16;
+  --bg-card: #33261C;
+  --bg-card-hover: #3E3023;
+  --bg-input: #231911;
+  --border-subtle: #4D3C2C;
+  --border-strong: #705840;
+  --text-main: #FDF7EC;
+  --text-muted: #D2BF9E;
+  --text-dim: #988566;
+  --accent: #D4AF37;
+  --accent-light: #3D3212;
+  --accent-border: #8C7326;
+  --accent-hover: #F3CF55;
+  --pill-active-bg: #D4AF37;
+  --pill-active-text: #1E1508;
+  --tag-bg: #3E2F1F;
+  --tag-text: #FDE8A5;
+  --ambient-glow: radial-gradient(circle at 50% 25%, rgba(212, 175, 55, 0.18) 0%, rgba(184, 134, 11, 0.08) 50%, rgba(0, 0, 0, 0) 80%);
+}
+
+/* 5. 夏日晴风 (Ghibli Summer Meadow) - 吉卜力治愈云海、青空微风 */
+[data-theme="ghibli-breeze"] {
+  --bg-page: #EFF6F9;
+  --bg-page-subtle: #F6FBFC;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F8FCFF;
   --bg-input: #FFFFFF;
-  --border-subtle: #DFDCD6;
-  --border-strong: #C8C3BA;
-  --text-main: #1F2327;
-  --text-muted: #5F6670;
-  --text-dim: #8B929D;
-  --accent: #B85D38;
-  --accent-light: #F7EDE8;
-  --accent-border: #E8C1B0;
-  --accent-hover: #9E4926;
-  --pill-active-bg: #1F2327;
-  --pill-active-text: #FAF8F5;
-  --tag-bg: #E4E0D8;
-  --tag-text: #3D444C;
-}
-
-[data-theme="salon"] {
-  --bg-page: #F3ECE1;
-  --bg-page-subtle: #FAF6EF;
-  --bg-card: #FAF6F0;
-  --bg-card-hover: #FFFDF9;
-  --bg-input: #FFFDF9;
-  --border-subtle: #E2D7C7;
-  --border-strong: #CFBFAB;
-  --text-main: #2E251E;
-  --text-muted: #6B5B4F;
-  --text-dim: #99887A;
-  --accent: #9E3A26;
-  --accent-light: #F7EAE7;
-  --accent-border: #E9C2BA;
-  --accent-hover: #832C1B;
-  --pill-active-bg: #2E251E;
-  --pill-active-text: #FAF6F0;
-  --tag-bg: #EADDCB;
-  --tag-text: #534539;
-}
-
-[data-theme="sage"] {
-  --bg-page: #E5ECE7;
-  --bg-page-subtle: #EFF4F0;
-  --bg-card: #F6FAF7;
-  --bg-card-hover: #FFFFFF;
-  --bg-input: #FFFFFF;
-  --border-subtle: #D2DED6;
-  --border-strong: #B8CCC0;
-  --text-main: #1D2A22;
-  --text-muted: #56695C;
-  --text-dim: #829588;
-  --accent: #2E6B56;
-  --accent-light: #E8F2EC;
-  --accent-border: #BCD8C9;
-  --accent-hover: #225342;
-  --pill-active-bg: #1D2A22;
-  --pill-active-text: #F6FAF7;
-  --tag-bg: #DCE8E0;
-  --tag-text: #374F41;
-}
-
-[data-theme="midnight"] {
-  --bg-page: #0D131C;
-  --bg-page-subtle: #121A26;
-  --bg-card: #151F2E;
-  --bg-card-hover: #1A2638;
-  --bg-input: #0E1622;
-  --border-subtle: #223044;
-  --border-strong: #2F425C;
-  --text-main: #F1F5F9;
-  --text-muted: #94A3B8;
-  --text-dim: #64748B;
-  --accent: #38BDF8;
-  --accent-light: #12283A;
-  --accent-border: #1E4968;
-  --accent-hover: #0EA5E9;
-  --pill-active-bg: #38BDF8;
-  --pill-active-text: #0B111A;
-  --tag-bg: #1D2A3D;
-  --tag-text: #CBD5E1;
+  --border-subtle: #D5E4EC;
+  --border-strong: #B2CAD8;
+  --text-main: #182836;
+  --text-muted: #546C7E;
+  --text-dim: #7E97A9;
+  --accent: #1D70B8;
+  --accent-light: #EBF4FC;
+  --accent-border: #A3CCEF;
+  --accent-hover: #135591;
+  --pill-active-bg: #182836;
+  --pill-active-text: #FFFFFF;
+  --tag-bg: #E1EFF7;
+  --tag-text: #194668;
+  --ambient-glow: radial-gradient(circle at 50% 25%, rgba(29, 112, 184, 0.10) 0%, rgba(118, 196, 237, 0.06) 50%, rgba(0, 0, 0, 0) 80%);
 }
 
 @layer base {
   body {
     background-color: var(--bg-page);
     color: var(--text-main);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.5s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s ease;
   }
 }
 
-/* Custom Scrollbar styled to theme */
+/* ===================================================
+   CINEMATIC TRANSITIONS & ENTRANCE ANIMATIONS (动画感拉满)
+   =================================================== */
+
+@keyframes kenBurnsSlow {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.06) translate(-1%, -1%);
+  }
+  100% {
+    transform: scale(1.02) translate(1%, 0.5%);
+  }
+}
+
+@keyframes frameFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes warmPulse {
+  0%, 100% {
+    opacity: 0.7;
+    filter: drop-shadow(0 0 25px var(--accent));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 45px var(--accent));
+  }
+}
+
+@keyframes curtainSweep {
+  0% {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes placardSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmerGleam {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-curtain-sweep {
+  animation: curtainSweep 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-placard-slide {
+  animation: placardSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-ken-burns {
+  animation: kenBurnsSlow 12s ease-in-out infinite alternate;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+  background-size: 200% 100%;
+  animation: shimmerGleam 2.5s infinite;
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
@@ -110,7 +228,7 @@
 
 ::-webkit-scrollbar-thumb {
   background: var(--border-strong);
-  border-radius: 4px;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {

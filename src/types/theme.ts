@@ -1,55 +1,82 @@
-﻿export type GalleryTheme = 'concrete' | 'salon' | 'sage' | 'midnight';
+export type GalleryTheme = 
+  | 'cozy-night'    // 暖夜微光 · 温馨居所（夜晚灯光下的温馨场景）
+  | 'zen-mist'      // 空山新雨 · 东方禅意（青石水墨与空山竹雨）
+  | 'cyber-neon'    // 赛博雨夜 · 霓虹街町（冷调全息与湿漉沥青）
+  | 'grand-salon'   // 永恒殿堂 · 巴黎沙龙（卢浮古典金叶与明暗对照）
+  | 'ghibli-breeze'; // 夏日晴风 · 云海草甸（吉卜力治愈蓝天与金麦浪）
 
 export interface ThemeOption {
   id: GalleryTheme;
   name: string;
   enName: string;
-  inspiration: string;
+  sceneTitle: string;
+  atmosphere: string;
   badge: string;
   previewColor: string;
   accentColor: string;
   textColor: string;
+  glowColor: string;
 }
 
 export const THEME_OPTIONS: ThemeOption[] = [
   {
-    id: 'concrete',
-    name: '清水微水泥',
-    enName: 'Raw Concrete',
-    inspiration: '安藤忠雄·纯粹建筑灰',
-    badge: '极简先锋',
-    previewColor: '#EBE9E4',
-    accentColor: '#B85D38',
-    textColor: '#202428',
+    id: 'cozy-night',
+    name: '暖夜微光',
+    enName: 'Warm Night Hearth',
+    sceneTitle: '夜晚灯光下的温馨居所',
+    atmosphere: '琥珀暖灯 · 壁炉柴火 · 窗外细雨与热红茶',
+    badge: '温馨治愈',
+    previewColor: '#1A1410',
+    accentColor: '#E07A5F',
+    textColor: '#F4ECE4',
+    glowColor: 'rgba(224, 122, 95, 0.25)',
   },
   {
-    id: 'salon',
-    name: '法式奶油木',
-    enName: 'Vintage Salon',
-    inspiration: '巴黎奥赛·复古羊皮纸',
-    badge: '典雅沙龙',
-    previewColor: '#F3ECE1',
-    accentColor: '#9E3A26',
-    textColor: '#2E251E',
+    id: 'zen-mist',
+    name: '空山新雨',
+    enName: 'Misty Rain Zen',
+    sceneTitle: '水墨烟雨与东方禅茶',
+    atmosphere: '竹林雾霭 · 青石古阶 · 宣纸渗化与天青釉',
+    badge: '东方意境',
+    previewColor: '#151C18',
+    accentColor: '#52B788',
+    textColor: '#E8F1EC',
+    glowColor: 'rgba(82, 183, 136, 0.22)',
   },
   {
-    id: 'sage',
-    name: '莫兰迪鼠尾草',
-    enName: 'Nordic Sage',
-    inspiration: '北欧慢调·静谧灰绿',
-    badge: '自然呼吸',
-    previewColor: '#E5ECE7',
-    accentColor: '#2E6B56',
-    textColor: '#1D2A22',
+    id: 'cyber-neon',
+    name: '赛博雨夜',
+    enName: 'Neon Cyber Alley',
+    sceneTitle: '霓虹冷冽与全息街町',
+    atmosphere: '湿漉沥青 · 全息水波 · 荧光青蓝与洋红倒影',
+    badge: '先锋科幻',
+    previewColor: '#090D16',
+    accentColor: '#00F0FF',
+    textColor: '#E2F1FF',
+    glowColor: 'rgba(0, 240, 255, 0.28)',
   },
   {
-    id: 'midnight',
-    name: '午夜深海蓝',
-    enName: 'Midnight Cinema',
-    inspiration: '好莱坞胶片·钛金夜幕',
-    badge: '深邃沉浸',
-    previewColor: '#0D131C',
-    accentColor: '#38BDF8',
-    textColor: '#F1F5F9',
-  }
+    id: 'grand-salon',
+    name: '永恒殿堂',
+    enName: 'Grand Louvre Salon',
+    sceneTitle: '古典卢浮宫与烫金沙龙',
+    atmosphere: '巴洛克雕花 · 羊皮纸暖白 · 卡拉瓦乔戏剧光',
+    badge: '古典高雅',
+    previewColor: '#2B2118',
+    accentColor: '#D4AF37',
+    textColor: '#FAF4E8',
+    glowColor: 'rgba(212, 175, 55, 0.25)',
+  },
+  {
+    id: 'ghibli-breeze',
+    name: '夏日晴风',
+    enName: 'Ghibli Summer Meadow',
+    sceneTitle: '吉卜力云海与明媚草甸',
+    atmosphere: '盛夏积雨云 · 碧空微风 · 治愈麦田与阳光斑驳',
+    badge: '清新明媚',
+    previewColor: '#EBF4F6',
+    accentColor: '#1D70B8',
+    textColor: '#1A2938',
+    glowColor: 'rgba(29, 112, 184, 0.2)',
+  },
 ];

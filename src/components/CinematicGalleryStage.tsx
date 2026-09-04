@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import type { AIImageCase } from '../types/art';
 import { 
   Copy, Check, Play, Pause, Maximize2, X, ChevronLeft, ChevronRight, 
-  Compass, Info, ArrowUpRight, Sliders 
+  Compass, Info, ArrowUpRight, Sliders, Sparkles, Layers, Volume2, VolumeX 
 } from 'lucide-react';
-import { playSpotlightClick, playSuccessChime, playMuseumFootstep, playGalleryBell } from '../utils/audio';
+import { playSpotlightClick, playSuccessChime, playMuseumFootstep, playGalleryBell, toggleAmbientSound } from '../utils/audio';
 
 interface CinematicGalleryStageProps {
   imageCases: AIImageCase[];
@@ -17,6 +17,10 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
   // Video Recording: Auto Tour Mode
   const [isAutoTour, setIsAutoTour] = useState(false);
   const [tourProgress, setTourProgress] = useState(0);
+
+  // Transition & Animation States
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [animationKey, setAnimationKey] = useState(0);
   
   // Interactive 3D Perspective Tilt on Mouse Move
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -28,6 +32,7 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [copiedColorHex, setCopiedColorHex] = useState<string | null>(null);
+  const [ambientPlaying, setAmbientPlaying] = useState(false);
 
   const categories = ['all', ...Array.from(new Set(imageCases.map((c) => c.category)))];
 
@@ -51,7 +56,7 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
     const timer = setInterval(() => {
       setTourProgress((prev) => {
         if (prev >= 100) {
-          setCurrentIndex((idx) => (idx + 1) % filteredCases.length);
+          triggerTransition((currentIndex + 1) % filteredCases.length);
           playGalleryBell(480 + ((currentIndex + 1) % filteredCases.length) * 15);
           return 0;
         }
@@ -62,7 +67,7 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
     return () => clearInterval(timer);
   }, [isAutoTour, filteredCases.length, currentIndex]);
 
-  // Keyboard Navigation: Space for Auto Tour, Left/Right for Switch, Esc for Close
+  // Keyboard Navigation: Space for Auto Tour, Left/Right for Switch, F for Fullscreen, Esc for Close
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
@@ -74,6 +79,8 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
         handleNext();
       } else if (e.key === 'ArrowLeft') {
         handlePrev();
+      } else if (e.key === 'f' || e.key === 'F') {
+        setIsLightboxOpen((prev) => !prev);
       } else if (e.key === 'Escape') {
         setIsLightboxOpen(false);
         setIsDrawerOpen(false);
@@ -82,7 +89,18 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [filteredCases.length]);
+  }, [filteredCases.length, currentIndex]);
+
+  // Trigger smooth transition
+  const triggerTransition = (newIdx: number) => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentIndex(newIdx);
+      setAnimationKey((prev) => prev + 1);
+      setIsTransitioning(false);
+    }, 180);
+    setTourProgress(0);
+  };
 
   // Mouse 3D Tilt calculation
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -101,20 +119,17 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
 
   const handleNext = () => {
     playMuseumFootstep();
-    setCurrentIndex((prev) => (prev + 1) % filteredCases.length);
-    setTourProgress(0);
+    triggerTransition((currentIndex + 1) % filteredCases.length);
   };
 
   const handlePrev = () => {
     playMuseumFootstep();
-    setCurrentIndex((prev) => (prev - 1 + filteredCases.length) % filteredCases.length);
-    setTourProgress(0);
+    triggerTransition((currentIndex - 1 + filteredCases.length) % filteredCases.length);
   };
 
   const handleSelectCase = (idx: number) => {
     playMuseumFootstep();
-    setCurrentIndex(idx);
-    setTourProgress(0);
+    triggerTransition(idx);
   };
 
   const handleCopyPrompt = () => {
@@ -134,10 +149,15 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
     setTimeout(() => setCopiedColorHex(null), 2000);
   };
 
+  const handleToggleAmbient = () => {
+    const newState = toggleAmbientSound();
+    setAmbientPlaying(newState);
+  };
+
   const extractedColors = [
     { name: '主调', hex: '#1F2421' },
     { name: '中阶', hex: '#6B705C' },
-    { name: '点睛', hex: '#D4A373' },
+    { name: '点睛', hex: '#E07A5F' },
     { name: '高光', hex: '#FAEDCD' },
     { name: '基底', hex: '#CCD5AE' },
   ];
@@ -145,10 +165,18 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
   if (!activeCase) return null;
 
   return (
-    <div className="w-full transition-colors duration-300">
+    <div className="w-full relative transition-colors duration-500 overflow-hidden">
+      {/* Dynamic Scenario Ambient Glow Background */}
+      <div 
+        className="absolute inset-0 pointer-events-none transition-all duration-700 opacity-80"
+        style={{
+          background: 'var(--ambient-glow)',
+        }}
+      />
+
       {/* 1. Cinematic Control & Atmosphere Bar */}
       <div 
-        className="border-b py-3 px-4 sm:px-8 flex flex-wrap items-center justify-between gap-4 transition-colors"
+        className="relative z-10 border-b py-3 px-4 sm:px-8 flex flex-wrap items-center justify-between gap-4 transition-colors"
         style={{
           backgroundColor: 'var(--bg-page-subtle)',
           borderColor: 'var(--border-subtle)',
@@ -157,7 +185,7 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
         {/* Left: Gallery Room Metadata */}
         <div className="flex items-center gap-3 text-left">
           <span 
-            className="text-[11px] font-mono px-2.5 py-0.5 rounded-full border font-bold uppercase tracking-wider"
+            className="text-[11px] font-mono px-3 py-1 rounded-full border font-bold uppercase tracking-wider shadow-2xs"
             style={{
               backgroundColor: 'var(--tag-bg)',
               borderColor: 'var(--border-subtle)',
@@ -170,25 +198,40 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
             殿堂级艺术流派全景展厅
           </span>
           <span className="text-[11px] font-mono hidden md:inline" style={{ color: 'var(--text-muted)' }}>
-            · 3D 物理光泽 · 专为高清视频录制演示设计
+            · 3D 物理光泽 · 电影级转场已开启
           </span>
         </div>
 
         {/* Right: Screen-Recording Video Demo Controls */}
         <div className="flex items-center gap-2.5">
+          {/* Ambient Soundscape Toggle */}
+          <button
+            onClick={handleToggleAmbient}
+            className="p-2 rounded-full border transition-all cursor-pointer shadow-xs hover:opacity-85"
+            style={{
+              backgroundColor: ambientPlaying ? 'var(--accent)' : 'var(--bg-card)',
+              borderColor: 'var(--border-subtle)',
+              color: ambientPlaying ? '#FFFFFF' : 'var(--text-muted)',
+            }}
+            title={ambientPlaying ? '关闭展厅环境白噪音' : '开启展厅沉浸环境音效'}
+          >
+            {ambientPlaying ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+          </button>
+
           {/* Auto Tour Toggle Button (录屏神级功能) */}
           <button
             onClick={() => {
               playSpotlightClick();
               setIsAutoTour((prev) => !prev);
             }}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-sans font-bold border transition-all cursor-pointer shadow-xs"
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-sans font-bold border transition-all cursor-pointer shadow-xs hover:scale-[1.02]"
             style={{
               backgroundColor: isAutoTour ? 'var(--accent)' : 'var(--bg-card)',
               borderColor: isAutoTour ? 'var(--accent)' : 'var(--border-strong)',
               color: isAutoTour ? '#FFFFFF' : 'var(--text-main)',
+              boxShadow: isAutoTour ? '0 0 20px var(--accent)' : 'none',
             }}
-            title="快捷键：按空格键暂停/开始"
+            title="快捷键：按空格键 Space 暂停/开始"
           >
             {isAutoTour ? (
               <>
@@ -210,16 +253,16 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
               playSpotlightClick();
               setIsLightboxOpen(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-sans border transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-sans border transition-all cursor-pointer hover:opacity-85"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-subtle)',
               color: 'var(--text-main)',
             }}
-            title="超清全屏鉴赏"
+            title="超清全屏鉴赏 (按 F 键)"
           >
             <Maximize2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">全屏超清</span>
+            <span className="hidden sm:inline">全屏超清 (F)</span>
           </button>
 
           {/* Open Curator Drawer */}
@@ -228,7 +271,7 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
               playSpotlightClick();
               setIsDrawerOpen(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-sans font-bold border transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-sans font-bold border transition-all cursor-pointer hover:scale-[1.02]"
             style={{
               backgroundColor: 'var(--pill-active-bg)',
               borderColor: 'var(--pill-active-bg)',
@@ -241,21 +284,22 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
         </div>
       </div>
 
-      {/* Auto Tour Progress Indicator Line */}
+      {/* Auto Tour Dynamic Glowing Progress Indicator Line */}
       {isAutoTour && (
-        <div className="w-full h-1 bg-black/10 overflow-hidden">
+        <div className="relative w-full h-1 bg-black/20 overflow-hidden z-20">
           <div 
             className="h-full transition-all duration-75 ease-linear"
             style={{
               width: `${tourProgress}%`,
               backgroundColor: 'var(--accent)',
+              boxShadow: '0 0 10px var(--accent)',
             }}
           />
         </div>
       )}
 
       {/* 2. Main Exhibition Stage (3D Tilt Artwork + Museum Placard) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
           {/* Left / Center Stage: 3D Tilting Museum Frame (7 Cols) */}
@@ -268,15 +312,18 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
 
             {/* 3D Interactive Framed Canvas */}
             <div
+              key={animationKey}
               ref={frameRef}
               onMouseMove={handleMouseMove}
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
-              className="relative w-full max-w-[620px] rounded-2xl p-4 sm:p-6 transition-transform duration-150 ease-out cursor-zoom-in group select-none shadow-2xl"
+              className={`relative w-full max-w-[620px] rounded-2xl p-4 sm:p-6 transition-all duration-300 ease-out cursor-zoom-in group select-none shadow-2xl ${
+                isTransitioning ? 'opacity-40 scale-[0.98]' : 'animate-curtain-sweep'
+              }`}
               style={{
                 backgroundColor: 'var(--bg-card)',
                 border: '3px solid var(--border-strong)',
-                transform: isHovered
+                transform: isHovered && !isTransitioning
                   ? `perspective(1200px) rotateY(${tilt.x * 14}deg) rotateX(${-tilt.y * 14}deg) scale3d(1.02, 1.02, 1.02)`
                   : 'perspective(1200px) rotateY(0deg) rotateX(0deg) scale3d(1, 1, 1)',
               }}
@@ -284,23 +331,23 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
             >
               {/* Inner Museum Mat Card (装裱象牙白卡纸) */}
               <div 
-                className="p-3 sm:p-5 rounded-xl border shadow-inner transition-colors duration-300"
+                className="p-3 sm:p-5 rounded-xl border shadow-inner transition-colors duration-500"
                 style={{
                   backgroundColor: 'var(--bg-page-subtle)',
                   borderColor: 'var(--border-subtle)',
                 }}
               >
-                {/* Artwork Viewport with Ken Burns breathing animation when Auto Tour is on */}
-                <div className="relative overflow-hidden rounded-lg bg-black/5 aspect-[16/10] sm:aspect-[16/10] flex items-center justify-center shadow-md">
+                {/* Artwork Viewport with Ken Burns breathing animation */}
+                <div className="relative overflow-hidden rounded-lg bg-black/10 aspect-[16/10] flex items-center justify-center shadow-md">
                   <img
                     src={activeCase.imageUrl}
                     alt={activeCase.title}
                     className={`w-full h-full object-cover transition-transform duration-700 ${
-                      isAutoTour ? 'scale-105 transition-all duration-[5000ms]' : 'group-hover:scale-105'
+                      isAutoTour ? 'animate-ken-burns' : 'group-hover:scale-105'
                     }`}
                   />
 
-                  {/* Specular Light Reflection Sheen (物理反光) */}
+                  {/* Specular Light Reflection Sheen (物理反光层) */}
                   <div
                     className="absolute inset-0 pointer-events-none transition-opacity duration-300"
                     style={{
@@ -313,16 +360,27 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
                   {/* Top Left Badge */}
                   <div className="absolute top-3 left-3 z-10">
                     <span 
-                      className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full backdrop-blur-md shadow-md border"
+                      className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full backdrop-blur-md shadow-md border flex items-center gap-1.5"
                       style={{
                         backgroundColor: 'var(--bg-card)',
                         borderColor: 'var(--border-subtle)',
                         color: 'var(--accent)',
                       }}
                     >
-                      {activeCase.badge} · {activeCase.category}
+                      <Sparkles className="w-3 h-3" />
+                      <span>{activeCase.badge} · {activeCase.category}</span>
                     </span>
                   </div>
+
+                  {/* Auto-Tour Live Indicator */}
+                  {isAutoTour && (
+                    <div className="absolute top-3 right-3 z-10">
+                      <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-red-600/90 text-white font-bold tracking-wider backdrop-blur-md shadow-lg flex items-center gap-1.5 animate-pulse">
+                        <span className="w-2 h-2 rounded-full bg-white" />
+                        <span>AUTO TOUR 0{Math.ceil(5 - (tourProgress / 20))}s</span>
+                      </span>
+                    </div>
+                  )}
 
                   {/* Hover Zoom Shield */}
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
@@ -335,7 +393,7 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
                       }}
                     >
                       <Maximize2 className="w-3.5 h-3.5" />
-                      <span>点击全屏超清鉴赏</span>
+                      <span>点击全屏超清鉴赏 (F)</span>
                     </div>
                   </div>
                 </div>
@@ -349,13 +407,13 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
             </div>
 
             {/* Realistic Drop Shadow on Wall */}
-            <div className="w-4/5 h-6 bg-black/15 blur-xl mt-3 rounded-full" />
+            <div className="w-4/5 h-6 bg-black/20 blur-xl mt-3 rounded-full" />
 
             {/* Stepper Controls (Previous / Next Artwork) */}
             <div className="flex items-center justify-between w-full max-w-[480px] mt-4 px-2">
               <button
                 onClick={handlePrev}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-sans border transition-all cursor-pointer shadow-xs hover:opacity-85"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-sans border transition-all cursor-pointer shadow-xs hover:scale-105 active:scale-95"
                 style={{
                   backgroundColor: 'var(--bg-card)',
                   borderColor: 'var(--border-subtle)',
@@ -363,17 +421,17 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
                 }}
               >
                 <ChevronLeft className="w-4 h-4" />
-                <span>上一幅流派</span>
+                <span>上一幅 (←)</span>
               </button>
 
               {/* Progress Dots */}
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 max-w-[200px] overflow-hidden">
                 {filteredCases.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => handleSelectCase(i)}
                     className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                      currentIndex === i ? 'w-6' : 'w-1.5 opacity-40'
+                      currentIndex === i ? 'w-6' : 'w-1.5 opacity-30'
                     }`}
                     style={{
                       backgroundColor: currentIndex === i ? 'var(--accent)' : 'var(--text-muted)',
@@ -384,24 +442,24 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
 
               <button
                 onClick={handleNext}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-sans border transition-all cursor-pointer shadow-xs hover:opacity-85"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-sans border transition-all cursor-pointer shadow-xs hover:scale-105 active:scale-95"
                 style={{
                   backgroundColor: 'var(--bg-card)',
                   borderColor: 'var(--border-subtle)',
                   color: 'var(--text-main)',
                 }}
               >
-                <span>下一幅流派</span>
+                <span>下一幅 (→)</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </div>
 
           {/* Right Stage: Authentic Museum Placard (5 Cols) */}
-          <div className="lg:col-span-5 text-left space-y-5">
+          <div key={`placard-${animationKey}`} className="lg:col-span-5 text-left space-y-5 animate-placard-slide">
             {/* Museum Placard Box */}
             <div
-              className="relative rounded-2xl p-6 sm:p-8 border shadow-xl space-y-5 transition-colors duration-300"
+              className="relative rounded-2xl p-6 sm:p-8 border shadow-xl space-y-5 transition-colors duration-500"
               style={{
                 backgroundColor: 'var(--bg-card)',
                 borderColor: 'var(--border-strong)',
@@ -420,7 +478,7 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
                     MUSEUM PLACARD · 典藏展签
                   </span>
                   <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>
-                    ROOM {String(currentIndex + 1).padStart(2, '0')}
+                    ROOM {String(currentIndex + 1).padStart(2, '0')} // {activeCase.category}
                   </span>
                 </div>
 
@@ -478,11 +536,11 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
                     <button
                       key={i}
                       onClick={() => handleCopyColor(c.hex)}
-                      className="w-7 h-7 rounded-full border shadow-xs hover:scale-110 transition-transform cursor-pointer relative group"
+                      className="w-7 h-7 rounded-full border shadow-xs hover:scale-125 transition-transform cursor-pointer relative group active:scale-95"
                       style={{ backgroundColor: c.hex, borderColor: 'var(--border-strong)' }}
                       title={`${c.name}: ${c.hex}`}
                     >
-                      <span className="absolute -top-7 left-1/2 -translate-x-1/2 text-[9px] font-mono px-1.5 py-0.5 rounded bg-black text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md">
+                      <span className="absolute -top-7 left-1/2 -translate-x-1/2 text-[9px] font-mono px-1.5 py-0.5 rounded bg-black text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md z-30">
                         {c.hex}
                       </span>
                     </button>
@@ -495,7 +553,7 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
                 {/* One-Click Copy Full Prompt */}
                 <button
                   onClick={handleCopyPrompt}
-                  className="w-full sm:flex-1 py-2.5 px-4 rounded-xl font-sans text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs"
+                  className="w-full sm:flex-1 py-2.5 px-4 rounded-xl font-sans text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs hover:opacity-90 active:scale-98"
                   style={{
                     backgroundColor: copiedPrompt ? '#10B981' : 'var(--pill-active-bg)',
                     color: 'var(--pill-active-text)',
@@ -503,7 +561,7 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
                 >
                   {copiedPrompt ? (
                     <>
-                      <Check className="w-4 h-4 text-emerald-400" />
+                      <Check className="w-4 h-4 text-emerald-300" />
                       <span>已复制完整 Prompt！</span>
                     </>
                   ) : (
@@ -520,7 +578,7 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
                     playSpotlightClick();
                     setIsDrawerOpen(true);
                   }}
-                  className="w-full sm:w-auto py-2.5 px-4 rounded-xl border text-xs font-sans font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 hover:opacity-85"
+                  className="w-full sm:w-auto py-2.5 px-4 rounded-xl border text-xs font-sans font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 hover:scale-105 active:scale-95"
                   style={{
                     backgroundColor: 'var(--bg-card)',
                     borderColor: 'var(--border-strong)',
@@ -536,7 +594,7 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
 
             {/* Video Recording Pro-Tip */}
             <div 
-              className="p-3 rounded-xl border text-[11px] leading-relaxed flex items-center gap-2.5"
+              className="p-3 rounded-xl border text-[11px] leading-relaxed flex items-center gap-2.5 shadow-2xs"
               style={{
                 backgroundColor: 'var(--bg-page-subtle)',
                 borderColor: 'var(--border-subtle)',
@@ -545,7 +603,7 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
             >
               <Info className="w-4 h-4 shrink-0" style={{ color: 'var(--accent)' }} />
               <span>
-                <strong>录屏演示技巧：</strong> 点击顶部「自动漫步巡礼」即可开启 5 秒自动镜头轮播；鼠标悬停画作即可演示 3D 物理反光与视差。
+                <strong>录屏演示技巧：</strong> 按下键盘 <strong>空格键 (Space)</strong> 即可启动免操作自动漫步；鼠标划过画作演示 3D 物理反光，右上角随时切换<strong>「夜晚灯光下的温馨场景」</strong>等 5 大场景！
               </span>
             </div>
           </div>
@@ -554,7 +612,7 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
 
       {/* 3. Curated Horizontal Exhibition Rack (画作缩略漫步展架) */}
       <div 
-        className="border-t py-6 px-4 sm:px-8 transition-colors"
+        className="relative z-10 border-t py-6 px-4 sm:px-8 transition-colors"
         style={{
           backgroundColor: 'var(--bg-page-subtle)',
           borderColor: 'var(--border-subtle)',
@@ -566,7 +624,7 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
             <div className="flex items-center gap-2">
               <Compass className="w-4 h-4" style={{ color: 'var(--accent)' }} />
               <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-main)' }}>
-                流派画卷长廊 ({filteredCases.length})
+                流派画卷长廊 ({filteredCases.length} 藏品收录)
               </h3>
             </div>
 
@@ -580,7 +638,7 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
                     setSelectedCategory(cat);
                     setCurrentIndex(0);
                   }}
-                  className="px-3 py-1 rounded-full text-[11px] font-sans font-medium whitespace-nowrap transition-all cursor-pointer border"
+                  className="px-3 py-1 rounded-full text-[11px] font-sans font-medium whitespace-nowrap transition-all cursor-pointer border hover:scale-105"
                   style={{
                     backgroundColor: selectedCategory === cat ? 'var(--pill-active-bg)' : 'var(--bg-card)',
                     borderColor: selectedCategory === cat ? 'var(--pill-active-bg)' : 'var(--border-subtle)',
@@ -601,8 +659,8 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
                 <div
                   key={c.id}
                   onClick={() => handleSelectCase(idx)}
-                  className={`group shrink-0 w-48 sm:w-56 rounded-xl border p-2.5 transition-all duration-200 cursor-pointer text-left ${
-                    active ? 'ring-2 scale-[1.02] shadow-md' : 'hover:opacity-90 shadow-xs'
+                  className={`group shrink-0 w-48 sm:w-56 rounded-xl border p-2.5 transition-all duration-300 cursor-pointer text-left ${
+                    active ? 'ring-2 scale-[1.03] shadow-lg' : 'hover:opacity-90 shadow-xs'
                   }`}
                   style={{
                     backgroundColor: active ? 'var(--bg-card-hover)' : 'var(--bg-card)',
@@ -613,7 +671,7 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
                     <img
                       src={c.imageUrl}
                       alt={c.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                     <span 
                       className="absolute top-1.5 left-1.5 text-[9px] font-mono font-bold px-1.5 py-0.5 rounded backdrop-blur-md border shadow-xs"
@@ -649,13 +707,13 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
 
       {/* 4. Curator Recipe & Prompt Slide-Out Drawer (高奢策展档案抽屉) */}
       {isDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-xs animate-fadeIn">
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-xs animate-fadeIn">
           {/* Backdrop click to close */}
           <div className="flex-1" onClick={() => setIsDrawerOpen(false)} />
 
           {/* Drawer Body */}
           <div 
-            className="w-full max-w-xl h-full overflow-y-auto p-6 sm:p-8 space-y-6 shadow-2xl text-left border-l transition-colors"
+            className="w-full max-w-xl h-full overflow-y-auto p-6 sm:p-8 space-y-6 shadow-2xl text-left border-l transition-colors animate-placard-slide"
             style={{
               backgroundColor: 'var(--bg-card)',
               borderColor: 'var(--border-subtle)',
@@ -816,7 +874,7 @@ export const CinematicGalleryStage: React.FC<CinematicGalleryStageProps> = ({ im
             <img
               src={activeCase.imageUrl}
               alt={activeCase.title}
-              className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl border border-white/20"
+              className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl border border-white/20 animate-curtain-sweep"
             />
             <div className="mt-4 text-center space-y-1 text-white">
               <h3 className="text-xl font-serif font-black">{activeCase.title}</h3>

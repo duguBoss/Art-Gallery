@@ -1,4 +1,4 @@
-﻿export type HallCategory = 
+export type HallCategory = 
   | 'all'
   | 'surreal-mystery'   // 悬疑与暗黑超现实展厅
   | 'digital-future'    // 数字体素与赛博未来展厅
@@ -150,7 +150,8 @@ export interface AIVideoWorkflow {
   category: string;
   badge: string;
   summary: string;
-  previewVideoUrl: string;
+  previewVideoUrl?: string;
+  coverImage?: string;
   totalSteps: number;
   difficulty: '入门' | '进阶' | '专家';
   toolsChain: string[];
