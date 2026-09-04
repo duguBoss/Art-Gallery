@@ -1,10 +1,10 @@
 ﻿import React from 'react';
-import { Sparkles, Shapes, Film, Atom, Compass, LayoutGrid } from 'lucide-react';
+import { Sparkles, Shapes, Film, Atom, Compass, LayoutGrid, Scale, Layers } from 'lucide-react';
 import { playSpotlightClick } from '../utils/audio';
 import { ThemeSwitcher } from './ThemeSwitcher';
 import type { GalleryTheme } from '../types/theme';
 
-export type MainViewType = 'atoms' | 'styles' | 'motion' | 'atlas' | 'shapes-lab';
+export type MainViewType = 'atoms' | 'principles' | 'styles' | 'mediums' | 'motion' | 'atlas' | 'shapes-lab';
 
 interface NavbarProps {
   currentView: MainViewType;
@@ -24,11 +24,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectTheme,
 }) => {
   const navTabs: { id: MainViewType; label: string; icon: React.ReactNode }[] = [
-    { id: 'atoms', label: '视觉原子', icon: <Atom className="w-3.5 h-3.5" /> },
-    { id: 'styles', label: '风格规则', icon: <Compass className="w-3.5 h-3.5" /> },
-    { id: 'motion', label: '动态与镜头', icon: <Film className="w-3.5 h-3.5" /> },
-    { id: 'atlas', label: '作品图鉴', icon: <LayoutGrid className="w-3.5 h-3.5" /> },
-    { id: 'shapes-lab', label: '算法工坊', icon: <Shapes className="w-3.5 h-3.5 text-amber-400" /> },
+    { id: 'atoms', label: '视觉材料', icon: <Atom className="w-3.5 h-3.5" /> },
+    { id: 'principles', label: '设计原则', icon: <Scale className="w-3.5 h-3.5 text-emerald-400" /> },
+    { id: 'styles', label: '风格规则', icon: <Compass className="w-3.5 h-3.5 text-indigo-400" /> },
+    { id: 'mediums', label: '四大媒介', icon: <Layers className="w-3.5 h-3.5 text-pink-400" /> },
+    { id: 'motion', label: '动态与镜头', icon: <Film className="w-3.5 h-3.5 text-cyan-400" /> },
+    { id: 'atlas', label: '作品图鉴', icon: <LayoutGrid className="w-3.5 h-3.5 text-amber-400" /> },
+    { id: 'shapes-lab', label: '算法工坊', icon: <Shapes className="w-3.5 h-3.5 text-purple-400" /> },
   ];
 
   return (
@@ -78,7 +80,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* View Switcher Tabs (Center Pill) */}
         <div
-          className="flex items-center p-1 rounded-full border shadow-inner overflow-x-auto max-w-full"
+          className="flex items-center p-1 rounded-full border shadow-inner overflow-x-auto max-w-full scrollbar-none"
           style={{
             backgroundColor: 'var(--bg-card)',
             borderColor: 'var(--border-subtle)',
@@ -93,7 +95,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   playSpotlightClick();
                   onSwitchView(tab.id);
                 }}
-                className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-sans font-bold transition-all cursor-pointer whitespace-nowrap"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-sans font-bold transition-all cursor-pointer whitespace-nowrap"
                 style={{
                   backgroundColor: isActive ? 'var(--pill-active-bg)' : 'transparent',
                   color: isActive ? 'var(--pill-active-text)' : 'var(--text-muted)',

@@ -1,3 +1,6 @@
+
+export { DESIGN_PRINCIPLES } from './designPrinciplesData';
+export { MEDIUM_CATEGORIES } from './mediumData';
 ﻿import type { VisualAtom, StyleRuleEquation, MotionLanguageItem, AtlasWork } from '../types/atlas';
 
 // ==========================================

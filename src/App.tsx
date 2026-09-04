@@ -1,9 +1,12 @@
 ﻿import { useState, useEffect } from 'react';
 import type { GalleryTheme } from './types/theme';
+import type { MediumType } from './types/atlas';
 import { Navbar, type MainViewType } from './components/Navbar';
 import { VisualJourneyHero } from './components/VisualJourneyHero';
 import { VisualAtomsView } from './components/VisualAtomsView';
+import { DesignPrinciplesView } from './components/DesignPrinciplesView';
 import { StyleMatrixView } from './components/StyleMatrixView';
+import { MediumMatrixView } from './components/MediumMatrixView';
 import { MotionCameraLab } from './components/MotionCameraLab';
 import { DesignAtlasView } from './components/DesignAtlasView';
 import { GenerativePosterStudio } from './components/GenerativePosterStudio';
@@ -26,13 +29,16 @@ export function App() {
     localStorage.setItem('art_gallery_theme', currentTheme);
   }, [currentTheme]);
 
-  // Core Visual Atlas Views: 'atoms' | 'styles' | 'motion' | 'atlas' | 'shapes-lab'
+  // Core Visual Atlas Views:
+  // 'atoms' | 'principles' | 'styles' | 'mediums' | 'motion' | 'atlas' | 'shapes-lab'
   const [currentView, setCurrentView] = useState<MainViewType>('atoms');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Cross-Dimension Filters
   const [activeAtomFilter, setActiveAtomFilter] = useState<string | null>(null);
   const [activeStyleFilter, setActiveStyleFilter] = useState<string | null>(null);
+  const [activePrincipleFilter, setActivePrincipleFilter] = useState<string | null>(null);
+  const [activeMediumFilter, setActiveMediumFilter] = useState<MediumType | 'all'>('all');
 
   // Stealth Admin Modal State
   const [isAdminOpen, setIsAdminOpen] = useState(false);
@@ -43,6 +49,8 @@ export function App() {
   const handleExploreAtomInWorks = (atomName: string) => {
     setActiveAtomFilter(atomName);
     setActiveStyleFilter(null);
+    setActivePrincipleFilter(null);
+    setActiveMediumFilter('all');
     setCurrentView('atlas');
   };
 
@@ -50,12 +58,34 @@ export function App() {
   const handleExploreStyleInWorks = (styleId: string) => {
     setActiveStyleFilter(styleId);
     setActiveAtomFilter(null);
+    setActivePrincipleFilter(null);
+    setActiveMediumFilter('all');
+    setCurrentView('atlas');
+  };
+
+  // Cross-Navigation Handler: Explore Principle in Works
+  const handleExplorePrincipleInWorks = (principleName: string) => {
+    setActivePrincipleFilter(principleName);
+    setActiveAtomFilter(null);
+    setActiveStyleFilter(null);
+    setActiveMediumFilter('all');
+    setCurrentView('atlas');
+  };
+
+  // Cross-Navigation Handler: Explore Medium in Works
+  const handleExploreMediumInWorks = (medium: MediumType) => {
+    setActiveMediumFilter(medium);
+    setActiveAtomFilter(null);
+    setActiveStyleFilter(null);
+    setActivePrincipleFilter(null);
     setCurrentView('atlas');
   };
 
   const handleClearFilters = () => {
     setActiveAtomFilter(null);
     setActiveStyleFilter(null);
+    setActivePrincipleFilter(null);
+    setActiveMediumFilter('all');
   };
 
   // Stealth Trigger 1: Global Shortcut Ctrl + Shift + A
@@ -97,37 +127,50 @@ export function App() {
         <VisualJourneyHero
           currentTab={currentView}
           onSelectTab={(tab) => {
-            setCurrentView(tab as MainViewType);
+            setCurrentView(tab);
           }}
         />
 
-        {/* View 1: LEVEL 01 · 视觉基础原子库 (Visual Atoms) */}
+        {/* View 1: LEVEL 01 · 视觉基础材料库 (Visual Atoms) */}
         {currentView === 'atoms' && (
           <VisualAtomsView onExploreAtomInWorks={handleExploreAtomInWorks} />
         )}
 
-        {/* View 2: LEVEL 02 · 风格规则矩阵与方程 (Style Matrix) */}
+        {/* View 2: LEVEL 02 · 十大设计原则实验室 (Design Principles - The Bridge) */}
+        {currentView === 'principles' && (
+          <DesignPrinciplesView onExplorePrincipleInWorks={handleExplorePrincipleInWorks} />
+        )}
+
+        {/* View 3: LEVEL 03 · 风格规则矩阵与方程 (Style Matrix Equations) */}
         {currentView === 'styles' && (
           <StyleMatrixView onExploreStyleInWorks={handleExploreStyleInWorks} />
         )}
 
-        {/* View 3: LEVEL 03 · 动态与镜头语言实验室 (Motion & Camera Lab) */}
+        {/* View 4: LEVEL 04 · 四大表现媒介 (The 4 Mediums: Image, Interface, Space, Motion) */}
+        {currentView === 'mediums' && (
+          <MediumMatrixView onExploreMediumInWorks={handleExploreMediumInWorks} />
+        )}
+
+        {/* View 5: LEVEL 05 · 动态与镜头语言实验室 (Motion & Cinema Lab) */}
         {currentView === 'motion' && (
           <MotionCameraLab />
         )}
 
-        {/* View 4: LEVEL 04 · 作品与多维知识网络 (Design Atlas Works & Deconstruction) */}
+        {/* View 6: LEVEL 06 · 作品知识网络与多维拆解 (Design Atlas Works & Deconstruction) */}
         {currentView === 'atlas' && (
           <DesignAtlasView
             initialAtomFilter={activeAtomFilter}
             initialStyleFilter={activeStyleFilter}
+            initialPrincipleFilter={activePrincipleFilter}
+            initialMediumFilter={activeMediumFilter}
             onClearFilter={handleClearFilters}
             onSelectAtom={handleExploreAtomInWorks}
             onSelectStyle={handleExploreStyleInWorks}
+            onSelectPrinciple={handleExplorePrincipleInWorks}
           />
         )}
 
-        {/* View 5: LEVEL 05 · 算法海报重构工坊 (Book of Shapes Generative Studio) */}
+        {/* View 7: LEVEL 07 · 算法海报重构工坊 (Book of Shapes Generative Studio) */}
         {currentView === 'shapes-lab' && (
           <GenerativePosterStudio
             currentTheme={currentTheme}

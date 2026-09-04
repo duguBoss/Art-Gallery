@@ -1,4 +1,4 @@
-﻿export type VisualDimension = 'color' | 'composition' | 'typography' | 'light' | 'texture' | 'space';
+export type VisualDimension = 'color' | 'composition' | 'typography' | 'light' | 'texture' | 'space';
 
 export interface VisualAtom {
   id: string;
@@ -11,6 +11,22 @@ export interface VisualAtom {
   sampleVisualUrl: string;
   accentColor: string;
   tags: string[];
+}
+
+export interface DesignPrinciple {
+  id: string;
+  name: string;
+  nameEn: string;
+  coreQuestion: string; // "设计师是如何组织画面的？"
+  definition: string;
+  mechanics: string[]; // 具体的实践技法
+  sampleVisualUrl: string;
+  beforeAfterScenario: {
+    before: string; // 缺乏该原则时的常见平庸痛点
+    after: string; // 运用该原则后的升华表现
+  };
+  accentColor: string;
+  linkedStyles: string[]; // 紧密关联的风格 ID
 }
 
 export interface StyleRuleEquation {
@@ -26,7 +42,15 @@ export interface StyleRuleEquation {
   keyAtoms: string[]; // Linked atom IDs
 }
 
-export type MotionCategory = 'motion' | 'transition' | 'camera' | 'rhythm' | 'spatial' | 'effects';
+export type MotionCategory =
+  | 'motion'
+  | 'transition'
+  | 'camera'
+  | 'rhythm'
+  | 'spatial'
+  | 'cinematography'
+  | 'editing'
+  | 'effects';
 
 export interface MotionKeyframeEvent {
   time: string; // e.g. "00:01"
@@ -44,11 +68,30 @@ export interface MotionLanguageItem {
   rhythmCurve?: string;
   timelineEvents: MotionKeyframeEvent[];
   demoVideoUrl?: string;
-  demoAnimationType: 'push-in' | 'orbit' | 'mask-wipe' | 'glitch' | 'elastic-bounce' | 'parallax-depth' | 'tracking-shot';
+  demoAnimationType:
+    | 'push-in'
+    | 'orbit'
+    | 'mask-wipe'
+    | 'glitch'
+    | 'elastic-bounce'
+    | 'parallax-depth'
+    | 'tracking-shot'
+    | 'rack-focus';
   aestheticPurpose: string; // 传达的情绪与叙事目的
 }
 
-export type MediumType = 'web' | 'ui' | 'poster' | '3d' | 'motion' | 'film';
+export type MediumType = 'web' | 'ui' | 'poster' | '3d' | 'motion' | 'film' | 'photography' | 'illustration';
+
+export interface MediumCategoryInfo {
+  id: 'image' | 'interface' | 'space' | 'motion';
+  name: string;
+  nameEn: string;
+  headline: string;
+  description: string;
+  subcategories: string[];
+  bannerImage: string;
+  designConsiderations: string[]; // 媒介特有的设计考量
+}
 
 export interface AtlasWork {
   id: string;
@@ -59,6 +102,7 @@ export interface AtlasWork {
   coverImage: string;
   colorPalette: string[];
   atoms: string[]; // Visual atom names / IDs
+  principles?: string[]; // Applied design principles
   motionLanguage?: string[];
   dimensionsRatio: 'portrait' | 'landscape' | 'square';
   whyItWorks: {
