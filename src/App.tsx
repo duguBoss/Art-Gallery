@@ -1,70 +1,55 @@
-import { useState, useMemo, useEffect } from 'react';
-import { ART_STYLES } from './data/stylesData';
+﻿import { useState, useMemo, useEffect } from 'react';
 import { getImageCases, getVideoWorkflows } from './data/workflowStore';
-import type { ArtStyle, Artwork, HallCategory, AIImageCase, AIVideoWorkflow } from './types/art';
-import { SpotlightEffect } from './components/SpotlightEffect';
+import type { AIImageCase, AIVideoWorkflow } from './types/art';
 import { Navbar, type MainViewType } from './components/Navbar';
 import { HeroGallery } from './components/HeroGallery';
 import { AIImagePromptLab } from './components/AIImagePromptLab';
 import { AIVideoWorkflowLab } from './components/AIVideoWorkflowLab';
-import { SpatialGalleryRoom } from './components/SpatialGalleryRoom';
-import { ArtworkWall } from './components/ArtworkWall';
-import { StyleGrid } from './components/StyleGrid';
-import { StyleDetailModal } from './components/StyleDetailModal';
-import { Lightbox } from './components/Lightbox';
-import { StyleMixer } from './components/StyleMixer';
-import { PaletteInspectorModal } from './components/PaletteInspectorModal';
-import { VirtualTourModal } from './components/VirtualTourModal';
-import { SubmitStyleModal } from './components/SubmitStyleModal';
-import { ScenarioExplorerModal } from './components/ScenarioExplorerModal';
 import { AdminCMSModal } from './components/AdminCMSModal';
 import { Footer } from './components/Footer';
 
 export function App() {
-  // Main view defaults to 'image-lab' for AI Prompt deconstruction and 'video-lab' for multi-step workflows
+  // Two core views: 'image-lab' (Image Prompts) & 'video-lab' (Video Workflows)
   const [currentView, setCurrentView] = useState<MainViewType>('image-lab');
-  const [selectedHall, setSelectedHall] = useState<HallCategory>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // AI Prompt and Video Workflow stores backed by localStorage
+  // Local storage backed dataset
   const [imageCases, setImageCases] = useState<AIImageCase[]>(getImageCases());
   const [videoWorkflows, setVideoWorkflows] = useState<AIVideoWorkflow[]>(getVideoWorkflows());
 
-  // Modals state
+  // Stealth Admin Modal State
   const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [selectedStyle, setSelectedStyle] = useState<ArtStyle | null>(null);
-  const [inspectedArtwork, setInspectedArtwork] = useState<{ artwork: Artwork; style: ArtStyle } | null>(null);
-  const [isMixerOpen, setIsMixerOpen] = useState(false);
-  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
-  const [isSubmitOpen, setIsSubmitOpen] = useState(false);
-  const [isTourOpen, setIsTourOpen] = useState(false);
-  const [isScenariosOpen, setIsScenariosOpen] = useState(false);
 
-  // Filtered Styles
-  const filteredStyles = useMemo(() => {
-    return ART_STYLES.filter((style) => {
-      const matchesHall = selectedHall === 'all' || style.hall === selectedHall;
-      const query = searchQuery.trim().toLowerCase();
-      if (!query) return matchesHall;
+  // Filtered Image Cases
+  const filteredImageCases = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return imageCases;
+    return imageCases.filter(
+      (c) =>
+        c.title.toLowerCase().includes(q) ||
+        c.category.toLowerCase().includes(q) ||
+        c.badge.toLowerCase().includes(q) ||
+        c.description.toLowerCase().includes(q) ||
+        c.tags?.some((t) => t.toLowerCase().includes(q)) ||
+        c.promptBlocks?.subject.toLowerCase().includes(q)
+    );
+  }, [imageCases, searchQuery]);
 
-      return matchesHall && (
-        style.title.toLowerCase().includes(query) ||
-        style.englishTitle.toLowerCase().includes(query) ||
-        style.badge.toLowerCase().includes(query) ||
-        style.summary.toLowerCase().includes(query) ||
-        style.appliedScenarios?.some(s => s.scenarioName.toLowerCase().includes(query) || s.useCase.toLowerCase().includes(query)) ||
-        style.representativeWorks.some(w => w.title.toLowerCase().includes(query) || w.description.toLowerCase().includes(query))
-      );
-    });
-  }, [selectedHall, searchQuery]);
-
-  const featuredStyles = useMemo(() => {
-    return ART_STYLES.filter(s => s.featured);
-  }, []);
-
-  const handleInspectArtwork = (art: Artwork, style: ArtStyle) => {
-    setInspectedArtwork({ artwork: art, style });
-  };
+  // Filtered Video Workflows
+  const filteredVideoWorkflows = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return videoWorkflows;
+    return videoWorkflows.filter(
+      (w) =>
+        w.title.toLowerCase().includes(q) ||
+        w.category.toLowerCase().includes(q) ||
+        w.summary.toLowerCase().includes(q) ||
+        w.toolsChain?.some((t) => t.toLowerCase().includes(q)) ||
+        w.steps?.some(
+          (s) => s.stepTitle.toLowerCase().includes(q) || s.toolUsed.toLowerCase().includes(q)
+        )
+    );
+  }, [videoWorkflows, searchQuery]);
 
   // Stealth Trigger 1: Global Shortcut Ctrl + Shift + A
   useEffect(() => {
@@ -91,83 +76,35 @@ export function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gallery-950 text-gallery-100 relative">
-      <SpotlightEffect />
-
-      {/* Primary Top Navigation */}
+    <div className="min-h-screen bg-[#F8F9FA] text-gray-900 flex flex-col font-sans">
+      {/* Top Navbar */}
       <Navbar
         currentView={currentView}
         onSwitchView={setCurrentView}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        onOpenMixer={() => setIsMixerOpen(true)}
-        onOpenPalette={() => setIsPaletteOpen(true)}
-        onOpenSubmit={() => setIsSubmitOpen(true)}
-        onOpenTour={() => setIsTourOpen(true)}
       />
 
-      <main>
-        {/* Dynamic Hero Facade */}
-        <HeroGallery
-          featuredStyles={featuredStyles}
-          onSelectStyle={setSelectedStyle}
-          onOpenTour={() => setIsTourOpen(true)}
-          onSwitchView={setCurrentView}
-        />
+      {/* Main Container */}
+      <main className="flex-1">
+        {/* Concise Hero Section */}
+        <HeroGallery currentView={currentView} />
 
-        {/* Dynamic Studio Stage Anchor */}
-        <div id="exhibition-content">
-          {/* VIEW 1: AI Image Prompt Deconstruction Lab */}
-          {currentView === 'image-lab' && (
-            <AIImagePromptLab
-              imageCases={imageCases}
-              onOpenAdmin={() => setIsAdminOpen(true)}
-            />
-          )}
+        {/* View 1: Image Prompts Lab */}
+        {currentView === 'image-lab' && (
+          <AIImagePromptLab imageCases={filteredImageCases} />
+        )}
 
-          {/* VIEW 2: AI Multi-Step Video Workflow Pipeline */}
-          {currentView === 'video-lab' && (
-            <AIVideoWorkflowLab
-              workflows={videoWorkflows}
-              onOpenAdmin={() => setIsAdminOpen(true)}
-            />
-          )}
-
-          {/* VIEW 3: 3D Spatial Museum Room */}
-          {currentView === 'spatial' && (
-            <SpatialGalleryRoom
-              styles={filteredStyles}
-              onInspectArtwork={handleInspectArtwork}
-              onSelectStyle={setSelectedStyle}
-              onOpenTour={() => setIsTourOpen(true)}
-              onOpenScenarios={() => setIsScenariosOpen(true)}
-            />
-          )}
-
-          {/* VIEW 4: Art Wall Masonry */}
-          {currentView === 'wall' && (
-            <ArtworkWall
-              styles={filteredStyles}
-              onInspectArtwork={handleInspectArtwork}
-              onSelectStyle={setSelectedStyle}
-              onOpenScenarios={() => setIsScenariosOpen(true)}
-            />
-          )}
-
-          {/* VIEW 5: Styles Salons List */}
-          {currentView === 'styles' && (
-            <StyleGrid
-              styles={filteredStyles}
-              selectedHall={selectedHall}
-              onSelectHall={setSelectedHall}
-              onSelectStyle={setSelectedStyle}
-              searchQuery={searchQuery}
-            />
-          )}
-        </div>
+        {/* View 2: Video Workflow Lab */}
+        {currentView === 'video-lab' && (
+          <AIVideoWorkflowLab workflows={filteredVideoWorkflows} />
+        )}
       </main>
 
-      {/* Admin CMS Modal */}
+      {/* Clean Footer with Secret Easter Egg */}
+      <Footer onSecretTrigger={() => setIsAdminOpen(true)} />
+
+      {/* Stealth Admin Modal */}
       <AdminCMSModal
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
@@ -176,57 +113,6 @@ export function App() {
         onUpdateImageCases={setImageCases}
         onUpdateVideoWorkflows={setVideoWorkflows}
       />
-
-      {/* Artwork Inspection & Style Details */}
-      {selectedStyle && (
-        <StyleDetailModal
-          style={selectedStyle}
-          onClose={() => setSelectedStyle(null)}
-          onInspectArtwork={handleInspectArtwork}
-        />
-      )}
-
-      {inspectedArtwork && (
-        <Lightbox
-          artwork={inspectedArtwork.artwork}
-          style={inspectedArtwork.style}
-          onClose={() => setInspectedArtwork(null)}
-        />
-      )}
-
-      {/* Auxiliary Tools */}
-      <ScenarioExplorerModal
-        isOpen={isScenariosOpen}
-        onClose={() => setIsScenariosOpen(false)}
-        styles={ART_STYLES}
-        onSelectStyle={(s) => setSelectedStyle(s)}
-      />
-
-      <StyleMixer
-        styles={ART_STYLES}
-        isOpen={isMixerOpen}
-        onClose={() => setIsMixerOpen(false)}
-      />
-
-      <PaletteInspectorModal
-        styles={ART_STYLES}
-        isOpen={isPaletteOpen}
-        onClose={() => setIsPaletteOpen(false)}
-      />
-
-      <SubmitStyleModal
-        isOpen={isSubmitOpen}
-        onClose={() => setIsSubmitOpen(false)}
-      />
-
-      <VirtualTourModal
-        styles={ART_STYLES}
-        isOpen={isTourOpen}
-        onClose={() => setIsTourOpen(false)}
-        onSelectStyle={(s) => setSelectedStyle(s)}
-      />
-
-      <Footer onSecretTrigger={() => setIsAdminOpen(true)} />
     </div>
   );
 }
