@@ -2,27 +2,117 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===================================================
+   4 ARTISTIC GALLERY THEMES (BEYOND BLACK & WHITE)
+   =================================================== */
+
+:root, [data-theme="concrete"] {
+  --bg-page: #EBE9E4;
+  --bg-page-subtle: #F4F2EE;
+  --bg-card: #FAF8F5;
+  --bg-card-hover: #FFFFFF;
+  --bg-input: #FFFFFF;
+  --border-subtle: #DFDCD6;
+  --border-strong: #C8C3BA;
+  --text-main: #1F2327;
+  --text-muted: #5F6670;
+  --text-dim: #8B929D;
+  --accent: #B85D38;
+  --accent-light: #F7EDE8;
+  --accent-border: #E8C1B0;
+  --accent-hover: #9E4926;
+  --pill-active-bg: #1F2327;
+  --pill-active-text: #FAF8F5;
+  --tag-bg: #E4E0D8;
+  --tag-text: #3D444C;
+}
+
+[data-theme="salon"] {
+  --bg-page: #F3ECE1;
+  --bg-page-subtle: #FAF6EF;
+  --bg-card: #FAF6F0;
+  --bg-card-hover: #FFFDF9;
+  --bg-input: #FFFDF9;
+  --border-subtle: #E2D7C7;
+  --border-strong: #CFBFAB;
+  --text-main: #2E251E;
+  --text-muted: #6B5B4F;
+  --text-dim: #99887A;
+  --accent: #9E3A26;
+  --accent-light: #F7EAE7;
+  --accent-border: #E9C2BA;
+  --accent-hover: #832C1B;
+  --pill-active-bg: #2E251E;
+  --pill-active-text: #FAF6F0;
+  --tag-bg: #EADDCB;
+  --tag-text: #534539;
+}
+
+[data-theme="sage"] {
+  --bg-page: #E5ECE7;
+  --bg-page-subtle: #EFF4F0;
+  --bg-card: #F6FAF7;
+  --bg-card-hover: #FFFFFF;
+  --bg-input: #FFFFFF;
+  --border-subtle: #D2DED6;
+  --border-strong: #B8CCC0;
+  --text-main: #1D2A22;
+  --text-muted: #56695C;
+  --text-dim: #829588;
+  --accent: #2E6B56;
+  --accent-light: #E8F2EC;
+  --accent-border: #BCD8C9;
+  --accent-hover: #225342;
+  --pill-active-bg: #1D2A22;
+  --pill-active-text: #F6FAF7;
+  --tag-bg: #DCE8E0;
+  --tag-text: #374F41;
+}
+
+[data-theme="midnight"] {
+  --bg-page: #0D131C;
+  --bg-page-subtle: #121A26;
+  --bg-card: #151F2E;
+  --bg-card-hover: #1A2638;
+  --bg-input: #0E1622;
+  --border-subtle: #223044;
+  --border-strong: #2F425C;
+  --text-main: #F1F5F9;
+  --text-muted: #94A3B8;
+  --text-dim: #64748B;
+  --accent: #38BDF8;
+  --accent-light: #12283A;
+  --accent-border: #1E4968;
+  --accent-hover: #0EA5E9;
+  --pill-active-bg: #38BDF8;
+  --pill-active-text: #0B111A;
+  --tag-bg: #1D2A3D;
+  --tag-text: #CBD5E1;
+}
+
 @layer base {
   body {
-    @apply bg-[#F8F9FA] text-[#0F172A] font-sans antialiased selection:bg-blue-600 selection:text-white;
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
-/* Custom Clean Scrollbar */
+/* Custom Scrollbar styled to theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F1F5F9;
+  background: var(--bg-page);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: var(--border-strong);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: var(--accent);
 }

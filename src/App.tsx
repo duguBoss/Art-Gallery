@@ -1,6 +1,7 @@
-﻿import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { getImageCases, getVideoWorkflows } from './data/workflowStore';
 import type { AIImageCase, AIVideoWorkflow } from './types/art';
+import type { GalleryTheme } from './types/theme';
 import { Navbar, type MainViewType } from './components/Navbar';
 import { HeroGallery } from './components/HeroGallery';
 import { AIImagePromptLab } from './components/AIImagePromptLab';
@@ -9,6 +10,17 @@ import { AdminCMSModal } from './components/AdminCMSModal';
 import { Footer } from './components/Footer';
 
 export function App() {
+  // Artistic Gallery Theme State (Raw Concrete, Vintage Salon, Nordic Sage, Midnight Cinema)
+  const [currentTheme, setCurrentTheme] = useState<GalleryTheme>(() => {
+    const saved = localStorage.getItem('art_gallery_theme');
+    return (saved as GalleryTheme) || 'concrete';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    localStorage.setItem('art_gallery_theme', currentTheme);
+  }, [currentTheme]);
+
   // Two core views: 'image-lab' (Image Prompts) & 'video-lab' (Video Workflows)
   const [currentView, setCurrentView] = useState<MainViewType>('image-lab');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -76,13 +88,21 @@ export function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-gray-900 flex flex-col font-sans">
+    <div
+      className="min-h-screen flex flex-col font-sans transition-colors duration-300"
+      style={{
+        backgroundColor: 'var(--bg-page)',
+        color: 'var(--text-main)',
+      }}
+    >
       {/* Top Navbar */}
       <Navbar
         currentView={currentView}
         onSwitchView={setCurrentView}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        currentTheme={currentTheme}
+        onSelectTheme={setCurrentTheme}
       />
 
       {/* Main Container */}
