@@ -4,7 +4,7 @@ import type { AIImageCase, AIVideoWorkflow } from './types/art';
 import type { GalleryTheme } from './types/theme';
 import { Navbar, type MainViewType } from './components/Navbar';
 import { HeroGallery } from './components/HeroGallery';
-import { CinematicGalleryStage } from './components/CinematicGalleryStage';
+import { ScenarioArtStage } from './components/ScenarioArtStage';
 import { AIVideoWorkflowLab } from './components/AIVideoWorkflowLab';
 import { SpotlightEffect } from './components/SpotlightEffect';
 import { AdminCMSModal } from './components/AdminCMSModal';
@@ -115,9 +115,9 @@ export function App() {
         {/* Concise Hero Section */}
         <HeroGallery currentView={currentView} />
 
-        {/* View 1: Cinematic Gallery Stage (3D Perspective, Auto-Tour for Video Recording) */}
+        {/* View 1: Immersive Scenario Art Stage (4 Living Environments, Blended HTML & Art) */}
         {currentView === 'image-lab' && (
-          <CinematicGalleryStage imageCases={filteredImageCases} />
+          <ScenarioArtStage imageCases={filteredImageCases} />
         )}
 
         {/* View 2: Video Workflow Lab */}
