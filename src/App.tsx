@@ -4,7 +4,7 @@ import type { AIImageCase, AIVideoWorkflow } from './types/art';
 import type { GalleryTheme } from './types/theme';
 import { Navbar, type MainViewType } from './components/Navbar';
 import { HeroGallery } from './components/HeroGallery';
-import { ScenarioArtStage } from './components/ScenarioArtStage';
+import { ThreeSpatialGallery } from './components/ThreeSpatialGallery';
 import { AIVideoWorkflowLab } from './components/AIVideoWorkflowLab';
 import { SpotlightEffect } from './components/SpotlightEffect';
 import { AdminCMSModal } from './components/AdminCMSModal';
@@ -115,9 +115,9 @@ export function App() {
         {/* Concise Hero Section */}
         <HeroGallery currentView={currentView} />
 
-        {/* View 1: Immersive Scenario Art Stage (4 Living Environments, Blended HTML & Art) */}
+        {/* View 1: Three.js 3D Spatial Virtual Art Gallery (Spotlights, Radar, 3D Camera Glide) */}
         {currentView === 'image-lab' && (
-          <ScenarioArtStage imageCases={filteredImageCases} />
+          <ThreeSpatialGallery imageCases={filteredImageCases} />
         )}
 
         {/* View 2: Video Workflow Lab */}
