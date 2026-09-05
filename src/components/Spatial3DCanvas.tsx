@@ -157,9 +157,15 @@ export const Spatial3DCanvas: React.FC<Spatial3DCanvasProps> = ({
       camera.position.z = 450 - ((scrollY * 0.25) % 400);
       camera.lookAt(scene.position);
 
+      // Optical Camera Dolly-Zoom (Apple-grade cinematic lens rack)
+      const scrollSpeed = Math.abs(targetScrollY - scrollY);
+      const targetFov = warpRef.current ? 75 : (60 + Math.min(scrollSpeed * 0.04, 12));
+      camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, 0.08);
+      camera.updateProjectionMatrix();
+
       // Warp speed acceleration when transitioning
       if (warpRef.current) {
-        warpVelocity = THREE.MathUtils.lerp(warpVelocity, 45, 0.08);
+        warpVelocity = THREE.MathUtils.lerp(warpVelocity, 48, 0.09);
       } else {
         warpVelocity = THREE.MathUtils.lerp(warpVelocity, 0.4, 0.05);
       }

@@ -4,6 +4,8 @@ import type { MediumType, VisualAtom, DesignPrinciple, StyleRuleEquation } from 
 import type { CinemaScene } from './types/cinema';
 import { Navbar, type MainViewType } from './components/Navbar';
 import { ChapterDock, CHAPTER_LIST } from './components/ChapterDock';
+import { VisualGuidanceRail } from './components/VisualGuidanceRail';
+import { VisualGuidanceWarpCurtain } from './components/VisualGuidanceWarpCurtain';
 import { TierStaircaseGate } from './components/TierStaircaseGate';
 import { PromptCinemaView } from './components/PromptCinemaView';
 import { VisualAtomsView } from './components/VisualAtomsView';
@@ -18,6 +20,7 @@ import { MagneticCursor } from './components/MagneticCursor';
 import { AdminCMSModal } from './components/AdminCMSModal';
 import { Footer } from './components/Footer';
 import { GoogleAdSenseUnit } from './components/GoogleAdSenseUnit';
+import { playSpotlightClick } from './utils/audio';
 import { 
   getCinemaScenes, 
   getVisualAtoms, 
@@ -60,6 +63,7 @@ export function App() {
   const [isWarping, setIsWarping] = useState(false);
 
   const handleSwitchChapter = (newView: MainViewType) => {
+    playSpotlightClick();
     const oldIdx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
     const newIdx = CHAPTER_LIST.findIndex((c) => c.id === newView);
     setSlideDirection(newIdx >= oldIdx ? 'up' : 'down');
@@ -199,6 +203,18 @@ export function App() {
       {/* Fluid Magnetic Torch Cursor */}
       <MagneticCursor />
 
+      {/* Apple-Grade Visual Guidance Light Rail (Left-Side Continuous Orientation) */}
+      <VisualGuidanceRail
+        currentView={currentView}
+        onSelectChapter={handleSwitchChapter}
+      />
+
+      {/* Cinematic Optical Warp Portal Curtain (Transition Iris Bloom) */}
+      <VisualGuidanceWarpCurtain
+        isWarping={isWarping}
+        targetView={currentView}
+      />
+
       {/* Floating Right-Side Chapter Deck Indicator (Film Gauge Scrubber) */}
       <ChapterDock
         currentView={currentView}
@@ -219,7 +235,10 @@ export function App() {
       {/* Main Visual Atlas Container - Continuous Silky-Smooth Ascending Staircase */}
       <main className="flex-1 pb-24 space-y-12">
         {/* Tier 0: LEVEL 00 · 镜头式叙事与电影分镜 (Prompt Cinema Viewport) */}
-        <section id="chapter-cinema" className="scroll-mt-20">
+        <section 
+          id="chapter-cinema" 
+          className={`scroll-mt-20 transition-all duration-500 ${currentView === 'cinema' ? 'rack-focus-active' : 'rack-focus-inactive'}`}
+        >
           <PromptCinemaView
             scenes={cinemaScenes}
             onOpenCMS={() => setIsAdminOpen(true)}
@@ -238,7 +257,10 @@ export function App() {
         />
 
         {/* Tier 1: LEVEL 01 · 视觉基础材料库 (Visual Atoms) */}
-        <section id="chapter-atoms" className="scroll-mt-20">
+        <section 
+          id="chapter-atoms" 
+          className={`scroll-mt-20 transition-all duration-500 ${currentView === 'atoms' ? 'rack-focus-active' : 'rack-focus-inactive'}`}
+        >
           <VisualAtomsView 
             atoms={visualAtoms}
             onExploreAtomInWorks={handleExploreAtomInWorks} 
@@ -255,7 +277,10 @@ export function App() {
         />
 
         {/* Tier 2: LEVEL 02 · 十大设计原则实验室 (Design Principles - The Bridge) */}
-        <section id="chapter-principles" className="scroll-mt-20">
+        <section 
+          id="chapter-principles" 
+          className={`scroll-mt-20 transition-all duration-500 ${currentView === 'principles' ? 'rack-focus-active' : 'rack-focus-inactive'}`}
+        >
           <DesignPrinciplesView 
             principles={designPrinciples}
             onExplorePrincipleInWorks={handleExplorePrincipleInWorks} 
@@ -272,7 +297,10 @@ export function App() {
         />
 
         {/* Tier 3: LEVEL 03 · 风格规则矩阵与方程 (Style Matrix Equations) */}
-        <section id="chapter-styles" className="scroll-mt-20">
+        <section 
+          id="chapter-styles" 
+          className={`scroll-mt-20 transition-all duration-500 ${currentView === 'styles' ? 'rack-focus-active' : 'rack-focus-inactive'}`}
+        >
           <StyleMatrixView 
             styles={styleRules}
             onExploreStyleInWorks={handleExploreStyleInWorks} 
@@ -289,7 +317,10 @@ export function App() {
         />
 
         {/* Tier 4: LEVEL 04 · 四大表现媒介 (The 4 Mediums: Image, Interface, Space, Motion) */}
-        <section id="chapter-mediums" className="scroll-mt-20">
+        <section 
+          id="chapter-mediums" 
+          className={`scroll-mt-20 transition-all duration-500 ${currentView === 'mediums' ? 'rack-focus-active' : 'rack-focus-inactive'}`}
+        >
           <MediumMatrixView onExploreMediumInWorks={handleExploreMediumInWorks} />
         </section>
 
@@ -303,7 +334,10 @@ export function App() {
         />
 
         {/* Tier 5: LEVEL 05 · 动态与镜头语言实验室 (Motion & Cinema Lab) */}
-        <section id="chapter-motion" className="scroll-mt-20">
+        <section 
+          id="chapter-motion" 
+          className={`scroll-mt-20 transition-all duration-500 ${currentView === 'motion' ? 'rack-focus-active' : 'rack-focus-inactive'}`}
+        >
           <MotionCameraLab />
         </section>
 
@@ -317,7 +351,10 @@ export function App() {
         />
 
         {/* Tier 6: LEVEL 06 · 作品知识网络与多维拆解 (Design Atlas Works & Deconstruction) */}
-        <section id="chapter-atlas" className="scroll-mt-20">
+        <section 
+          id="chapter-atlas" 
+          className={`scroll-mt-20 transition-all duration-500 ${currentView === 'atlas' ? 'rack-focus-active' : 'rack-focus-inactive'}`}
+        >
           <DesignAtlasView
             initialAtomFilter={activeAtomFilter}
             initialStyleFilter={activeStyleFilter}
@@ -340,7 +377,10 @@ export function App() {
         />
 
         {/* Tier 7: LEVEL 07 · 算法海报重构工坊 (Book of Shapes Generative Studio) */}
-        <section id="chapter-shapes-lab" className="scroll-mt-20">
+        <section 
+          id="chapter-shapes-lab" 
+          className={`scroll-mt-20 transition-all duration-500 ${currentView === 'shapes-lab' ? 'rack-focus-active' : 'rack-focus-inactive'}`}
+        >
           <GenerativePosterStudio
             currentTheme={currentTheme}
             onSelectTheme={setCurrentTheme}

@@ -1,17 +1,17 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import type { MainViewType } from './Navbar';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { playSpotlightClick } from '../utils/audio';
 
-export const CHAPTER_LIST: { id: MainViewType; num: string; title: string; titleEn: string; desc: string }[] = [
-  { id: 'cinema', num: '00', title: '电影分镜', titleEn: 'Prompt Cinema', desc: '16:9 电影画幅 · 制作通告单 · 运镜分层解析' },
-  { id: 'atoms', num: '01', title: '视觉材料', titleEn: 'Visual Atoms', desc: '色彩对撞 · 负空间 · 极端尺度 · 丁达尔光' },
-  { id: 'principles', num: '02', title: '设计原则', titleEn: 'Principles (Bridge)', desc: '对比 · 平衡 · 层级 · 节奏 · 比例 · 动势' },
-  { id: 'styles', num: '03', title: '风格规则', titleEn: 'Style Equations', desc: '瑞士国际 · 粗野主义 · 赛博朋克 · 杂志编辑' },
-  { id: 'mediums', num: '04', title: '四大媒介', titleEn: 'The 4 Mediums', desc: 'Image 平面 · Interface 界面 · Space 3D · Motion 影视' },
-  { id: 'motion', num: '05', title: '动态镜头', titleEn: 'Motion & Camera', desc: '运镜调度 · 遮罩转场 · 秒级时序分镜标注' },
-  { id: 'atlas', num: '06', title: '作品图鉴', titleEn: 'Works & Deconstruct', desc: '多维交叉 · 构图网格 · 一个作品=一个入口' },
-  { id: 'shapes-lab', num: '07', title: '重构工坊', titleEn: 'Generative Studio', desc: 'Book of Shapes 算法几何海报生成' },
+export const CHAPTER_LIST: { id: MainViewType; num: string; title: string; titleEn: string; desc: string; elevationMeters: number }[] = [
+  { id: 'cinema', num: '00', title: '电影分镜', titleEn: 'Prompt Cinema', desc: '16:9 电影画幅 · 制作通告单 · 运镜分层解析', elevationMeters: 0 },
+  { id: 'atoms', num: '01', title: '视觉材料', titleEn: 'Visual Atoms', desc: '色彩对撞 · 负空间 · 极端尺度 · 丁达尔光', elevationMeters: 100 },
+  { id: 'principles', num: '02', title: '设计原则', titleEn: 'Principles (Bridge)', desc: '对比 · 平衡 · 层级 · 节奏 · 比例 · 动势', elevationMeters: 240 },
+  { id: 'styles', num: '03', title: '风格规则', titleEn: 'Style Equations', desc: '瑞士国际 · 粗野主义 · 赛博朋克 · 杂志编辑', elevationMeters: 420 },
+  { id: 'mediums', num: '04', title: '四大媒介', titleEn: 'The 4 Mediums', desc: 'Image 平面 · Interface 界面 · Space 3D · Motion 影视', elevationMeters: 600 },
+  { id: 'motion', num: '05', title: '动态镜头', titleEn: 'Motion & Camera', desc: '运镜调度 · 遮罩转场 · 秒级时序分镜标注', elevationMeters: 820 },
+  { id: 'atlas', num: '06', title: '作品图鉴', titleEn: 'Works & Deconstruct', desc: '多维交叉 · 构图网格 · 一个作品=一个入口', elevationMeters: 1080 },
+  { id: 'shapes-lab', num: '07', title: '重构工坊', titleEn: 'Generative Studio', desc: 'Book of Shapes 算法几何海报生成', elevationMeters: 1380 },
 ];
 
 interface ChapterDockProps {
