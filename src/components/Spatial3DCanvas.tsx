@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import type { GalleryTheme } from '../types/theme';
 
@@ -131,7 +131,14 @@ export const Spatial3DCanvas: React.FC<Spatial3DCanvasProps> = ({
       renderer.setSize(width, height);
     };
 
-    window.addEventListener('resize', handleResize);
+    let scrollY = 0;
+    let targetScrollY = 0;
+
+    const handleScroll = () => {
+      targetScrollY = window.scrollY || document.documentElement.scrollTop;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
     // Animation Loop
     let animationFrameId: number;
@@ -140,12 +147,14 @@ export const Spatial3DCanvas: React.FC<Spatial3DCanvasProps> = ({
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
 
-      // Mouse Lerp
+      // Mouse & Scroll Lerp
       targetX += (mouseX - targetX) * 0.04;
       targetY += (mouseY - targetY) * 0.04;
+      scrollY += (targetScrollY - scrollY) * 0.05;
 
       camera.position.x = targetX * 0.4;
-      camera.position.y = -targetY * 0.4;
+      camera.position.y = -targetY * 0.4 - (scrollY * 0.08);
+      camera.position.z = 450 - ((scrollY * 0.25) % 400);
       camera.lookAt(scene.position);
 
       // Warp speed acceleration when transitioning
@@ -155,15 +164,16 @@ export const Spatial3DCanvas: React.FC<Spatial3DCanvasProps> = ({
         warpVelocity = THREE.MathUtils.lerp(warpVelocity, 0.4, 0.05);
       }
 
-      // Slowly rotate 3D polyhedra
-      icosahedron.rotation.x += 0.002;
-      icosahedron.rotation.y += 0.003;
+      // Slowly rotate 3D polyhedra with scroll speed boost
+      const scrollRotationBoost = scrollY * 0.0001;
+      icosahedron.rotation.x += 0.002 + scrollRotationBoost;
+      icosahedron.rotation.y += 0.003 + scrollRotationBoost;
 
-      torusKnot.rotation.x += 0.003;
-      torusKnot.rotation.y += 0.002;
+      torusKnot.rotation.x += 0.003 + scrollRotationBoost;
+      torusKnot.rotation.y += 0.002 + scrollRotationBoost;
 
-      octahedron.rotation.y += 0.0025;
-      octahedron.rotation.z += 0.0015;
+      octahedron.rotation.y += 0.0025 + scrollRotationBoost;
+      octahedron.rotation.z += 0.0015 + scrollRotationBoost;
 
       // Particle subtle organic drift
       const positionsArr = geometry.attributes.position.array as Float32Array;
@@ -184,6 +194,7 @@ export const Spatial3DCanvas: React.FC<Spatial3DCanvasProps> = ({
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleScroll);
       cancelAnimationFrame(animationFrameId);
 
       // Clean up Three.js resources
