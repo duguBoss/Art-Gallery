@@ -14,6 +14,8 @@ import { MotionCameraLab } from './components/MotionCameraLab';
 import { DesignAtlasView } from './components/DesignAtlasView';
 import { GenerativePosterStudio } from './components/GenerativePosterStudio';
 import { SpotlightEffect } from './components/SpotlightEffect';
+import { Spatial3DCanvas } from './components/Spatial3DCanvas';
+import { MagneticCursor } from './components/MagneticCursor';
 import { AdminCMSModal } from './components/AdminCMSModal';
 import { Footer } from './components/Footer';
 import { GoogleAdSenseUnit } from './components/GoogleAdSenseUnit';
@@ -54,13 +56,17 @@ export function App() {
   const [designPrinciples, setDesignPrinciples] = useState<DesignPrinciple[]>(() => getDesignPrinciples());
   const [styleRules, setStyleRules] = useState<StyleRuleEquation[]>(() => getStyleRules());
 
-  // Cinematic Deck Slide Direction ('up' | 'down')
+  // Cinematic Deck Slide Direction ('up' | 'down') & 3D Warp Velocity
   const [slideDirection, setSlideDirection] = useState<'up' | 'down'>('up');
+  const [isWarping, setIsWarping] = useState(false);
 
   const handleSwitchChapter = (newView: MainViewType) => {
     const oldIdx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
     const newIdx = CHAPTER_LIST.findIndex((c) => c.id === newView);
+    if (oldIdx === newIdx) return;
     setSlideDirection(newIdx >= oldIdx ? 'up' : 'down');
+    setIsWarping(true);
+    setTimeout(() => setIsWarping(false), 750);
     setCurrentView(newView);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -134,6 +140,68 @@ export function App() {
     return () => window.removeEventListener('keydown', handleChapterKeys);
   }, [currentView, isAdminOpen]);
 
+  // Wheel-driven chapter flipping with momentum & boundary detection
+  useEffect(() => {
+    let lastWheelTime = 0;
+    let wheelDeltaAccumulator = 0;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (isAdminOpen) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      // Check if user is scrolling inside an element with active internal scrollbar
+      let target = e.target as HTMLElement | null;
+      let isScrollable = false;
+      while (target && target !== document.body) {
+        const overflowY = window.getComputedStyle(target).overflowY;
+        if (['auto', 'scroll'].includes(overflowY) && target.scrollHeight > target.clientHeight) {
+          if (e.deltaY > 0 && target.scrollTop + target.clientHeight < target.scrollHeight - 10) {
+            isScrollable = true;
+            break;
+          }
+          if (e.deltaY < 0 && target.scrollTop > 10) {
+            isScrollable = true;
+            break;
+          }
+        }
+        target = target.parentElement;
+      }
+
+      if (isScrollable) return;
+
+      // Check if document page itself is scrollable and not at bottom/top
+      const docScrollTop = window.scrollY || document.documentElement.scrollTop;
+      const docMaxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      if (e.deltaY > 0 && docScrollTop < docMaxScroll - 25) {
+        return;
+      }
+      if (e.deltaY < 0 && docScrollTop > 25) {
+        return;
+      }
+
+      const now = Date.now();
+      if (now - lastWheelTime < 650) return;
+
+      wheelDeltaAccumulator += e.deltaY;
+
+      if (Math.abs(wheelDeltaAccumulator) > 55) {
+        const currentIdx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
+        if (wheelDeltaAccumulator > 0 && currentIdx < CHAPTER_LIST.length - 1) {
+          lastWheelTime = now;
+          wheelDeltaAccumulator = 0;
+          handleSwitchChapter(CHAPTER_LIST[currentIdx + 1].id);
+        } else if (wheelDeltaAccumulator < 0 && currentIdx > 0) {
+          lastWheelTime = now;
+          wheelDeltaAccumulator = 0;
+          handleSwitchChapter(CHAPTER_LIST[currentIdx - 1].id);
+        }
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [currentView, isAdminOpen]);
+
   // Stealth Trigger 1: Global Shortcut Ctrl + Shift + A
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -154,8 +222,11 @@ export function App() {
         color: 'var(--text-main)',
       }}
     >
-      {/* Subtle Museum Spotlight Tracking Mouse */}
-      <SpotlightEffect />
+      {/* Three.js Interactive 3D Spatial Universe & Kinetic Polyhedra Canvas */}
+      <Spatial3DCanvas theme={currentTheme} isWarping={isWarping} />
+
+      {/* Fluid Magnetic Torch Cursor */}
+      <MagneticCursor />
 
       {/* Floating Right-Side Chapter Deck Indicator (Film Gauge Scrubber) */}
       <ChapterDock

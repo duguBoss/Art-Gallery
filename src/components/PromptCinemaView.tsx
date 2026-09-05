@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { CinemaScene } from '../types/cinema';
+import { Card3DTilt } from './Card3DTilt';
 import { 
   Play, Pause, ChevronLeft, ChevronRight, Maximize2, Minimize2, 
   Copy, Check, Film, Camera, Sparkles, Layers, Sliders, Volume2, VolumeX 
@@ -128,7 +129,8 @@ export const PromptCinemaView: React.FC<PromptCinemaViewProps> = ({
         </div>
       )}
 
-      {/* 16:9 CINEMA VIEWPORT (Flagship Canvas) */}
+      {/* 16:9 CINEMA VIEWPORT (Flagship Canvas with 3D Tilt) */}
+      <Card3DTilt maxAngle={3.5} className="w-full">
       <div 
         className={`relative w-full aspect-video rounded-2xl sm:rounded-3xl overflow-hidden border shadow-2xl transition-all duration-500 bg-black flex flex-col justify-between ${
           isCinemaMode ? 'h-full max-h-screen rounded-none border-none' : 'border-white/10'
@@ -454,6 +456,7 @@ export const PromptCinemaView: React.FC<PromptCinemaViewProps> = ({
           </div>
         </div>
       </div>
+      </Card3DTilt>
 
       {/* Quick Scene Switcher Strip Below Player */}
       {!isCinemaMode && (
