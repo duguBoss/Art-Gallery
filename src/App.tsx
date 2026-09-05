@@ -3,7 +3,8 @@ import type { GalleryTheme } from './types/theme';
 import type { MediumType, VisualAtom, DesignPrinciple, StyleRuleEquation } from './types/atlas';
 import type { CinemaScene } from './types/cinema';
 import { Navbar, type MainViewType } from './components/Navbar';
-import { VisualJourneyHero } from './components/VisualJourneyHero';
+import { ChapterDock, CHAPTER_LIST } from './components/ChapterDock';
+import { ChapterTransitionGate } from './components/ChapterTransitionGate';
 import { PromptCinemaView } from './components/PromptCinemaView';
 import { VisualAtomsView } from './components/VisualAtomsView';
 import { DesignPrinciplesView } from './components/DesignPrinciplesView';
@@ -53,6 +54,17 @@ export function App() {
   const [designPrinciples, setDesignPrinciples] = useState<DesignPrinciple[]>(() => getDesignPrinciples());
   const [styleRules, setStyleRules] = useState<StyleRuleEquation[]>(() => getStyleRules());
 
+  // Cinematic Deck Slide Direction ('up' | 'down')
+  const [slideDirection, setSlideDirection] = useState<'up' | 'down'>('up');
+
+  const handleSwitchChapter = (newView: MainViewType) => {
+    const oldIdx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
+    const newIdx = CHAPTER_LIST.findIndex((c) => c.id === newView);
+    setSlideDirection(newIdx >= oldIdx ? 'up' : 'down');
+    setCurrentView(newView);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Stealth / Direct Admin CMS State
   const [isAdminOpen, setIsAdminOpen] = useState(false);
 
@@ -62,7 +74,7 @@ export function App() {
     setActiveStyleFilter(null);
     setActivePrincipleFilter(null);
     setActiveMediumFilter('all');
-    setCurrentView('atlas');
+    handleSwitchChapter('atlas');
   };
 
   // Cross-Navigation Handler: Explore Style in Works
@@ -71,7 +83,7 @@ export function App() {
     setActiveAtomFilter(null);
     setActivePrincipleFilter(null);
     setActiveMediumFilter('all');
-    setCurrentView('atlas');
+    handleSwitchChapter('atlas');
   };
 
   // Cross-Navigation Handler: Explore Principle in Works
@@ -80,7 +92,7 @@ export function App() {
     setActiveAtomFilter(null);
     setActiveStyleFilter(null);
     setActiveMediumFilter('all');
-    setCurrentView('atlas');
+    handleSwitchChapter('atlas');
   };
 
   // Cross-Navigation Handler: Explore Medium in Works
@@ -89,7 +101,7 @@ export function App() {
     setActiveAtomFilter(null);
     setActiveStyleFilter(null);
     setActivePrincipleFilter(null);
-    setCurrentView('atlas');
+    handleSwitchChapter('atlas');
   };
 
   const handleClearFilters = () => {
@@ -98,6 +110,29 @@ export function App() {
     setActivePrincipleFilter(null);
     setActiveMediumFilter('all');
   };
+
+  // Global Keyboard Navigation for Chapter Flip
+  useEffect(() => {
+    const handleChapterKeys = (e: KeyboardEvent) => {
+      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
+      if (isAdminOpen) return;
+
+      const currentIdx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
+      if (e.key === 'PageDown' || (e.altKey && e.key === 'ArrowDown')) {
+        e.preventDefault();
+        if (currentIdx < CHAPTER_LIST.length - 1) {
+          handleSwitchChapter(CHAPTER_LIST[currentIdx + 1].id);
+        }
+      } else if (e.key === 'PageUp' || (e.altKey && e.key === 'ArrowUp')) {
+        e.preventDefault();
+        if (currentIdx > 0) {
+          handleSwitchChapter(CHAPTER_LIST[currentIdx - 1].id);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleChapterKeys);
+    return () => window.removeEventListener('keydown', handleChapterKeys);
+  }, [currentView, isAdminOpen]);
 
   // Stealth Trigger 1: Global Shortcut Ctrl + Shift + A
   useEffect(() => {
@@ -122,10 +157,16 @@ export function App() {
       {/* Subtle Museum Spotlight Tracking Mouse */}
       <SpotlightEffect />
 
+      {/* Floating Right-Side Chapter Deck Indicator (Film Gauge Scrubber) */}
+      <ChapterDock
+        currentView={currentView}
+        onSwitchView={handleSwitchChapter}
+      />
+
       {/* Top Global Navigation */}
       <Navbar
         currentView={currentView}
-        onSwitchView={setCurrentView}
+        onSwitchView={handleSwitchChapter}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         currentTheme={currentTheme}
@@ -135,79 +176,83 @@ export function App() {
 
       {/* Main Visual Atlas Container */}
       <main className="flex-1 pb-16">
-        {/* Visual Journey Hero & Progression Roadmap */}
-        <VisualJourneyHero
-          currentTab={currentView}
-          onSelectTab={(tab) => {
-            setCurrentView(tab);
-          }}
+        {/* Animated Cinematic Deck Stage with Page-Flip Transitions */}
+        <div 
+          key={currentView} 
+          className={slideDirection === 'up' ? 'animate-deck-up' : 'animate-deck-down'}
+        >
+          {/* View 0: LEVEL 00 · 镜头式叙事与电影分镜 (Prompt Cinema Viewport) */}
+          {currentView === 'cinema' && (
+            <PromptCinemaView
+              scenes={cinemaScenes}
+              onOpenCMS={() => setIsAdminOpen(true)}
+              onExploreAtom={handleExploreAtomInWorks}
+              onExplorePrinciple={handleExplorePrincipleInWorks}
+            />
+          )}
+
+          {/* View 1: LEVEL 01 · 视觉基础材料库 (Visual Atoms) */}
+          {currentView === 'atoms' && (
+            <VisualAtomsView 
+              atoms={visualAtoms}
+              onExploreAtomInWorks={handleExploreAtomInWorks} 
+            />
+          )}
+
+          {/* View 2: LEVEL 02 · 十大设计原则实验室 (Design Principles - The Bridge) */}
+          {currentView === 'principles' && (
+            <DesignPrinciplesView 
+              principles={designPrinciples}
+              onExplorePrincipleInWorks={handleExplorePrincipleInWorks} 
+            />
+          )}
+
+          {/* View 3: LEVEL 03 · 风格规则矩阵与方程 (Style Matrix Equations) */}
+          {currentView === 'styles' && (
+            <StyleMatrixView 
+              styles={styleRules}
+              onExploreStyleInWorks={handleExploreStyleInWorks} 
+            />
+          )}
+
+          {/* View 4: LEVEL 04 · 四大表现媒介 (The 4 Mediums: Image, Interface, Space, Motion) */}
+          {currentView === 'mediums' && (
+            <MediumMatrixView onExploreMediumInWorks={handleExploreMediumInWorks} />
+          )}
+
+          {/* View 5: LEVEL 05 · 动态与镜头语言实验室 (Motion & Cinema Lab) */}
+          {currentView === 'motion' && (
+            <MotionCameraLab />
+          )}
+
+          {/* View 6: LEVEL 06 · 作品知识网络与多维拆解 (Design Atlas Works & Deconstruction) */}
+          {currentView === 'atlas' && (
+            <DesignAtlasView
+              initialAtomFilter={activeAtomFilter}
+              initialStyleFilter={activeStyleFilter}
+              initialPrincipleFilter={activePrincipleFilter}
+              initialMediumFilter={activeMediumFilter}
+              onClearFilter={handleClearFilters}
+              onSelectAtom={handleExploreAtomInWorks}
+              onSelectStyle={handleExploreStyleInWorks}
+              onSelectPrinciple={handleExplorePrincipleInWorks}
+            />
+          )}
+
+          {/* View 7: LEVEL 07 · 算法海报重构工坊 (Book of Shapes Generative Studio) */}
+          {currentView === 'shapes-lab' && (
+            <GenerativePosterStudio
+              currentTheme={currentTheme}
+              onSelectTheme={setCurrentTheme}
+            />
+          )}
+        </div>
+
+        {/* Cinematic Chapter Transition Gate (Bottom Flip Gateway) */}
+        <ChapterTransitionGate
+          currentView={currentView}
+          onSwitchView={handleSwitchChapter}
         />
-
-        {/* View 0: LEVEL 00 · 镜头式叙事与电影分镜 (Prompt Cinema Viewport) */}
-        {currentView === 'cinema' && (
-          <PromptCinemaView
-            scenes={cinemaScenes}
-            onOpenCMS={() => setIsAdminOpen(true)}
-            onExploreAtom={handleExploreAtomInWorks}
-            onExplorePrinciple={handleExplorePrincipleInWorks}
-          />
-        )}
-
-        {/* View 1: LEVEL 01 · 视觉基础材料库 (Visual Atoms) */}
-        {currentView === 'atoms' && (
-          <VisualAtomsView 
-            atoms={visualAtoms}
-            onExploreAtomInWorks={handleExploreAtomInWorks} 
-          />
-        )}
-
-        {/* View 2: LEVEL 02 · 十大设计原则实验室 (Design Principles - The Bridge) */}
-        {currentView === 'principles' && (
-          <DesignPrinciplesView 
-            principles={designPrinciples}
-            onExplorePrincipleInWorks={handleExplorePrincipleInWorks} 
-          />
-        )}
-
-        {/* View 3: LEVEL 03 · 风格规则矩阵与方程 (Style Matrix Equations) */}
-        {currentView === 'styles' && (
-          <StyleMatrixView 
-            styles={styleRules}
-            onExploreStyleInWorks={handleExploreStyleInWorks} 
-          />
-        )}
-
-        {/* View 4: LEVEL 04 · 四大表现媒介 (The 4 Mediums: Image, Interface, Space, Motion) */}
-        {currentView === 'mediums' && (
-          <MediumMatrixView onExploreMediumInWorks={handleExploreMediumInWorks} />
-        )}
-
-        {/* View 5: LEVEL 05 · 动态与镜头语言实验室 (Motion & Cinema Lab) */}
-        {currentView === 'motion' && (
-          <MotionCameraLab />
-        )}
-
-        {/* View 6: LEVEL 06 · 作品知识网络与多维拆解 (Design Atlas Works & Deconstruction) */}
-        {currentView === 'atlas' && (
-          <DesignAtlasView
-            initialAtomFilter={activeAtomFilter}
-            initialStyleFilter={activeStyleFilter}
-            initialPrincipleFilter={activePrincipleFilter}
-            initialMediumFilter={activeMediumFilter}
-            onClearFilter={handleClearFilters}
-            onSelectAtom={handleExploreAtomInWorks}
-            onSelectStyle={handleExploreStyleInWorks}
-            onSelectPrinciple={handleExplorePrincipleInWorks}
-          />
-        )}
-
-        {/* View 7: LEVEL 07 · 算法海报重构工坊 (Book of Shapes Generative Studio) */}
-        {currentView === 'shapes-lab' && (
-          <GenerativePosterStudio
-            currentTheme={currentTheme}
-            onSelectTheme={setCurrentTheme}
-          />
-        )}
 
         {/* Global Curated Exhibition Patron Banner (Google AdSense Unit) */}
         <GoogleAdSenseUnit variant="banner" />
