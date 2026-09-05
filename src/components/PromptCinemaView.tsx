@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { CinemaScene } from '../types/cinema';
 import { 
   Play, Pause, ChevronLeft, ChevronRight, Maximize2, Minimize2, 
@@ -28,6 +28,7 @@ export const PromptCinemaView: React.FC<PromptCinemaViewProps> = ({
   const [isMuted, setIsMuted] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [playbackSeconds, setPlaybackSeconds] = useState(0);
+  const [isPureFrame, setIsPureFrame] = useState(false);
 
   const activeScene = scenes[currentSceneIdx] || scenes[0];
 
@@ -152,8 +153,46 @@ export const PromptCinemaView: React.FC<PromptCinemaViewProps> = ({
             }`}
           />
           {/* Subtle Organic Film Grain & Vignette */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-black/60 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/60 pointer-events-none" />
+          <div className="absolute inset-0 film-grain pointer-events-none opacity-40" />
           <div className="absolute inset-0 bg-radial-vignette opacity-70 pointer-events-none" />
+        </div>
+
+        {/* ARRI / RED Director Monitor Viewfinder Safe Frame & Optical HUD */}
+        <div className="absolute inset-3 sm:inset-6 border border-white/[0.08] pointer-events-none z-10 flex flex-col justify-between select-none">
+          {/* Top HUD */}
+          <div className="flex justify-between items-center text-[9px] font-mono tracking-widest text-white/40 uppercase p-2 sm:p-3">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+              <span>REC 24.00 FPS</span>
+              <span className="text-white/20">|</span>
+              <span>4K DCI · 2.39:1</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span>TC 00:{playbackSeconds < 10 ? '0' : ''}{Math.floor(playbackSeconds)}:18:04</span>
+            </div>
+          </div>
+
+          {/* Center Subtle Crosshair */}
+          <div className="self-center text-white/20 text-xs font-mono font-light select-none pointer-events-none">
+            +
+          </div>
+
+          {/* Bottom HUD */}
+          <div className="flex justify-between items-center text-[9px] font-mono tracking-widest text-white/40 uppercase p-2 sm:p-3">
+            <div className="flex items-center gap-2">
+              <span>ISO 800</span>
+              <span className="text-white/20">|</span>
+              <span>5600K</span>
+              <span className="text-white/20">|</span>
+              <span>{activeScene.cameraRig.lens}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span>BAT 98%</span>
+              <span className="text-white/20">|</span>
+              <span>PRORES 4444XQ</span>
+            </div>
+          </div>
         </div>
 
         {/* TOP CINEMA HUD (Scene Timecode & Slate) */}
@@ -176,6 +215,19 @@ export const PromptCinemaView: React.FC<PromptCinemaViewProps> = ({
               LOCATION: {activeScene.locationAndTime}
             </span>
 
+            {/* Pure Frame / Inspector Toggle */}
+            <button
+              onClick={() => setIsPureFrame(!isPureFrame)}
+              className={`px-3 py-1 rounded-full text-[10px] font-mono border transition-all ${
+                isPureFrame 
+                  ? 'bg-amber-400/20 border-amber-400 text-amber-300 font-bold' 
+                  : 'bg-white/5 border-white/15 text-white/70 hover:text-white hover:bg-white/10'
+              }`}
+              title="切换显示或隐藏文字档案卡，欣赏纯净电影画面"
+            >
+              {isPureFrame ? '● 查看档案' : '○ 纯净原画'}
+            </button>
+
             {isCinemaMode && (
               <button
                 onClick={() => setIsCinemaMode(false)}
@@ -189,22 +241,23 @@ export const PromptCinemaView: React.FC<PromptCinemaViewProps> = ({
         </div>
 
         {/* CENTER CINEMATIC CONTENT STAGE (Reacting to Current Shot Stage) */}
+        {!isPureFrame && (
         <div className="relative z-20 flex-1 flex flex-col justify-center px-6 sm:px-16 py-6 max-w-4xl">
           {/* STAGE 1: ATMOSPHERE (Establishing Title & Big Typography) */}
           {currentStage === 'atmosphere' && (
             <div className="space-y-4 animate-fadeIn">
-              <div className="flex items-center gap-2 text-xs font-mono text-indigo-300">
-                <span className="w-2 h-2 rounded-full animate-ping" style={{ backgroundColor: activeScene.accentColor }} />
+              <div className="flex items-center gap-2 text-[10px] font-mono tracking-[0.25em] text-amber-300 uppercase">
+                <span className="w-1.5 h-1.5 rounded-full animate-ping" style={{ backgroundColor: activeScene.accentColor }} />
                 <span>SCENE FOCUS · ESTABLISHING ATMOSPHERE</span>
               </div>
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight drop-shadow-lg">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-normal text-white tracking-tight leading-tight drop-shadow-2xl">
                 {activeScene.title}
               </h1>
-              <p className="text-xs sm:text-base font-mono text-white/70 max-w-2xl leading-relaxed">
+              <p className="text-sm sm:text-lg font-serif italic text-white/75 max-w-2xl leading-relaxed">
                 {activeScene.titleEn}
               </p>
               <div className="pt-2 flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-mono border border-white/10">
+                <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-[11px] font-mono border border-white/10 text-white/80">
                   {activeScene.cameraRig.movement}
                 </span>
               </div>
@@ -326,6 +379,7 @@ export const PromptCinemaView: React.FC<PromptCinemaViewProps> = ({
             </div>
           )}
         </div>
+        )}
 
         {/* BOTTOM FILM TIMELINE CONTROLLER (The Scrubber) */}
         <div className="relative z-20 px-6 py-3.5 border-t border-white/10 backdrop-blur-xl bg-black/60 flex flex-col gap-2">

@@ -1,7 +1,8 @@
-﻿import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { AtlasWork, MediumType } from '../types/atlas';
 import { ATLAS_WORKS, STYLE_RULES } from '../data/visualAtlasData';
 import { WorkDeconstructModal } from './WorkDeconstructModal';
+import { GoogleAdSenseUnit } from './GoogleAdSenseUnit';
 
 interface DesignAtlasViewProps {
   initialAtomFilter?: string | null;
@@ -149,11 +150,11 @@ export const DesignAtlasView: React.FC<DesignAtlasViewProps> = ({
 
       {/* Works Gallery Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredWorks.map((work) => {
+        {filteredWorks.map((work, idx) => {
           const style = STYLE_RULES.find((s) => s.id === work.primaryStyleId);
           return (
+            <React.Fragment key={work.id}>
             <div
-              key={work.id}
               className="group rounded-2xl border overflow-hidden transition-all duration-300 flex flex-col justify-between hover:shadow-2xl hover:border-indigo-500/50"
               style={{
                 backgroundColor: 'var(--bg-card)',
@@ -272,6 +273,12 @@ export const DesignAtlasView: React.FC<DesignAtlasViewProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* In-feed Editorial Patron Ad Slot after 3rd card */}
+            {idx === 2 && (
+              <GoogleAdSenseUnit variant="feed-card" />
+            )}
+            </React.Fragment>
           );
         })}
       </div>

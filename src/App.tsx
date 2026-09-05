@@ -15,6 +15,7 @@ import { GenerativePosterStudio } from './components/GenerativePosterStudio';
 import { SpotlightEffect } from './components/SpotlightEffect';
 import { AdminCMSModal } from './components/AdminCMSModal';
 import { Footer } from './components/Footer';
+import { GoogleAdSenseUnit } from './components/GoogleAdSenseUnit';
 import { 
   getCinemaScenes, 
   getVisualAtoms, 
@@ -207,6 +208,9 @@ export function App() {
             onSelectTheme={setCurrentTheme}
           />
         )}
+
+        {/* Global Curated Exhibition Patron Banner (Google AdSense Unit) */}
+        <GoogleAdSenseUnit variant="banner" />
       </main>
 
       {/* Clean Footer with Secret Trigger */}
