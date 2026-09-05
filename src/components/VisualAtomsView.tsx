@@ -1,12 +1,14 @@
-﻿import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import type { VisualDimension, VisualAtom } from '../types/atlas';
 import { VISUAL_ATOMS } from '../data/visualAtlasData';
 
 interface VisualAtomsViewProps {
+  atoms?: VisualAtom[];
   onExploreAtomInWorks: (atomName: string) => void;
 }
 
 export const VisualAtomsView: React.FC<VisualAtomsViewProps> = ({
+  atoms = VISUAL_ATOMS,
   onExploreAtomInWorks,
 }) => {
   const [selectedDimension, setSelectedDimension] = useState<VisualDimension | 'all'>('all');
@@ -22,7 +24,7 @@ export const VisualAtomsView: React.FC<VisualAtomsViewProps> = ({
   ];
 
   const filteredAtoms = useMemo(() => {
-    return VISUAL_ATOMS.filter((atom) => {
+    return atoms.filter((atom) => {
       const matchDim = selectedDimension === 'all' || atom.dimension === selectedDimension;
       const q = searchQuery.toLowerCase().trim();
       const matchSearch =

@@ -1,860 +1,656 @@
-import React, { useState } from 'react';
-import type { AIImageCase, AIVideoWorkflow, VideoWorkflowStep } from '../types/art';
+﻿import React, { useState } from 'react';
+import type { CinemaScene } from '../types/cinema';
+import type { VisualAtom, DesignPrinciple, StyleRuleEquation } from '../types/atlas';
 import { 
-  X, Plus, Trash2, Edit3, Save, RotateCcw, Download, ShieldCheck, 
-  Film, Image as ImageIcon, Check, KeyRound 
+  X, Plus, Trash2, Edit3, Save, RotateCcw, Download, Upload, 
+  Film, Atom, Scale, Compass, Check, AlertTriangle, Database
 } from 'lucide-react';
 import { 
-  saveImageCases, saveVideoWorkflows, exportAllDataAsJSON, resetToDefaults,
-  isAdminAuthed, setAdminAuth 
-} from '../data/workflowStore';
+  saveCinemaScenes, saveVisualAtoms, saveDesignPrinciples, saveStyleRules,
+  exportAllAtlasDataAsJSON, importAtlasDataFromJSON, resetAtlasToDefaults
+} from '../data/atlasStore';
 import { playSpotlightClick, playSuccessChime } from '../utils/audio';
 
 interface AdminCMSModalProps {
   isOpen: boolean;
   onClose: () => void;
-  imageCases: AIImageCase[];
-  videoWorkflows: AIVideoWorkflow[];
-  onUpdateImageCases: (cases: AIImageCase[]) => void;
-  onUpdateVideoWorkflows: (workflows: AIVideoWorkflow[]) => void;
+  cinemaScenes: CinemaScene[];
+  visualAtoms: VisualAtom[];
+  designPrinciples: DesignPrinciple[];
+  styleRules: StyleRuleEquation[];
+  onUpdateCinemaScenes: (scenes: CinemaScene[]) => void;
+  onUpdateVisualAtoms: (atoms: VisualAtom[]) => void;
+  onUpdateDesignPrinciples: (principles: DesignPrinciple[]) => void;
+  onUpdateStyleRules: (styles: StyleRuleEquation[]) => void;
 }
+
+type CMSTab = 'scenes' | 'atoms' | 'principles' | 'styles' | 'backup';
 
 export const AdminCMSModal: React.FC<AdminCMSModalProps> = ({
   isOpen,
   onClose,
-  imageCases,
-  videoWorkflows,
-  onUpdateImageCases,
-  onUpdateVideoWorkflows,
+  cinemaScenes,
+  visualAtoms,
+  designPrinciples,
+  styleRules,
+  onUpdateCinemaScenes,
+  onUpdateVisualAtoms,
+  onUpdateDesignPrinciples,
+  onUpdateStyleRules,
 }) => {
-  const [isAuthed, setIsAuthed] = useState<boolean>(isAdminAuthed());
-  const [passwordInput, setPasswordInput] = useState('');
-  const [authError, setAuthError] = useState(false);
-  const [activeTab, setActiveTab] = useState<'images' | 'videos' | 'backup'>('images');
+  const [activeTab, setActiveTab] = useState<CMSTab>('scenes');
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
-  // Edit / Add Image State
-  const [editingImage, setEditingImage] = useState<AIImageCase | null>(null);
-  const [isAddingImage, setIsAddingImage] = useState(false);
+  // Edit states for Scene
+  const [editingScene, setEditingScene] = useState<CinemaScene | null>(null);
+  const [isAddingScene, setIsAddingScene] = useState(false);
 
-  // Edit / Add Video Workflow State
-  const [editingWorkflow, setEditingWorkflow] = useState<AIVideoWorkflow | null>(null);
-  const [isAddingWorkflow, setIsAddingWorkflow] = useState(false);
+  // Edit states for Atom
+  const [editingAtom, setEditingAtom] = useState<VisualAtom | null>(null);
+  const [isAddingAtom, setIsAddingAtom] = useState(false);
 
-  // Success Notice
-  const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null);
+  // Edit states for Principle
+  const [editingPrinciple, setEditingPrinciple] = useState<DesignPrinciple | null>(null);
+
+  // Backup JSON String for manual pasting
+  const [importJsonInput, setImportJsonInput] = useState('');
 
   if (!isOpen) return null;
 
   const showToast = (msg: string) => {
-    setSaveSuccessMsg(msg);
+    setToastMsg(msg);
     playSuccessChime();
-    setTimeout(() => setSaveSuccessMsg(null), 2500);
+    setTimeout(() => setToastMsg(null), 2500);
   };
 
-  const VAULT_HASH = '59862fa8b4938b453edbd92404eb85242b273b8f23b7c071bb8ff9eac7c00a3d';
-
-  const handleLogin = async () => {
-    if (!passwordInput.trim()) {
-      setAuthError(true);
-      return;
-    }
-    try {
-      const buffer = new TextEncoder().encode(passwordInput.trim());
-      const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hash = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-
-      if (hash === VAULT_HASH) {
-        playSuccessChime();
-        setAdminAuth(true);
-        setIsAuthed(true);
-        setAuthError(false);
-        setPasswordInput('');
-      } else {
-        setAuthError(true);
-      }
-    } catch (e) {
-      setAuthError(true);
-    }
-  };
-  // IMAGE HANDLERS
-  const handleStartAddImage = () => {
-    playSpotlightClick();
-    setIsAddingImage(true);
-    setEditingImage({
-      id: `img-custom-${Date.now()}`,
-      title: '新建 AI 风格提示词案例',
-      category: '自定义风格',
-      badge: '新录入',
-      description: '详细描述该风格的画面特征与美学体验...',
-      imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
-      tags: ['AI生成', '新风格'],
-      promptBlocks: {
-        subject: 'a futuristic floating glass island, glowing cyberpunk lights',
-        style: 'VOX 3D voxel diorama, isometric view',
-        texture: 'cubic micro blocks, glossy water reflections',
-        lighting: 'volumetric raytracing glow, warm amber lighting',
-        composition: 'isometric tilt-shift view, centered, 8k render',
-        parameters: '--ar 16:9 --v 6.1 --stylize 250',
-        negative: 'blurry, 2D flat, low resolution',
-      },
-      fullPrompt: 'Detailed 3D voxel art diorama, futuristic floating glass island, glowing cyberpunk lights, cubic micro blocks, volumetric lighting --ar 16:9 --v 6.1',
-      createdDate: new Date().toISOString().split('T')[0],
-      author: '管理员录入',
-    });
-  };
-
-  const handleSaveImage = () => {
-    if (!editingImage) return;
-    let updated: AIImageCase[];
-    if (isAddingImage) {
-      updated = [editingImage, ...imageCases];
+  // --- Scene Operations ---
+  const handleSaveScene = () => {
+    if (!editingScene) return;
+    let updated: CinemaScene[];
+    if (isAddingScene) {
+      updated = [editingScene, ...cinemaScenes];
     } else {
-      updated = imageCases.map((c) => (c.id === editingImage.id ? editingImage : c));
+      updated = cinemaScenes.map((s) => (s.id === editingScene.id ? editingScene : s));
     }
-    saveImageCases(updated);
-    onUpdateImageCases(updated);
-    setEditingImage(null);
-    setIsAddingImage(false);
-    showToast('图片案例保存成功并已同步存储！');
+    onUpdateCinemaScenes(updated);
+    saveCinemaScenes(updated);
+    setEditingScene(null);
+    setIsAddingScene(false);
+    showToast('电影分镜已成功保存并同步！');
   };
 
-  const handleDeleteImage = (id: string) => {
-    if (!window.confirm('确认删除此图片案例吗？')) return;
-    playSpotlightClick();
-    const updated = imageCases.filter((c) => c.id !== id);
-    saveImageCases(updated);
-    onUpdateImageCases(updated);
-    showToast('图片案例已删除！');
+  const handleDeleteScene = (id: string) => {
+    if (confirm('确定要删除此电影分镜镜头吗？')) {
+      const updated = cinemaScenes.filter((s) => s.id !== id);
+      onUpdateCinemaScenes(updated);
+      saveCinemaScenes(updated);
+      showToast('分镜已删除');
+    }
   };
 
-  // VIDEO WORKFLOW HANDLERS
-  const handleStartAddWorkflow = () => {
-    playSpotlightClick();
-    setIsAddingWorkflow(true);
-    setEditingWorkflow({
-      id: `wf-custom-${Date.now()}`,
-      title: '新建 AI 视频分步生成工作流',
-      category: '动态图形与MG动画',
-      badge: '新工作流',
-      summary: '分步实现惊艳的 AI 视频成片，详细指导每一步所需工具与提示词。',
-      previewVideoUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80',
-      totalSteps: 2,
-      difficulty: '进阶',
-      toolsChain: ['Midjourney / Flux', 'Runway / Kling', 'After Effects'],
-      author: '管理员录入',
-      createdDate: new Date().toISOString().split('T')[0],
-      steps: [
-        {
-          stepNumber: 1,
-          stepTitle: '步骤一：第一步生成静态资产与分镜概念图',
-          toolUsed: 'Midjourney v6.1 / Flux.1',
-          toolCategory: 'image-gen',
-          purpose: '确立主体与色彩基底，生成干净清晰的参考画面。',
-          stepPrompt: 'A detailed 3D scene, clean composition, high fidelity --ar 16:9 --v 6.1',
-          parameters: '--ar 16:9 --stylize 250',
-          keyTechniques: ['保持背景纯净以便于后期处理', '固定构图视角防止形变'],
-        },
-        {
-          stepNumber: 2,
-          stepTitle: '步骤二：第二步使用视频模型生成运镜与微动',
-          toolUsed: 'Runway Gen-3 / Kling 1.5 / Luma',
-          toolCategory: 'video-gen',
-          purpose: '赋予画面平滑的镜头推进或微动作。',
-          stepPrompt: 'Smooth continuous camera dolly in, subtle ambient movement, high quality 1080p',
-          parameters: 'Motion: 4, Camera: Push In',
-          keyTechniques: ['运动强度保持适中', '强调禁止画面物体崩溃'],
-        },
-      ],
-    });
-  };
-
-  const handleAddStepToEditingWorkflow = () => {
-    if (!editingWorkflow) return;
-    const nextStepNum = editingWorkflow.steps.length + 1;
-    const newStep: VideoWorkflowStep = {
-      stepNumber: nextStepNum,
-      stepTitle: `步骤${nextStepNum}：第${nextStepNum}步是执行具体操作...`,
-      toolUsed: 'After Effects / 剪映 Pro',
-      toolCategory: 'post-edit',
-      purpose: '完善节奏、音效与后期剪辑包装。',
-      stepPrompt: 'BPM 120 节奏对齐，音效卡点，转场动效',
-      parameters: 'Frame rate: 24fps',
-      keyTechniques: ['添加背景音乐与环境音', '输出最终高清成片'],
-    };
-    setEditingWorkflow({
-      ...editingWorkflow,
-      steps: [...editingWorkflow.steps, newStep],
-      totalSteps: editingWorkflow.steps.length + 1,
-    });
-  };
-
-  const handleDeleteStep = (stepIdx: number) => {
-    if (!editingWorkflow) return;
-    const updatedSteps = editingWorkflow.steps
-      .filter((_, i) => i !== stepIdx)
-      .map((s, i) => ({ ...s, stepNumber: i + 1 }));
-    setEditingWorkflow({
-      ...editingWorkflow,
-      steps: updatedSteps,
-      totalSteps: updatedSteps.length,
-    });
-  };
-
-  const handleSaveWorkflow = () => {
-    if (!editingWorkflow) return;
-    let updated: AIVideoWorkflow[];
-    if (isAddingWorkflow) {
-      updated = [editingWorkflow, ...videoWorkflows];
+  // --- Atom Operations ---
+  const handleSaveAtom = () => {
+    if (!editingAtom) return;
+    let updated: VisualAtom[];
+    if (isAddingAtom) {
+      updated = [editingAtom, ...visualAtoms];
     } else {
-      updated = videoWorkflows.map((w) => (w.id === editingWorkflow.id ? editingWorkflow : w));
+      updated = visualAtoms.map((a) => (a.id === editingAtom.id ? editingAtom : a));
     }
-    saveVideoWorkflows(updated);
-    onUpdateVideoWorkflows(updated);
-    setEditingWorkflow(null);
-    setIsAddingWorkflow(false);
-    showToast('视频工作流保存成功！');
+    onUpdateVisualAtoms(updated);
+    saveVisualAtoms(updated);
+    setEditingAtom(null);
+    setIsAddingAtom(false);
+    showToast('视觉原子已成功更新！');
   };
 
-  const handleDeleteWorkflow = (id: string) => {
-    if (!window.confirm('确认删除此视频工作流吗？')) return;
-    playSpotlightClick();
-    const updated = videoWorkflows.filter((w) => w.id !== id);
-    saveVideoWorkflows(updated);
-    onUpdateVideoWorkflows(updated);
-    showToast('视频工作流已删除！');
+  const handleDeleteAtom = (id: string) => {
+    if (confirm('确定要删除此视觉原子吗？')) {
+      const updated = visualAtoms.filter((a) => a.id !== id);
+      onUpdateVisualAtoms(updated);
+      saveVisualAtoms(updated);
+      showToast('视觉原子已删除');
+    }
   };
 
-  const handleExportJSON = () => {
-    playSpotlightClick();
-    const jsonStr = exportAllDataAsJSON();
+  // --- Backup Operations ---
+  const handleExport = () => {
+    const jsonStr = exportAllAtlasDataAsJSON();
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `art-gallery-data-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `art_atlas_backup_${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
-    URL.revokeObjectURL(url);
-    showToast('配置文件已成功导出下载！');
+    showToast('全站数据包已成功导出为 JSON 文件！');
   };
 
-  const handleReset = () => {
-    if (!window.confirm('确定恢复出厂预设吗？您自定义的案例将被重置为官方默认内容。')) return;
-    resetToDefaults();
-    window.location.reload();
+  const handleImport = () => {
+    if (!importJsonInput.trim()) return;
+    const ok = importAtlasDataFromJSON(importJsonInput);
+    if (ok) {
+      window.location.reload();
+    } else {
+      alert('JSON 格式错误，请检查输入！');
+    }
   };
+
+  const handleResetDefaults = () => {
+    if (confirm('警告：此操作将清除所有本地修改并恢复官方默认数据，确定继续吗？')) {
+      resetAtlasToDefaults();
+      window.location.reload();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/95 backdrop-blur-xl overflow-y-auto animate-fadeIn">
-      <div className="relative w-full max-w-5xl bg-gallery-950 border border-gold-500/40 rounded-3xl shadow-gallery-lg overflow-hidden my-auto max-h-[94vh] flex flex-col">
-        {/* Header Bar */}
-        <div className="p-5 sm:p-6 border-b border-gallery-800 bg-gallery-900/90 flex items-start justify-between gap-4 shrink-0">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded bg-gold-500/20 text-gold-400 font-mono text-[10px] font-bold border border-gold-500/30">
-                CURATOR VAULT // 私人策展工作台
-              </span>
-              {isAuthed && (
-                <span className="flex items-center gap-1 text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800">
-                  <ShieldCheck className="w-3 h-3" />
-                  <span>已通过主密钥授权</span>
-                </span>
-              )}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fadeIn">
+      <div 
+        className="relative w-full max-w-6xl max-h-[92vh] flex flex-col rounded-2xl overflow-hidden border shadow-2xl transition-all"
+        style={{
+          backgroundColor: 'var(--bg-card)',
+          borderColor: 'var(--border-subtle)',
+          color: 'var(--text-main)',
+        }}
+      >
+        {/* Toast Notification */}
+        {toastMsg && (
+          <div className="absolute top-4 right-16 z-50 px-4 py-2 rounded-xl bg-emerald-600 text-white font-mono text-xs shadow-xl flex items-center gap-2 animate-fadeIn">
+            <Check className="w-4 h-4" />
+            <span>{toastMsg}</span>
+          </div>
+        )}
+
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold">
+              <Database className="w-4 h-4" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-serif font-black text-gallery-100 mt-1">
-              AI 视觉提示词与多步骤工作流典藏库
-            </h2>
-            <p className="text-xs text-gallery-400 font-sans mt-0.5">
-              结构化管理图片拆解积木与视频链式生成管线，支持离线加密持久化与跨端导出。
-            </p>
+            <div>
+              <h2 className="text-base sm:text-lg font-bold tracking-tight">策展管理后台 (Curator CMS)</h2>
+              <p className="text-xs font-mono opacity-60">持续运维与内容扩充控制中心 · 支持随时增补与导出</p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {isAuthed && (
-              <button
-                onClick={() => {
-                  setAdminAuth(false);
-                  setIsAuthed(false);
-                  onClose();
-                }}
-                className="px-3 py-1.5 rounded-xl bg-gallery-900 border border-gallery-700 text-gallery-400 hover:text-white text-xs font-mono transition-colors cursor-pointer"
-              >
-                锁闭并登出
-              </button>
-            )}
-            <button
-              onClick={() => {
-                playSpotlightClick();
-                onClose();
-              }}
-              className="p-2.5 rounded-full bg-gallery-800 border border-gallery-700 text-gallery-300 hover:text-white hover:border-gold-500 transition-all cursor-pointer"
-              title="关闭"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-xl transition-colors hover:bg-white/10 text-white/70 hover:text-white"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        {/* Toast Notification */}
-        {saveSuccessMsg && (
-          <div className="bg-emerald-600/90 text-white text-xs font-serif font-bold py-2 px-4 text-center animate-fadeIn flex items-center justify-center gap-2">
-            <Check className="w-4 h-4" />
-            <span>{saveSuccessMsg}</span>
-          </div>
-        )}
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-2 px-6 py-2.5 border-b bg-black/20 text-xs overflow-x-auto" style={{ borderColor: 'var(--border-subtle)' }}>
+          {[
+            { id: 'scenes', label: '🎬 电影分镜 (Scenes)', count: cinemaScenes.length },
+            { id: 'atoms', label: '⚛️ 视觉原子 (Atoms)', count: visualAtoms.length },
+            { id: 'principles', label: '⚖️ 设计原则 (Principles)', count: designPrinciples.length },
+            { id: 'styles', label: '🏛️ 风格规则 (Styles)', count: styleRules.length },
+            { id: 'backup', label: '💾 备份与同步 (Backup)', count: 'JSON' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                playSpotlightClick();
+                setActiveTab(tab.id as CMSTab);
+                setEditingScene(null);
+                setEditingAtom(null);
+              }}
+              className={`px-3.5 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'opacity-70 hover:opacity-100 hover:bg-white/5'
+              }`}
+            >
+              <span>{tab.label}</span>
+              <span className="px-1.5 py-0.2 rounded bg-black/40 text-[10px] font-mono opacity-80">
+                {tab.count}
+              </span>
+            </button>
+          ))}
+        </div>
 
-        {/* Auth Gate (If not logged in) */}
-        {!isAuthed ? (
-          <div className="p-8 sm:p-14 text-center space-y-5 my-auto max-w-md mx-auto">
-            <div className="w-14 h-14 rounded-2xl bg-gold-500/10 border border-gold-500/30 flex items-center justify-center mx-auto text-gold-400">
-              <KeyRound className="w-7 h-7" />
-            </div>
-            <div className="space-y-1.5">
-              <h3 className="text-lg font-serif font-bold text-gallery-100">
-                CURATOR'S VAULT ACCESS
-              </h3>
-              <p className="text-xs text-gallery-400 font-sans leading-relaxed">
-                此区域受高强度加密保护，请输入安全主授权密钥以解锁维护权限：
-              </p>
-            </div>
+        {/* Body Content */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {/* ================= TAB 1: CINEMA SCENES ================= */}
+          {activeTab === 'scenes' && (
+            <div>
+              {/* If editing / adding scene */}
+              {editingScene ? (
+                <div className="space-y-4 max-w-3xl mx-auto bg-black/30 p-6 rounded-2xl border border-white/10">
+                  <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                    <h3 className="font-bold text-sm text-indigo-400">
+                      {isAddingScene ? '✨ 添加全新电影分镜镜头' : '✏️ 编辑电影分镜档案'}
+                    </h3>
+                    <button
+                      onClick={() => {
+                        setEditingScene(null);
+                        setIsAddingScene(false);
+                      }}
+                      className="text-xs opacity-60 hover:opacity-100"
+                    >
+                      取消返回
+                    </button>
+                  </div>
 
-            <div className="space-y-3">
-              <input
-                type="password"
-                value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-                placeholder="输入主授权密钥 (Master Key)"
-                className="w-full px-4 py-2.5 bg-gallery-900 border border-gallery-700 rounded-xl text-xs text-gallery-100 text-center font-mono focus:outline-none focus:border-gold-500 shadow-inner"
-              />
-              {authError && <p className="text-xs text-accent-crimson font-mono animate-shake">⚠️ 鉴权失败：密钥不匹配，拒绝访问</p>}
-
-              <button
-                onClick={handleLogin}
-                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-gold-600 text-gallery-950 font-serif font-bold text-xs shadow-glow-gold hover:from-gold-400 hover:to-gold-500 transition-all cursor-pointer"
-              >
-                验证密钥并开启密室
-              </button>
-            </div>
-          </div>
-        ) : (
-          /* Authed Dashboard */
-          <div className="flex flex-col flex-1 overflow-hidden">
-            {/* Nav Tabs */}
-            <div className="flex items-center gap-2 px-6 pt-3 pb-2 border-b border-gallery-800 bg-gallery-900/50 shrink-0">
-              <button
-                onClick={() => {
-                  playSpotlightClick();
-                  setActiveTab('images');
-                  setEditingImage(null);
-                }}
-                className={`px-4 py-2 rounded-xl text-xs font-serif font-bold transition-all cursor-pointer flex items-center gap-2 ${
-                  activeTab === 'images'
-                    ? 'bg-gold-500 text-gallery-950 shadow-sm'
-                    : 'text-gallery-400 hover:text-white'
-                }`}
-              >
-                <ImageIcon className="w-3.5 h-3.5" />
-                <span>图片提示词案例库 ({imageCases.length})</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  playSpotlightClick();
-                  setActiveTab('videos');
-                  setEditingWorkflow(null);
-                }}
-                className={`px-4 py-2 rounded-xl text-xs font-serif font-bold transition-all cursor-pointer flex items-center gap-2 ${
-                  activeTab === 'videos'
-                    ? 'bg-gold-500 text-gallery-950 shadow-sm'
-                    : 'text-gallery-400 hover:text-white'
-                }`}
-              >
-                <Film className="w-3.5 h-3.5" />
-                <span>视频分步工作流库 ({videoWorkflows.length})</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  playSpotlightClick();
-                  setActiveTab('backup');
-                }}
-                className={`px-4 py-2 rounded-xl text-xs font-serif font-bold transition-all cursor-pointer flex items-center gap-2 ${
-                  activeTab === 'backup'
-                    ? 'bg-gold-500 text-gallery-950 shadow-sm'
-                    : 'text-gallery-400 hover:text-white'
-                }`}
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>数据备份与导出</span>
-              </button>
-            </div>
-
-            {/* Panel Body */}
-            <div className="p-6 overflow-y-auto flex-1 space-y-6 text-left">
-              {activeTab === 'images' && (
-                <div className="space-y-6">
-                  {editingImage ? (
-                    <div className="p-6 rounded-2xl bg-gallery-900 border border-gold-500/50 space-y-5">
-                      <div className="flex items-center justify-between border-b border-gallery-800 pb-3">
-                        <h4 className="text-base font-serif font-bold text-gold-300">
-                          {isAddingImage ? '新增 AI 图片风格案例' : `编辑案例：${editingImage.title}`}
-                        </h4>
-                        <button
-                          onClick={() => setEditingImage(null)}
-                          className="text-xs font-mono text-gallery-400 hover:text-white"
-                        >
-                          取消
-                        </button>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <label className="text-xs font-mono text-gallery-300">案例名称:</label>
-                          <input
-                            type="text"
-                            value={editingImage.title}
-                            onChange={(e) => setEditingImage({ ...editingImage, title: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg bg-gallery-950 border border-gallery-700 text-xs text-gallery-100"
-                          />
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="text-xs font-mono text-gallery-300">风格分类 (如: VOX体素, 锈湖暗黑):</label>
-                          <input
-                            type="text"
-                            value={editingImage.category}
-                            onChange={(e) => setEditingImage({ ...editingImage, category: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg bg-gallery-950 border border-gallery-700 text-xs text-gallery-100"
-                          />
-                        </div>
-
-                        <div className="space-y-1 sm:col-span-2">
-                          <label className="text-xs font-mono text-gallery-300">效果成图图片 URL:</label>
-                          <input
-                            type="text"
-                            value={editingImage.imageUrl}
-                            onChange={(e) => setEditingImage({ ...editingImage, imageUrl: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg bg-gallery-950 border border-gallery-700 text-xs text-gallery-100 font-mono"
-                          />
-                        </div>
-
-                        <div className="space-y-1 sm:col-span-2">
-                          <label className="text-xs font-mono text-gallery-300">美学描述与要点:</label>
-                          <textarea
-                            rows={2}
-                            value={editingImage.description}
-                            onChange={(e) => setEditingImage({ ...editingImage, description: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg bg-gallery-950 border border-gallery-700 text-xs text-gallery-100"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="pt-4 border-t border-gallery-800 space-y-3">
-                        <h5 className="text-xs font-mono font-bold text-gold-400">
-                          🧱 拆解式提示词积木设置:
-                        </h5>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <div className="space-y-1">
-                            <span className="text-[11px] font-mono text-gold-300">[核心主体 · Subject]:</span>
-                            <input
-                              type="text"
-                              value={editingImage.promptBlocks.subject}
-                              onChange={(e) => setEditingImage({
-                                ...editingImage,
-                                promptBlocks: { ...editingImage.promptBlocks, subject: e.target.value }
-                              })}
-                              className="w-full px-3 py-1.5 rounded-lg bg-gallery-950 border border-gallery-700 text-xs text-gallery-100 font-mono"
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <span className="text-[11px] font-mono text-accent-cyan">[流派风格 · Style]:</span>
-                            <input
-                              type="text"
-                              value={editingImage.promptBlocks.style}
-                              onChange={(e) => setEditingImage({
-                                ...editingImage,
-                                promptBlocks: { ...editingImage.promptBlocks, style: e.target.value }
-                              })}
-                              className="w-full px-3 py-1.5 rounded-lg bg-gallery-950 border border-gallery-700 text-xs text-gallery-100 font-mono"
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <span className="text-[11px] font-mono text-accent-amber">[材质纹理 · Texture]:</span>
-                            <input
-                              type="text"
-                              value={editingImage.promptBlocks.texture}
-                              onChange={(e) => setEditingImage({
-                                ...editingImage,
-                                promptBlocks: { ...editingImage.promptBlocks, texture: e.target.value }
-                              })}
-                              className="w-full px-3 py-1.5 rounded-lg bg-gallery-950 border border-gallery-700 text-xs text-gallery-100 font-mono"
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <span className="text-[11px] font-mono text-accent-violet">[光影氛围 · Lighting]:</span>
-                            <input
-                              type="text"
-                              value={editingImage.promptBlocks.lighting}
-                              onChange={(e) => setEditingImage({
-                                ...editingImage,
-                                promptBlocks: { ...editingImage.promptBlocks, lighting: e.target.value }
-                              })}
-                              className="w-full px-3 py-1.5 rounded-lg bg-gallery-950 border border-gallery-700 text-xs text-gallery-100 font-mono"
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <span className="text-[11px] font-mono text-emerald-400">[构图视角 · Composition]:</span>
-                            <input
-                              type="text"
-                              value={editingImage.promptBlocks.composition}
-                              onChange={(e) => setEditingImage({
-                                ...editingImage,
-                                promptBlocks: { ...editingImage.promptBlocks, composition: e.target.value }
-                              })}
-                              className="w-full px-3 py-1.5 rounded-lg bg-gallery-950 border border-gallery-700 text-xs text-gallery-100 font-mono"
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <span className="text-[11px] font-mono text-gallery-300">[参数 · Parameters]:</span>
-                            <input
-                              type="text"
-                              value={editingImage.promptBlocks.parameters}
-                              onChange={(e) => setEditingImage({
-                                ...editingImage,
-                                promptBlocks: { ...editingImage.promptBlocks, parameters: e.target.value }
-                              })}
-                              className="w-full px-3 py-1.5 rounded-lg bg-gallery-950 border border-gallery-700 text-xs text-gallery-100 font-mono"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-end gap-3 pt-3">
-                        <button
-                          onClick={() => setEditingImage(null)}
-                          className="px-4 py-2 rounded-xl bg-gallery-800 text-gallery-300 text-xs font-serif"
-                        >
-                          取消
-                        </button>
-                        <button
-                          onClick={handleSaveImage}
-                          className="px-5 py-2 rounded-xl bg-gold-500 text-gallery-950 font-serif font-bold text-xs shadow-glow-gold hover:bg-gold-400 flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <Save className="w-3.5 h-3.5" />
-                          <span>保存并更新案例</span>
-                        </button>
-                      </div>
+                  <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <label className="block opacity-60 mb-1">分镜编号 (e.g. SCENE 05)</label>
+                      <input
+                        type="text"
+                        value={editingScene.sceneNumber}
+                        onChange={(e) => setEditingScene({ ...editingScene, sceneNumber: e.target.value })}
+                        className="w-full p-2 rounded-lg bg-black/60 border border-white/10 focus:border-indigo-400"
+                      />
                     </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-mono text-gallery-400">已录入案例列表 ({imageCases.length})</span>
-                        <button
-                          onClick={handleStartAddImage}
-                          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gold-500 text-gallery-950 font-serif font-bold text-xs shadow-glow-gold cursor-pointer"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                          <span>+ 新增图片案例</span>
-                        </button>
-                      </div>
-
-                      <div className="space-y-2">
-                        {imageCases.map((c) => (
-                          <div key={c.id} className="p-3.5 rounded-xl bg-gallery-900 border border-gallery-800 flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-3.5 overflow-hidden">
-                              <img src={c.imageUrl} alt={c.title} className="w-14 h-14 rounded-lg object-cover bg-black shrink-0 border border-gallery-700" />
-                              <div className="overflow-hidden">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs font-serif font-bold text-gallery-100 truncate">{c.title}</span>
-                                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-gallery-950 border border-gallery-700 text-gold-300 shrink-0">{c.category}</span>
-                                </div>
-                                <p className="text-[11px] text-gallery-400 font-mono truncate max-w-lg mt-0.5">{c.promptBlocks.subject}</p>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-2 shrink-0">
-                              <button
-                                onClick={() => {
-                                  playSpotlightClick();
-                                  setEditingImage({ ...c });
-                                  setIsAddingImage(false);
-                                }}
-                                className="p-2 rounded-lg bg-gallery-800 text-gallery-300 hover:text-gold-300 hover:border-gold-500 border border-gallery-700 cursor-pointer"
-                                title="编辑"
-                              >
-                                <Edit3 className="w-3.5 h-3.5" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteImage(c.id)}
-                                className="p-2 rounded-lg bg-gallery-800 text-gallery-300 hover:text-accent-crimson hover:border-accent-crimson border border-gallery-700 cursor-pointer"
-                                title="删除"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                    <div>
+                      <label className="block opacity-60 mb-1">分镜幕次 (Act Headline)</label>
+                      <input
+                        type="text"
+                        value={editingScene.act}
+                        onChange={(e) => setEditingScene({ ...editingScene, act: e.target.value })}
+                        className="w-full p-2 rounded-lg bg-black/60 border border-white/10 focus:border-indigo-400"
+                      />
                     </div>
-                  )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <label className="block opacity-60 mb-1">镜头标题 (中文)</label>
+                      <input
+                        type="text"
+                        value={editingScene.title}
+                        onChange={(e) => setEditingScene({ ...editingScene, title: e.target.value })}
+                        className="w-full p-2 rounded-lg bg-black/60 border border-white/10 focus:border-indigo-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="block opacity-60 mb-1">Title (English)</label>
+                      <input
+                        type="text"
+                        value={editingScene.titleEn}
+                        onChange={(e) => setEditingScene({ ...editingScene, titleEn: e.target.value })}
+                        className="w-full p-2 rounded-lg bg-black/60 border border-white/10 focus:border-indigo-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="text-xs">
+                    <label className="block opacity-60 mb-1">封面图片绝对 URL (Unsplash 或直链)</label>
+                    <input
+                      type="text"
+                      value={editingScene.coverImage}
+                      onChange={(e) => setEditingScene({ ...editingScene, coverImage: e.target.value })}
+                      className="w-full p-2 rounded-lg bg-black/60 border border-white/10 focus:border-indigo-400 font-mono"
+                    />
+                  </div>
+
+                  <div className="text-xs">
+                    <label className="block text-amber-300 font-bold mb-1">
+                      剧本式 Prompt 档案 (电影剧本排版格式，非普通代码框)
+                    </label>
+                    <textarea
+                      rows={6}
+                      value={editingScene.scriptPrompt}
+                      onChange={(e) => setEditingScene({ ...editingScene, scriptPrompt: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-black/70 border border-white/15 focus:border-amber-400 font-mono text-xs leading-relaxed"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <label className="block opacity-60 mb-1">摄影机镜头 (Lens)</label>
+                      <input
+                        type="text"
+                        value={editingScene.cameraRig.lens}
+                        onChange={(e) => setEditingScene({
+                          ...editingScene,
+                          cameraRig: { ...editingScene.cameraRig, lens: e.target.value }
+                        })}
+                        className="w-full p-2 rounded-lg bg-black/60 border border-white/10"
+                      />
+                    </div>
+                    <div>
+                      <label className="block opacity-60 mb-1">快门与开角 (Shutter)</label>
+                      <input
+                        type="text"
+                        value={editingScene.cameraRig.shutter}
+                        onChange={(e) => setEditingScene({
+                          ...editingScene,
+                          cameraRig: { ...editingScene.cameraRig, shutter: e.target.value }
+                        })}
+                        className="w-full p-2 rounded-lg bg-black/60 border border-white/10"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+                    <button
+                      onClick={() => setEditingScene(null)}
+                      className="px-4 py-2 rounded-xl text-xs bg-white/5 hover:bg-white/10"
+                    >
+                      取消
+                    </button>
+                    <button
+                      onClick={handleSaveScene}
+                      className="px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1.5 shadow"
+                    >
+                      <Save className="w-3.5 h-3.5" />
+                      <span>保存并生效</span>
+                    </button>
+                  </div>
                 </div>
-              )}
-              {/* TAB 2: MANAGE VIDEO WORKFLOWS */}
-              {activeTab === 'videos' && (
-                <div className="space-y-6">
-                  {editingWorkflow ? (
-                    <div className="p-6 rounded-2xl bg-gallery-900 border border-accent-violet/60 space-y-6">
-                      <div className="flex items-center justify-between border-b border-gallery-800 pb-3">
-                        <h4 className="text-base font-serif font-bold text-accent-violet">
-                          {isAddingWorkflow ? '新增 AI 视频生成工作流' : `编辑工作流：${editingWorkflow.title}`}
-                        </h4>
-                        <button
-                          onClick={() => setEditingWorkflow(null)}
-                          className="text-xs font-mono text-gallery-400 hover:text-white"
-                        >
-                          取消
-                        </button>
-                      </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono opacity-60">当前已收录 {cinemaScenes.length} 个电影分镜</span>
+                    <button
+                      onClick={() => {
+                        const newScene: CinemaScene = {
+                          id: `scene-custom-${Date.now()}`,
+                          sceneNumber: `SCENE 0${cinemaScenes.length + 1}`,
+                          act: 'ACT · 新增分镜 (ATMOSPHERE)',
+                          title: '新电影分镜标题',
+                          titleEn: 'New Cinematic Scene',
+                          locationAndTime: 'LOCATION · 00:00 · WEATHER',
+                          scriptPrompt: `[SCENE START]\nEXT. CINEMATIC LOCATION - NIGHT\nDescribe the visual elements, camera movement and lighting...\n[CAMERA: 35MM T/1.8 --ar 16:9 --v 6.1]`,
+                          cameraRig: {
+                            lens: '35mm Cine Prime T/1.8',
+                            shutter: '1/48 sec (180° Shutter Angle)',
+                            lighting: 'Low-Key Volumetric Lighting',
+                            mood: 'Cinematic Atmosphere',
+                            movement: 'Slow Dolly Forward',
+                          },
+                          coverImage: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80',
+                          colorPalette: ['#0f172a', '#38bdf8', '#c084fc', '#ffffff'],
+                          accentColor: '#38bdf8',
+                          durationSeconds: 24,
+                          behindTheScenes: {
+                            atomName: '冷暖对撞',
+                            principleName: '对比 (Contrast)',
+                            styleName: '赛博朋克与暗调未来',
+                            whyItWorks: '描述该分镜背后的设计学原理与为什么好看...',
+                          },
+                        };
+                        setEditingScene(newScene);
+                        setIsAddingScene(true);
+                      }}
+                      className="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1.5 shadow"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>新增电影分镜</span>
+                    </button>
+                  </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <label className="text-xs font-mono text-gallery-300">工作流标题:</label>
-                          <input
-                            type="text"
-                            value={editingWorkflow.title}
-                            onChange={(e) => setEditingWorkflow({ ...editingWorkflow, title: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg bg-gallery-950 border border-gallery-700 text-xs text-gallery-100"
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {cinemaScenes.map((sc) => (
+                      <div
+                        key={sc.id}
+                        className="p-4 rounded-xl border border-white/10 bg-white/5 flex items-center justify-between gap-4"
+                      >
+                        <div className="flex items-center gap-3 overflow-hidden">
+                          <img
+                            src={sc.coverImage}
+                            alt={sc.title}
+                            className="w-16 h-16 rounded-lg object-cover shrink-0"
                           />
+                          <div className="overflow-hidden">
+                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/10 font-bold" style={{ color: sc.accentColor }}>
+                              {sc.sceneNumber}
+                            </span>
+                            <h4 className="font-bold text-sm truncate mt-1">{sc.title}</h4>
+                            <p className="text-[11px] font-mono opacity-50 truncate">{sc.titleEn}</p>
+                          </div>
                         </div>
 
-                        <div className="space-y-1">
-                          <label className="text-xs font-mono text-gallery-300">应用场景分类:</label>
-                          <input
-                            type="text"
-                            value={editingWorkflow.category}
-                            onChange={(e) => setEditingWorkflow({ ...editingWorkflow, category: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg bg-gallery-950 border border-gallery-700 text-xs text-gallery-100"
-                          />
-                        </div>
-
-                        <div className="space-y-1 sm:col-span-2">
-                          <label className="text-xs font-mono text-gallery-300">整体流程概述 (一两句话):</label>
-                          <textarea
-                            rows={2}
-                            value={editingWorkflow.summary}
-                            onChange={(e) => setEditingWorkflow({ ...editingWorkflow, summary: e.target.value })}
-                            className="w-full px-3 py-2 rounded-lg bg-gallery-950 border border-gallery-700 text-xs text-gallery-100"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Dynamic Steps Management */}
-                      <div className="pt-4 border-t border-gallery-800 space-y-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-mono font-bold text-gold-400">
-                            🎬 执行步骤依次管理 (目前共 {editingWorkflow.steps.length} 步):
-                          </span>
+                        <div className="flex items-center gap-2 shrink-0">
                           <button
-                            onClick={handleAddStepToEditingWorkflow}
-                            className="flex items-center gap-1 px-3 py-1 rounded-lg bg-accent-violet/20 border border-accent-violet/40 text-accent-violet font-mono text-xs font-bold hover:bg-accent-violet hover:text-white transition-all cursor-pointer"
+                            onClick={() => {
+                              setEditingScene({ ...sc });
+                              setIsAddingScene(false);
+                            }}
+                            className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white"
+                            title="编辑"
                           >
-                            <Plus className="w-3 h-3" />
-                            <span>+ 依次添加下一步骤 (Add Step)</span>
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteScene(sc.id)}
+                            className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500 text-red-300 hover:text-white"
+                            title="删除"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
-
-                        <div className="space-y-4">
-                          {editingWorkflow.steps.map((step, sIdx) => (
-                            <div key={sIdx} className="p-4 rounded-xl bg-gallery-950 border border-gallery-800 space-y-3 relative">
-                              <div className="flex items-center justify-between border-b border-gallery-800/80 pb-2">
-                                <span className="font-mono text-xs font-bold text-gold-400">
-                                  步骤 {step.stepNumber}：
-                                </span>
-                                <button
-                                  onClick={() => handleDeleteStep(sIdx)}
-                                  className="text-xs text-accent-crimson hover:underline cursor-pointer"
-                                >
-                                  删除此步骤
-                                </button>
-                              </div>
-
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div className="space-y-1">
-                                  <label className="text-[11px] font-mono text-gallery-400">步骤名称 (如：第一步生成资产):</label>
-                                  <input
-                                    type="text"
-                                    value={step.stepTitle}
-                                    onChange={(e) => {
-                                      const updated = [...editingWorkflow.steps];
-                                      updated[sIdx].stepTitle = e.target.value;
-                                      setEditingWorkflow({ ...editingWorkflow, steps: updated });
-                                    }}
-                                    className="w-full px-3 py-1.5 rounded bg-gallery-900 border border-gallery-700 text-xs text-gallery-100"
-                                  />
-                                </div>
-
-                                <div className="space-y-1">
-                                  <label className="text-[11px] font-mono text-gallery-400">使用工具 (如：Runway Gen-3):</label>
-                                  <input
-                                    type="text"
-                                    value={step.toolUsed}
-                                    onChange={(e) => {
-                                      const updated = [...editingWorkflow.steps];
-                                      updated[sIdx].toolUsed = e.target.value;
-                                      setEditingWorkflow({ ...editingWorkflow, steps: updated });
-                                    }}
-                                    className="w-full px-3 py-1.5 rounded bg-gallery-900 border border-gallery-700 text-xs text-gallery-100"
-                                  />
-                                </div>
-
-                                <div className="space-y-1 sm:col-span-2">
-                                  <label className="text-[11px] font-mono text-gallery-400">该步骤执行目的:</label>
-                                  <input
-                                    type="text"
-                                    value={step.purpose}
-                                    onChange={(e) => {
-                                      const updated = [...editingWorkflow.steps];
-                                      updated[sIdx].purpose = e.target.value;
-                                      setEditingWorkflow({ ...editingWorkflow, steps: updated });
-                                    }}
-                                    className="w-full px-3 py-1.5 rounded bg-gallery-900 border border-gallery-700 text-xs text-gallery-100"
-                                  />
-                                </div>
-
-                                <div className="space-y-1 sm:col-span-2">
-                                  <label className="text-[11px] font-mono text-gallery-400">该步骤提示词 / 关键命令:</label>
-                                  <textarea
-                                    rows={2}
-                                    value={step.stepPrompt}
-                                    onChange={(e) => {
-                                      const updated = [...editingWorkflow.steps];
-                                      updated[sIdx].stepPrompt = e.target.value;
-                                      setEditingWorkflow({ ...editingWorkflow, steps: updated });
-                                    }}
-                                    className="w-full px-3 py-1.5 rounded bg-gallery-900 border border-gallery-700 text-xs text-gallery-100 font-mono"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
                       </div>
-
-                      <div className="flex items-center justify-end gap-3 pt-3">
-                        <button
-                          onClick={() => setEditingWorkflow(null)}
-                          className="px-4 py-2 rounded-xl bg-gallery-800 text-gallery-300 text-xs font-serif"
-                        >
-                          取消
-                        </button>
-                        <button
-                          onClick={handleSaveWorkflow}
-                          className="px-5 py-2 rounded-xl bg-gold-500 text-gallery-950 font-serif font-bold text-xs shadow-glow-gold hover:bg-gold-400 flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <Save className="w-3.5 h-3.5" />
-                          <span>保存工作流管线</span>
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-mono text-gallery-400">已录入视频工作流 ({videoWorkflows.length})</span>
-                        <button
-                          onClick={handleStartAddWorkflow}
-                          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gold-500 text-gallery-950 font-serif font-bold text-xs shadow-glow-gold cursor-pointer"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                          <span>+ 新增视频工作流</span>
-                        </button>
-                      </div>
-
-                      <div className="space-y-3">
-                        {videoWorkflows.map((wf) => (
-                          <div key={wf.id} className="p-4 rounded-xl bg-gallery-900 border border-gallery-800 flex items-center justify-between gap-4">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-serif font-bold text-gallery-100">{wf.title}</span>
-                                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-gallery-950 border border-gallery-700 text-accent-violet">{wf.category}</span>
-                              </div>
-                              <p className="text-xs text-gallery-400 line-clamp-1 mt-1">{wf.summary}</p>
-                              <div className="text-[11px] font-mono text-gold-400 mt-1">包含 {wf.steps.length} 个执行步骤</div>
-                            </div>
-
-                            <div className="flex items-center gap-2 shrink-0">
-                              <button
-                                onClick={() => {
-                                  playSpotlightClick();
-                                  setEditingWorkflow({ ...wf });
-                                  setIsAddingWorkflow(false);
-                                }}
-                                className="p-2 rounded-lg bg-gallery-800 text-gallery-300 hover:text-gold-300 hover:border-gold-500 border border-gallery-700 cursor-pointer"
-                                title="编辑"
-                              >
-                                <Edit3 className="w-3.5 h-3.5" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteWorkflow(wf.id)}
-                                className="p-2 rounded-lg bg-gallery-800 text-gallery-300 hover:text-accent-crimson hover:border-accent-crimson border border-gallery-700 cursor-pointer"
-                                title="删除"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* TAB 3: BACKUP AND RESET */}
-              {activeTab === 'backup' && (
-                <div className="space-y-6 max-w-xl">
-                  <div className="p-5 rounded-2xl bg-gallery-900 border border-gallery-800 space-y-3">
-                    <h4 className="text-sm font-serif font-bold text-gallery-100 flex items-center gap-2">
-                      <Download className="w-4 h-4 text-gold-400" />
-                      <span>导出全部案例与工作流配置文件 (JSON)</span>
-                    </h4>
-                    <p className="text-xs text-gallery-400 leading-relaxed font-sans">
-                      一键下载本地录入的所有图片案例与视频工作流数据备份，方便跨设备迁移或提交至代码仓库。
-                    </p>
-                    <button
-                      onClick={handleExportJSON}
-                      className="px-4 py-2 rounded-xl bg-gold-500 text-gallery-950 font-serif font-bold text-xs shadow-glow-gold hover:bg-gold-400 flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>一键下载备份 JSON 文件</span>
-                    </button>
-                  </div>
-
-                  <div className="p-5 rounded-2xl bg-gallery-900 border border-gallery-800 space-y-3">
-                    <h4 className="text-sm font-serif font-bold text-accent-crimson flex items-center gap-2">
-                      <RotateCcw className="w-4 h-4 text-accent-crimson" />
-                      <span>恢复官方默认案例预设</span>
-                    </h4>
-                    <p className="text-xs text-gallery-400 leading-relaxed font-sans">
-                      清空本地自定义修改，重新加载初始内置的高质量 VOX、锈湖、包豪斯等图片与视频工作流。
-                    </p>
-                    <button
-                      onClick={handleReset}
-                      className="px-4 py-2 rounded-xl bg-accent-crimson/20 border border-accent-crimson/50 text-accent-crimson hover:bg-accent-crimson hover:text-white font-serif font-bold text-xs flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      <span>清空并恢复出厂预设</span>
-                    </button>
+                    ))}
                   </div>
                 </div>
               )}
             </div>
-          </div>
-        )}
+          )}
+
+          {/* ================= TAB 2: VISUAL ATOMS ================= */}
+          {activeTab === 'atoms' && (
+            <div>
+              {editingAtom ? (
+                <div className="space-y-4 max-w-3xl mx-auto bg-black/30 p-6 rounded-2xl border border-white/10">
+                  <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                    <h3 className="font-bold text-sm text-indigo-400">
+                      {isAddingAtom ? '✨ 新增视觉原子' : '✏️ 编辑视觉原子'}
+                    </h3>
+                    <button onClick={() => setEditingAtom(null)} className="text-xs opacity-60">取消</button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <label className="block opacity-60 mb-1">原子名称</label>
+                      <input
+                        type="text"
+                        value={editingAtom.name}
+                        onChange={(e) => setEditingAtom({ ...editingAtom, name: e.target.value })}
+                        className="w-full p-2 rounded-lg bg-black/60 border border-white/10"
+                      />
+                    </div>
+                    <div>
+                      <label className="block opacity-60 mb-1">Name (English)</label>
+                      <input
+                        type="text"
+                        value={editingAtom.nameEn}
+                        onChange={(e) => setEditingAtom({ ...editingAtom, nameEn: e.target.value })}
+                        className="w-full p-2 rounded-lg bg-black/60 border border-white/10"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="text-xs">
+                    <label className="block opacity-60 mb-1">视觉材料公式 (Formula)</label>
+                    <input
+                      type="text"
+                      value={editingAtom.formula}
+                      onChange={(e) => setEditingAtom({ ...editingAtom, formula: e.target.value })}
+                      className="w-full p-2 rounded-lg bg-black/60 border border-white/10 font-mono"
+                    />
+                  </div>
+
+                  <div className="text-xs">
+                    <label className="block opacity-60 mb-1">视知觉原理 (Why It Works)</label>
+                    <textarea
+                      rows={3}
+                      value={editingAtom.principle}
+                      onChange={(e) => setEditingAtom({ ...editingAtom, principle: e.target.value })}
+                      className="w-full p-2 rounded-lg bg-black/60 border border-white/10"
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-3">
+                    <button onClick={() => setEditingAtom(null)} className="px-4 py-2 rounded-xl text-xs bg-white/5">取消</button>
+                    <button onClick={handleSaveAtom} className="px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white">保存</button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono opacity-60">当前共 {visualAtoms.length} 个视觉原子</span>
+                    <button
+                      onClick={() => {
+                        const newAtom: VisualAtom = {
+                          id: `atom-custom-${Date.now()}`,
+                          name: '新视觉原子',
+                          nameEn: 'New Visual Atom',
+                          dimension: 'composition',
+                          formula: 'A 元素 + B 元素 = 核心视觉焦点',
+                          description: '原子简要描述...',
+                          principle: '视知觉原理剖析...',
+                          sampleVisualUrl: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=800&q=80',
+                          accentColor: '#6366f1',
+                          tags: ['新原子', '设计技法'],
+                        };
+                        setEditingAtom(newAtom);
+                        setIsAddingAtom(true);
+                      }}
+                      className="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white flex items-center gap-1.5"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>新增视觉原子</span>
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {visualAtoms.map((atom) => (
+                      <div key={atom.id} className="p-3.5 rounded-xl border border-white/10 bg-white/5 flex items-center justify-between">
+                        <div>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase" style={{ backgroundColor: atom.accentColor, color: '#fff' }}>
+                            {atom.dimension}
+                          </span>
+                          <h4 className="font-bold text-sm mt-1">{atom.name} ({atom.nameEn})</h4>
+                          <p className="text-xs opacity-70 truncate max-w-sm">{atom.formula}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => { setEditingAtom({ ...atom }); setIsAddingAtom(false); }} className="p-1.5 rounded bg-white/10 hover:bg-white/20">
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button onClick={() => handleDeleteAtom(atom.id)} className="p-1.5 rounded bg-red-500/20 text-red-300">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ================= TAB 3: DESIGN PRINCIPLES ================= */}
+          {activeTab === 'principles' && (
+            <div className="space-y-4">
+              <div className="text-xs font-mono opacity-60">十大设计原则列表（系统核心基石）</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {designPrinciples.map((pr) => (
+                  <div key={pr.id} className="p-4 rounded-xl border border-white/10 bg-white/5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-sm text-emerald-400">{pr.name} ({pr.nameEn})</span>
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: pr.accentColor }} />
+                    </div>
+                    <p className="text-xs opacity-80 leading-relaxed font-sans">{pr.definition}</p>
+                    <div className="text-[11px] p-2 rounded bg-black/40 border border-white/5 opacity-75 font-mono">
+                      “{pr.coreQuestion}”
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ================= TAB 4: STYLE EQUATIONS ================= */}
+          {activeTab === 'styles' && (
+            <div className="space-y-4">
+              <div className="text-xs font-mono opacity-60">风格规则方程图谱（风格是一组规则组合）</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {styleRules.map((st) => (
+                  <div key={st.id} className="p-4 rounded-xl border border-white/10 bg-white/5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-bold text-sm text-indigo-300">{st.name}</h4>
+                      <div className="flex -space-x-1">
+                        {st.colorPalette.map((c, i) => (
+                          <div key={i} className="w-3 h-3 rounded-full border border-black" style={{ backgroundColor: c }} />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-1 text-[10px] font-mono">
+                      {st.equation.map((eq, i) => (
+                        <span key={i} className="px-1.5 py-0.5 rounded bg-white/10">+ {eq}</span>
+                      ))}
+                    </div>
+                    <p className="text-xs opacity-75 leading-relaxed">{st.aestheticMood}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ================= TAB 5: BACKUP & SYNC ================= */}
+          {activeTab === 'backup' && (
+            <div className="space-y-6 max-w-2xl mx-auto py-4">
+              <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+                <h4 className="font-bold text-sm flex items-center gap-2 text-indigo-400">
+                  <Download className="w-4 h-4" />
+                  <span>导出全站知识库 JSON 数据包</span>
+                </h4>
+                <p className="text-xs opacity-75 leading-relaxed">
+                  将当前浏览器中新增与修改的电影分镜、视觉原子、设计原则与作品打包下载为标准 JSON 文件，可用于永久归档或在其它设备恢复。
+                </p>
+                <button
+                  onClick={handleExport}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-2 shadow"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>立即导出并下载 JSON 文件</span>
+                </button>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+                <h4 className="font-bold text-sm flex items-center gap-2 text-emerald-400">
+                  <Upload className="w-4 h-4" />
+                  <span>导入数据包 (恢复 / 同步)</span>
+                </h4>
+                <p className="text-xs opacity-75 leading-relaxed">
+                  在此粘贴先前导出的 JSON 代码，一键覆盖同步至当前浏览器：
+                </p>
+                <textarea
+                  rows={4}
+                  value={importJsonInput}
+                  onChange={(e) => setImportJsonInput(e.target.value)}
+                  placeholder="在此粘贴导出的 JSON 字符串..."
+                  className="w-full p-3 rounded-xl bg-black/60 border border-white/10 font-mono text-xs"
+                />
+                <button
+                  onClick={handleImport}
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white"
+                >
+                  解析并应用此数据包
+                </button>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-red-950/20 border border-red-500/20 space-y-2">
+                <h4 className="font-bold text-xs flex items-center gap-1.5 text-red-400">
+                  <AlertTriangle className="w-4 h-4" />
+                  <span>出厂默认重置</span>
+                </h4>
+                <p className="text-[11px] opacity-70">若需要清除所有个人配置并恢复官方默认初始内容：</p>
+                <button
+                  onClick={handleResetDefaults}
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-mono text-red-300 hover:bg-red-500/20 border border-red-500/30 flex items-center gap-1.5"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>重置出厂默认数据</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

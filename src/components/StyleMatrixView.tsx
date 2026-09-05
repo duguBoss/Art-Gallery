@@ -1,15 +1,17 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import type { StyleRuleEquation } from '../types/atlas';
 import { STYLE_RULES } from '../data/visualAtlasData';
 
 interface StyleMatrixViewProps {
+  styles?: StyleRuleEquation[];
   onExploreStyleInWorks: (styleId: string) => void;
 }
 
 export const StyleMatrixView: React.FC<StyleMatrixViewProps> = ({
+  styles = STYLE_RULES,
   onExploreStyleInWorks,
 }) => {
-  const [selectedStyle, setSelectedStyle] = useState<StyleRuleEquation>(STYLE_RULES[0]);
+  const [selectedStyle, setSelectedStyle] = useState<StyleRuleEquation>(styles[0] || STYLE_RULES[0]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8">
@@ -129,7 +131,7 @@ export const StyleMatrixView: React.FC<StyleMatrixViewProps> = ({
       {/* Grid of All Styles in System */}
       <h3 className="text-lg font-bold mb-4 tracking-tight">图谱矩阵全览 (Explore All Equations)</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {STYLE_RULES.map((style) => {
+        {styles.map((style) => {
           const isSelected = selectedStyle.id === style.id;
           return (
             <div

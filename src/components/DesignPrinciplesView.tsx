@@ -1,15 +1,17 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import type { DesignPrinciple } from '../types/atlas';
 import { DESIGN_PRINCIPLES } from '../data/visualAtlasData';
 
 interface DesignPrinciplesViewProps {
+  principles?: DesignPrinciple[];
   onExplorePrincipleInWorks: (principleName: string) => void;
 }
 
 export const DesignPrinciplesView: React.FC<DesignPrinciplesViewProps> = ({
+  principles = DESIGN_PRINCIPLES,
   onExplorePrincipleInWorks,
 }) => {
-  const [selectedPrinciple, setSelectedPrinciple] = useState<DesignPrinciple>(DESIGN_PRINCIPLES[0]);
+  const [selectedPrinciple, setSelectedPrinciple] = useState<DesignPrinciple>(principles[0] || DESIGN_PRINCIPLES[0]);
   const [comparisonMode, setComparisonMode] = useState<'after' | 'before'>('after');
 
   return (
@@ -163,7 +165,7 @@ export const DesignPrinciplesView: React.FC<DesignPrinciplesViewProps> = ({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
-        {DESIGN_PRINCIPLES.map((pr, idx) => {
+        {principles.map((pr, idx) => {
           const isSelected = selectedPrinciple.id === pr.id;
           return (
             <div

@@ -1,8 +1,10 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { GalleryTheme } from './types/theme';
-import type { MediumType } from './types/atlas';
+import type { MediumType, VisualAtom, DesignPrinciple, StyleRuleEquation } from './types/atlas';
+import type { CinemaScene } from './types/cinema';
 import { Navbar, type MainViewType } from './components/Navbar';
 import { VisualJourneyHero } from './components/VisualJourneyHero';
+import { PromptCinemaView } from './components/PromptCinemaView';
 import { VisualAtomsView } from './components/VisualAtomsView';
 import { DesignPrinciplesView } from './components/DesignPrinciplesView';
 import { StyleMatrixView } from './components/StyleMatrixView';
@@ -13,8 +15,12 @@ import { GenerativePosterStudio } from './components/GenerativePosterStudio';
 import { SpotlightEffect } from './components/SpotlightEffect';
 import { AdminCMSModal } from './components/AdminCMSModal';
 import { Footer } from './components/Footer';
-import { getImageCases, getVideoWorkflows } from './data/workflowStore';
-import type { AIImageCase, AIVideoWorkflow } from './types/art';
+import { 
+  getCinemaScenes, 
+  getVisualAtoms, 
+  getDesignPrinciples, 
+  getStyleRules 
+} from './data/atlasStore';
 
 export function App() {
   // Scenario-Based Artistic Atmosphere Theme
@@ -30,8 +36,8 @@ export function App() {
   }, [currentTheme]);
 
   // Core Visual Atlas Views:
-  // 'atoms' | 'principles' | 'styles' | 'mediums' | 'motion' | 'atlas' | 'shapes-lab'
-  const [currentView, setCurrentView] = useState<MainViewType>('atoms');
+  // 'cinema' | 'atoms' | 'principles' | 'styles' | 'mediums' | 'motion' | 'atlas' | 'shapes-lab'
+  const [currentView, setCurrentView] = useState<MainViewType>('cinema');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Cross-Dimension Filters
@@ -40,10 +46,14 @@ export function App() {
   const [activePrincipleFilter, setActivePrincipleFilter] = useState<string | null>(null);
   const [activeMediumFilter, setActiveMediumFilter] = useState<MediumType | 'all'>('all');
 
-  // Stealth Admin Modal State
+  // Dynamic Atlas Store Managed via CMS
+  const [cinemaScenes, setCinemaScenes] = useState<CinemaScene[]>(() => getCinemaScenes());
+  const [visualAtoms, setVisualAtoms] = useState<VisualAtom[]>(() => getVisualAtoms());
+  const [designPrinciples, setDesignPrinciples] = useState<DesignPrinciple[]>(() => getDesignPrinciples());
+  const [styleRules, setStyleRules] = useState<StyleRuleEquation[]>(() => getStyleRules());
+
+  // Stealth / Direct Admin CMS State
   const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [imageCases, setImageCases] = useState<AIImageCase[]>(getImageCases());
-  const [videoWorkflows, setVideoWorkflows] = useState<AIVideoWorkflow[]>(getVideoWorkflows());
 
   // Cross-Navigation Handler: Explore Atom in Works
   const handleExploreAtomInWorks = (atomName: string) => {
@@ -119,6 +129,7 @@ export function App() {
         onSearchChange={setSearchQuery}
         currentTheme={currentTheme}
         onSelectTheme={setCurrentTheme}
+        onOpenCMS={() => setIsAdminOpen(true)}
       />
 
       {/* Main Visual Atlas Container */}
@@ -131,19 +142,38 @@ export function App() {
           }}
         />
 
+        {/* View 0: LEVEL 00 · 镜头式叙事与电影分镜 (Prompt Cinema Viewport) */}
+        {currentView === 'cinema' && (
+          <PromptCinemaView
+            scenes={cinemaScenes}
+            onOpenCMS={() => setIsAdminOpen(true)}
+            onExploreAtom={handleExploreAtomInWorks}
+            onExplorePrinciple={handleExplorePrincipleInWorks}
+          />
+        )}
+
         {/* View 1: LEVEL 01 · 视觉基础材料库 (Visual Atoms) */}
         {currentView === 'atoms' && (
-          <VisualAtomsView onExploreAtomInWorks={handleExploreAtomInWorks} />
+          <VisualAtomsView 
+            atoms={visualAtoms}
+            onExploreAtomInWorks={handleExploreAtomInWorks} 
+          />
         )}
 
         {/* View 2: LEVEL 02 · 十大设计原则实验室 (Design Principles - The Bridge) */}
         {currentView === 'principles' && (
-          <DesignPrinciplesView onExplorePrincipleInWorks={handleExplorePrincipleInWorks} />
+          <DesignPrinciplesView 
+            principles={designPrinciples}
+            onExplorePrincipleInWorks={handleExplorePrincipleInWorks} 
+          />
         )}
 
         {/* View 3: LEVEL 03 · 风格规则矩阵与方程 (Style Matrix Equations) */}
         {currentView === 'styles' && (
-          <StyleMatrixView onExploreStyleInWorks={handleExploreStyleInWorks} />
+          <StyleMatrixView 
+            styles={styleRules}
+            onExploreStyleInWorks={handleExploreStyleInWorks} 
+          />
         )}
 
         {/* View 4: LEVEL 04 · 四大表现媒介 (The 4 Mediums: Image, Interface, Space, Motion) */}
@@ -182,14 +212,18 @@ export function App() {
       {/* Clean Footer with Secret Trigger */}
       <Footer onSecretTrigger={() => setIsAdminOpen(true)} />
 
-      {/* Stealth Curator Admin Modal */}
+      {/* Full-Featured Curator Admin CMS Modal */}
       <AdminCMSModal
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
-        imageCases={imageCases}
-        videoWorkflows={videoWorkflows}
-        onUpdateImageCases={setImageCases}
-        onUpdateVideoWorkflows={setVideoWorkflows}
+        cinemaScenes={cinemaScenes}
+        visualAtoms={visualAtoms}
+        designPrinciples={designPrinciples}
+        styleRules={styleRules}
+        onUpdateCinemaScenes={setCinemaScenes}
+        onUpdateVisualAtoms={setVisualAtoms}
+        onUpdateDesignPrinciples={setDesignPrinciples}
+        onUpdateStyleRules={setStyleRules}
       />
     </div>
   );

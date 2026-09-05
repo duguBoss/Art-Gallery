@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import type { MainViewType } from './Navbar';
 
 interface VisualJourneyHeroProps {
@@ -18,6 +18,14 @@ export const VisualJourneyHero: React.FC<VisualJourneyHeroProps> = ({
     desc: string;
     icon: string;
   }[] = [
+    {
+      level: '00',
+      title: '电影分镜',
+      titleEn: 'Prompt Cinema',
+      tab: 'cinema',
+      desc: '16:9 电影画幅 · 制作通告单 · 运镜分层解析',
+      icon: '🎞️',
+    },
     {
       level: '01',
       title: '视觉材料',
@@ -108,8 +116,8 @@ export const VisualJourneyHero: React.FC<VisualJourneyHeroProps> = ({
           </div>
         </div>
 
-        {/* The 7-Step Visual Journey Path Roadmap */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 pt-2">
+        {/* The 8-Step Visual Journey Path Roadmap */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 pt-2">
           {steps.map((step) => {
             const isActive = currentTab === step.tab;
             return (
