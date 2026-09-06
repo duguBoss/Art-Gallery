@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState } from 'react';
 import type { MainViewType } from './Navbar';
 import { CHAPTER_LIST } from './ChapterDock';
 
@@ -11,25 +11,10 @@ export const VisualGuidanceRail: React.FC<VisualGuidanceRailProps> = ({
   currentView,
   onSelectChapter,
 }) => {
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (docHeight > 0) {
-        const currentScroll = window.scrollY || document.documentElement.scrollTop;
-        const progress = Math.min(Math.max(currentScroll / docHeight, 0), 1);
-        setScrollProgress(progress);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const activeIdx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
+  const activeIdx = Math.max(0, CHAPTER_LIST.findIndex((c) => c.id === currentView));
+  const progressRatio = activeIdx / (CHAPTER_LIST.length - 1);
 
   return (
     <aside
@@ -39,12 +24,12 @@ export const VisualGuidanceRail: React.FC<VisualGuidanceRailProps> = ({
       aria-label="视觉引导光轨导航"
     >
       {/* Precision HUD Metadata Header */}
-      <div className={`mb-3 flex flex-col items-center transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-40'}`}>
-        <span className="text-[9px] font-mono tracking-[0.25em] text-white/50 uppercase">
-          RAIL
+      <div className={`mb-3 flex flex-col items-center transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-50'}`}>
+        <span className="text-[8px] font-mono tracking-[0.25em] text-white/50 uppercase">
+          STAGE
         </span>
         <span className="text-[10px] font-mono font-bold text-amber-300">
-          {Math.round(scrollProgress * 100)}%
+          0{activeIdx + 1} / 08
         </span>
       </div>
 
@@ -52,8 +37,8 @@ export const VisualGuidanceRail: React.FC<VisualGuidanceRailProps> = ({
       <div className="relative w-1.5 h-64 sm:h-80 rounded-full bg-white/10 backdrop-blur-md overflow-hidden p-0.5 flex flex-col justify-start">
         {/* Active Laser Core Filling Rail */}
         <div
-          className="w-full rounded-full bg-gradient-to-b from-amber-400 via-amber-200 to-amber-500 transition-all duration-150 relative shadow-[0_0_12px_rgba(251,191,36,0.8)]"
-          style={{ height: `${Math.max(scrollProgress * 100, 3)}%` }}
+          className="w-full rounded-full bg-gradient-to-b from-amber-400 via-amber-200 to-amber-500 transition-all duration-500 relative shadow-[0_0_12px_rgba(251,191,36,0.8)]"
+          style={{ height: `${Math.max(progressRatio * 100, 6)}%` }}
         >
           {/* Leading Edge Glowing Plasma Orb */}
           <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_14px_#fbbf24] animate-pulse" />
@@ -87,7 +72,7 @@ export const VisualGuidanceRail: React.FC<VisualGuidanceRailProps> = ({
 
               {/* Hover Flyout Label (Apple-style pill tag) */}
               <div
-                className={`flex items-center gap-2 px-2.5 py-1 rounded-full bg-black/85 backdrop-blur-xl border border-white/15 shadow-2xl transition-all duration-300 whitespace-nowrap ${
+                className={`flex items-center gap-2 px-2.5 py-1 rounded-full bg-black/90 backdrop-blur-xl border border-white/15 shadow-2xl transition-all duration-300 whitespace-nowrap ${
                   isHovered || isActive
                     ? 'opacity-100 translate-x-0'
                     : 'opacity-0 -translate-x-3 pointer-events-none'
@@ -98,6 +83,9 @@ export const VisualGuidanceRail: React.FC<VisualGuidanceRailProps> = ({
                 </span>
                 <span className="text-xs font-sans text-white/90 font-medium">
                   {chapter.title}
+                </span>
+                <span className="text-[9px] font-mono text-white/40 uppercase hidden xl:inline">
+                  +{chapter.elevationMeters}m
                 </span>
               </div>
             </div>

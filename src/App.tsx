@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import type { GalleryTheme } from './types/theme';
 import type { MediumType, VisualAtom, DesignPrinciple, StyleRuleEquation } from './types/atlas';
 import type { CinemaScene } from './types/cinema';
@@ -6,7 +6,7 @@ import { Navbar, type MainViewType } from './components/Navbar';
 import { ChapterDock, CHAPTER_LIST } from './components/ChapterDock';
 import { VisualGuidanceRail } from './components/VisualGuidanceRail';
 import { VisualGuidanceWarpCurtain } from './components/VisualGuidanceWarpCurtain';
-import { TierStaircaseGate } from './components/TierStaircaseGate';
+import { StageHeaderHUD } from './components/StageHeaderHUD';
 import { PromptCinemaView } from './components/PromptCinemaView';
 import { VisualAtomsView } from './components/VisualAtomsView';
 import { DesignPrinciplesView } from './components/DesignPrinciplesView';
@@ -41,8 +41,7 @@ export function App() {
     localStorage.setItem('art_gallery_theme', currentTheme);
   }, [currentTheme]);
 
-  // Core Visual Atlas Views:
-  // 'cinema' | 'atoms' | 'principles' | 'styles' | 'mediums' | 'motion' | 'atlas' | 'shapes-lab'
+  // Core Visual Atlas Views (8 Stages)
   const [currentView, setCurrentView] = useState<MainViewType>('cinema');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -58,25 +57,15 @@ export function App() {
   const [designPrinciples, setDesignPrinciples] = useState<DesignPrinciple[]>(() => getDesignPrinciples());
   const [styleRules, setStyleRules] = useState<StyleRuleEquation[]>(() => getStyleRules());
 
-  // Cinematic Deck Slide Direction ('up' | 'down') & 3D Warp Velocity
-  const [slideDirection, setSlideDirection] = useState<'up' | 'down'>('up');
+  // 3D Warp Velocity & Screen Index
   const [isWarping, setIsWarping] = useState(false);
+  const currentIdx = Math.max(0, CHAPTER_LIST.findIndex((c) => c.id === currentView));
 
   const handleSwitchChapter = (newView: MainViewType) => {
     playSpotlightClick();
-    const oldIdx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
-    const newIdx = CHAPTER_LIST.findIndex((c) => c.id === newView);
-    setSlideDirection(newIdx >= oldIdx ? 'up' : 'down');
     setIsWarping(true);
     setTimeout(() => setIsWarping(false), 700);
     setCurrentView(newView);
-
-    const targetElement = document.getElementById(`chapter-${newView}`);
-    if (targetElement) {
-      const yOffset = -72; // header height offset
-      const y = targetElement.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
-    }
   };
 
   // Stealth / Direct Admin CMS State
@@ -125,51 +114,105 @@ export function App() {
     setActiveMediumFilter('all');
   };
 
-  // Continuous Scroll Viewport Spy: Automatically synchronize active chapter with scroll position
+  // Single-Screen Wheel Snap: Scroll once to switch exactly one full screen
   useEffect(() => {
-    const observerOptions: IntersectionObserverInit = {
-      root: null,
-      rootMargin: '-20% 0px -60% 0px',
-      threshold: 0,
-    };
+    let isLocked = false;
+    let lockTimer: ReturnType<typeof setTimeout> | null = null;
 
-    const handleIntersect: IntersectionObserverCallback = (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const id = entry.target.id.replace('chapter-', '') as MainViewType;
-          if (id && CHAPTER_LIST.some((c) => c.id === id)) {
-            setCurrentView(id);
-          }
+    const handleWheel = (e: WheelEvent) => {
+      if (isAdminOpen) return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (isLocked) return;
+
+      // Find active screen scrollable container
+      const activeStage = document.getElementById(`stage-${currentView}`);
+      if (activeStage) {
+        const { scrollTop, scrollHeight, clientHeight } = activeStage;
+        const hasInternalOverflow = scrollHeight > clientHeight + 15;
+
+        // If scrolling down, but haven't reached bottom of internal content
+        if (e.deltaY > 0 && hasInternalOverflow && scrollTop + clientHeight < scrollHeight - 20) {
+          return;
         }
-      });
+        // If scrolling up, but haven't reached top of internal content
+        if (e.deltaY < 0 && hasInternalOverflow && scrollTop > 20) {
+          return;
+        }
+      }
+
+      if (Math.abs(e.deltaY) > 25) {
+        const idx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
+        if (e.deltaY > 0 && idx < CHAPTER_LIST.length - 1) {
+          isLocked = true;
+          handleSwitchChapter(CHAPTER_LIST[idx + 1].id);
+          lockTimer = setTimeout(() => { isLocked = false; }, 750);
+        } else if (e.deltaY < 0 && idx > 0) {
+          isLocked = true;
+          handleSwitchChapter(CHAPTER_LIST[idx - 1].id);
+          lockTimer = setTimeout(() => { isLocked = false; }, 750);
+        }
+      }
     };
 
-    const observer = new IntersectionObserver(handleIntersect, observerOptions);
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      if (lockTimer) clearTimeout(lockTimer);
+    };
+  }, [currentView, isAdminOpen]);
 
-    CHAPTER_LIST.forEach((chapter) => {
-      const el = document.getElementById(`chapter-${chapter.id}`);
-      if (el) observer.observe(el);
-    });
+  // Touch Swipe Gesture for Mobile / Trackpad (1 swipe = 1 screen)
+  useEffect(() => {
+    let touchStartY = 0;
+    let isLocked = false;
 
-    return () => observer.disconnect();
-  }, []);
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
 
-  // Global Keyboard Navigation for Chapter Jump
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (isLocked || isAdminOpen) return;
+      const touchEndY = e.changedTouches[0].clientY;
+      const deltaY = touchStartY - touchEndY;
+
+      if (Math.abs(deltaY) > 50) {
+        const idx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
+        if (deltaY > 0 && idx < CHAPTER_LIST.length - 1) {
+          isLocked = true;
+          handleSwitchChapter(CHAPTER_LIST[idx + 1].id);
+          setTimeout(() => { isLocked = false; }, 750);
+        } else if (deltaY < 0 && idx > 0) {
+          isLocked = true;
+          handleSwitchChapter(CHAPTER_LIST[idx - 1].id);
+          setTimeout(() => { isLocked = false; }, 750);
+        }
+      }
+    };
+
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [currentView, isAdminOpen]);
+
+  // Global Keyboard Navigation (Arrow / Page keys switch exactly one screen)
   useEffect(() => {
     const handleChapterKeys = (e: KeyboardEvent) => {
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
       if (isAdminOpen) return;
 
-      const currentIdx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
-      if (e.key === 'PageDown' || (e.altKey && e.key === 'ArrowDown')) {
+      const idx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
+      if (e.key === 'PageDown' || e.key === 'ArrowDown') {
         e.preventDefault();
-        if (currentIdx < CHAPTER_LIST.length - 1) {
-          handleSwitchChapter(CHAPTER_LIST[currentIdx + 1].id);
+        if (idx < CHAPTER_LIST.length - 1) {
+          handleSwitchChapter(CHAPTER_LIST[idx + 1].id);
         }
-      } else if (e.key === 'PageUp' || (e.altKey && e.key === 'ArrowUp')) {
+      } else if (e.key === 'PageUp' || e.key === 'ArrowUp') {
         e.preventDefault();
-        if (currentIdx > 0) {
-          handleSwitchChapter(CHAPTER_LIST[currentIdx - 1].id);
+        if (idx > 0) {
+          handleSwitchChapter(CHAPTER_LIST[idx - 1].id);
         }
       }
     };
@@ -191,25 +234,25 @@ export function App() {
 
   return (
     <div
-      className="min-h-screen flex flex-col font-sans transition-colors duration-300 relative"
+      className="h-screen w-screen overflow-hidden flex flex-col font-sans transition-colors duration-300 relative select-none"
       style={{
         backgroundColor: 'var(--bg-page)',
         color: 'var(--text-main)',
       }}
     >
-      {/* Three.js Interactive 3D Spatial Universe & Kinetic Polyhedra Canvas */}
+      {/* Three.js Interactive 3D Spatial Universe Canvas */}
       <Spatial3DCanvas theme={currentTheme} isWarping={isWarping} />
 
       {/* Fluid Magnetic Torch Cursor */}
       <MagneticCursor />
 
-      {/* Apple-Grade Visual Guidance Light Rail (Left-Side Continuous Orientation) */}
+      {/* Apple-Grade Visual Guidance Light Rail (Left-Side Screen Navigator) */}
       <VisualGuidanceRail
         currentView={currentView}
         onSelectChapter={handleSwitchChapter}
       />
 
-      {/* Cinematic Optical Warp Portal Curtain (Transition Iris Bloom) */}
+      {/* Cinematic Optical Warp Portal Curtain */}
       <VisualGuidanceWarpCurtain
         isWarping={isWarping}
         targetView={currentView}
@@ -232,169 +275,174 @@ export function App() {
         onOpenCMS={() => setIsAdminOpen(true)}
       />
 
-      {/* Main Visual Atlas Container - Continuous Silky-Smooth Ascending Staircase */}
-      <main className="flex-1 pb-24 space-y-12">
-        {/* Tier 0: LEVEL 00 · 镜头式叙事与电影分镜 (Prompt Cinema Viewport) */}
-        <section 
-          id="chapter-cinema" 
-          className={`scroll-mt-20 transition-all duration-500 ${currentView === 'cinema' ? 'rack-focus-active' : 'rack-focus-inactive'}`}
+      {/* Main Fullscreen 100vh Viewport Deck (One Scroll Flick = One Screen Transition) */}
+      <main className="fixed inset-x-0 top-16 bottom-0 overflow-hidden z-10">
+        <div 
+          className="w-full h-full transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col"
+          style={{ transform: `translateY(-${currentIdx * 100}%)` }}
         >
-          <PromptCinemaView
-            scenes={cinemaScenes}
-            onOpenCMS={() => setIsAdminOpen(true)}
-            onExploreAtom={handleExploreAtomInWorks}
-            onExplorePrinciple={handleExplorePrincipleInWorks}
-          />
-        </section>
+          {/* Stage 00: 镜头式叙事与电影分镜 */}
+          <div 
+            id="stage-cinema" 
+            className="w-full h-full flex-shrink-0 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6 relative"
+          >
+            <StageHeaderHUD
+              stepIndex={0}
+              title="镜头式叙事与电影分镜"
+              titleEn="Prompt Cinema Viewport"
+              desc="16:9 电影画幅 · 制作通告单 · 运镜分层解析 · 场景情绪定调"
+              elevationMeters={0}
+              onNextScreen={() => handleSwitchChapter('atoms')}
+            />
+            <PromptCinemaView
+              scenes={cinemaScenes}
+              onOpenCMS={() => setIsAdminOpen(true)}
+              onExploreAtom={handleExploreAtomInWorks}
+              onExplorePrinciple={handleExplorePrincipleInWorks}
+            />
+          </div>
 
-        {/* Architectural Staircase Gate 01 */}
-        <TierStaircaseGate
-          stepIndex={1}
-          title="视觉基础材料库"
-          subtitle="Visual Atoms & Raw Aesthetics · 几何、色彩、光影、材质底层质感"
-          elevationMeters={100}
-          onAscend={() => handleSwitchChapter('atoms')}
-        />
+          {/* Stage 01: 视觉基础材料库 */}
+          <div 
+            id="stage-atoms" 
+            className="w-full h-full flex-shrink-0 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6 relative"
+          >
+            <StageHeaderHUD
+              stepIndex={1}
+              title="视觉基础材料库"
+              titleEn="Visual Atoms & Raw Aesthetics"
+              desc="色彩对撞 · 负空间留白 · 极端尺度反差 · 丁达尔光束 · 材质触感"
+              elevationMeters={100}
+              onNextScreen={() => handleSwitchChapter('principles')}
+            />
+            <VisualAtomsView 
+              atoms={visualAtoms}
+              onExploreAtomInWorks={handleExploreAtomInWorks} 
+            />
+          </div>
 
-        {/* Tier 1: LEVEL 01 · 视觉基础材料库 (Visual Atoms) */}
-        <section 
-          id="chapter-atoms" 
-          className={`scroll-mt-20 transition-all duration-500 ${currentView === 'atoms' ? 'rack-focus-active' : 'rack-focus-inactive'}`}
-        >
-          <VisualAtomsView 
-            atoms={visualAtoms}
-            onExploreAtomInWorks={handleExploreAtomInWorks} 
-          />
-        </section>
+          {/* Stage 02: 十大设计原则实验室 */}
+          <div 
+            id="stage-principles" 
+            className="w-full h-full flex-shrink-0 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6 relative"
+          >
+            <StageHeaderHUD
+              stepIndex={2}
+              title="十大设计原则实验室"
+              titleEn="Ten Design Principles · The Bridge"
+              desc="对比 · 平衡 · 层级 · 节奏 · 比例 · 动势 · 秩序法则"
+              elevationMeters={240}
+              onNextScreen={() => handleSwitchChapter('styles')}
+            />
+            <DesignPrinciplesView 
+              principles={designPrinciples}
+              onExplorePrincipleInWorks={handleExplorePrincipleInWorks} 
+            />
+          </div>
 
-        {/* Architectural Staircase Gate 02 */}
-        <TierStaircaseGate
-          stepIndex={2}
-          title="十大设计原则实验室"
-          subtitle="Ten Design Principles · The Bridge · 秩序、对比、留白、张力工程法则"
-          elevationMeters={240}
-          onAscend={() => handleSwitchChapter('principles')}
-        />
+          {/* Stage 03: 风格规则矩阵与方程 */}
+          <div 
+            id="stage-styles" 
+            className="w-full h-full flex-shrink-0 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6 relative"
+          >
+            <StageHeaderHUD
+              stepIndex={3}
+              title="风格规则矩阵与方程"
+              titleEn="Style Matrix Equations"
+              desc="瑞士国际 · 粗野主义 · 赛博朋克 · 杂志编辑美学算法"
+              elevationMeters={420}
+              onNextScreen={() => handleSwitchChapter('mediums')}
+            />
+            <StyleMatrixView 
+              styles={styleRules}
+              onExploreStyleInWorks={handleExploreStyleInWorks} 
+            />
+          </div>
 
-        {/* Tier 2: LEVEL 02 · 十大设计原则实验室 (Design Principles - The Bridge) */}
-        <section 
-          id="chapter-principles" 
-          className={`scroll-mt-20 transition-all duration-500 ${currentView === 'principles' ? 'rack-focus-active' : 'rack-focus-inactive'}`}
-        >
-          <DesignPrinciplesView 
-            principles={designPrinciples}
-            onExplorePrincipleInWorks={handleExplorePrincipleInWorks} 
-          />
-        </section>
+          {/* Stage 04: 四大表现媒介矩阵 */}
+          <div 
+            id="stage-mediums" 
+            className="w-full h-full flex-shrink-0 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6 relative"
+          >
+            <StageHeaderHUD
+              stepIndex={4}
+              title="四大表现媒介矩阵"
+              titleEn="The 4 Mediums: Image · Interface · Space · Motion"
+              desc="平面画作 · UI界面 · 3D空间建筑 · 影视动效矩阵跨媒介"
+              elevationMeters={600}
+              onNextScreen={() => handleSwitchChapter('motion')}
+            />
+            <MediumMatrixView onExploreMediumInWorks={handleExploreMediumInWorks} />
+          </div>
 
-        {/* Architectural Staircase Gate 03 */}
-        <TierStaircaseGate
-          stepIndex={3}
-          title="风格规则矩阵与方程"
-          subtitle="Style Matrix Equations · 跨时代美学流派计算法则与参数矩阵"
-          elevationMeters={420}
-          onAscend={() => handleSwitchChapter('styles')}
-        />
+          {/* Stage 05: 动态与镜头语言实验室 */}
+          <div 
+            id="stage-motion" 
+            className="w-full h-full flex-shrink-0 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6 relative"
+          >
+            <StageHeaderHUD
+              stepIndex={5}
+              title="动态与镜头语言实验室"
+              titleEn="Motion & Camera Cinematography"
+              desc="运镜调度 · 遮罩转场 · 时间阻尼 · 视觉节奏时序分镜"
+              elevationMeters={820}
+              onNextScreen={() => handleSwitchChapter('atlas')}
+            />
+            <MotionCameraLab />
+          </div>
 
-        {/* Tier 3: LEVEL 03 · 风格规则矩阵与方程 (Style Matrix Equations) */}
-        <section 
-          id="chapter-styles" 
-          className={`scroll-mt-20 transition-all duration-500 ${currentView === 'styles' ? 'rack-focus-active' : 'rack-focus-inactive'}`}
-        >
-          <StyleMatrixView 
-            styles={styleRules}
-            onExploreStyleInWorks={handleExploreStyleInWorks} 
-          />
-        </section>
+          {/* Stage 06: 作品知识网络与多维拆解 */}
+          <div 
+            id="stage-atlas" 
+            className="w-full h-full flex-shrink-0 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6 relative"
+          >
+            <StageHeaderHUD
+              stepIndex={6}
+              title="作品知识网络与多维拆解"
+              titleEn="Works Atlas & Multidimensional Deconstruction"
+              desc="多维交叉筛选 · 构图网格 · 一个作品等于一个美学入口"
+              elevationMeters={1080}
+              onNextScreen={() => handleSwitchChapter('shapes-lab')}
+            />
+            <DesignAtlasView
+              initialAtomFilter={activeAtomFilter}
+              initialStyleFilter={activeStyleFilter}
+              initialPrincipleFilter={activePrincipleFilter}
+              initialMediumFilter={activeMediumFilter}
+              onClearFilter={handleClearFilters}
+              onSelectAtom={handleExploreAtomInWorks}
+              onSelectStyle={handleExploreStyleInWorks}
+              onSelectPrinciple={handleExplorePrincipleInWorks}
+            />
+          </div>
 
-        {/* Architectural Staircase Gate 04 */}
-        <TierStaircaseGate
-          stepIndex={4}
-          title="四大表现媒介矩阵"
-          subtitle="The 4 Mediums: Image · Interface · Space · Motion"
-          elevationMeters={600}
-          onAscend={() => handleSwitchChapter('mediums')}
-        />
+          {/* Stage 07: 算法海报重构工坊 */}
+          <div 
+            id="stage-shapes-lab" 
+            className="w-full h-full flex-shrink-0 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6 relative pb-20"
+          >
+            <StageHeaderHUD
+              stepIndex={7}
+              title="算法海报重构工坊"
+              titleEn="Generative Book of Shapes Studio"
+              desc="参数化几何海报生成 · 殿堂级 SVG / PNG 高清导出"
+              elevationMeters={1380}
+            />
+            <GenerativePosterStudio
+              currentTheme={currentTheme}
+              onSelectTheme={setCurrentTheme}
+            />
 
-        {/* Tier 4: LEVEL 04 · 四大表现媒介 (The 4 Mediums: Image, Interface, Space, Motion) */}
-        <section 
-          id="chapter-mediums" 
-          className={`scroll-mt-20 transition-all duration-500 ${currentView === 'mediums' ? 'rack-focus-active' : 'rack-focus-inactive'}`}
-        >
-          <MediumMatrixView onExploreMediumInWorks={handleExploreMediumInWorks} />
-        </section>
+            {/* Global Curated Exhibition Patron Banner (Google AdSense Unit) */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-12 mb-6">
+              <GoogleAdSenseUnit variant="banner" />
+            </div>
 
-        {/* Architectural Staircase Gate 05 */}
-        <TierStaircaseGate
-          stepIndex={5}
-          title="动态与镜头语言实验室"
-          subtitle="Motion & Camera Lab · 运镜轨迹、时间阻尼、视觉节奏"
-          elevationMeters={820}
-          onAscend={() => handleSwitchChapter('motion')}
-        />
-
-        {/* Tier 5: LEVEL 05 · 动态与镜头语言实验室 (Motion & Cinema Lab) */}
-        <section 
-          id="chapter-motion" 
-          className={`scroll-mt-20 transition-all duration-500 ${currentView === 'motion' ? 'rack-focus-active' : 'rack-focus-inactive'}`}
-        >
-          <MotionCameraLab />
-        </section>
-
-        {/* Architectural Staircase Gate 06 */}
-        <TierStaircaseGate
-          stepIndex={6}
-          title="作品知识网络与多维拆解"
-          subtitle="Design Atlas Works & Multidimensional Deconstruction"
-          elevationMeters={1080}
-          onAscend={() => handleSwitchChapter('atlas')}
-        />
-
-        {/* Tier 6: LEVEL 06 · 作品知识网络与多维拆解 (Design Atlas Works & Deconstruction) */}
-        <section 
-          id="chapter-atlas" 
-          className={`scroll-mt-20 transition-all duration-500 ${currentView === 'atlas' ? 'rack-focus-active' : 'rack-focus-inactive'}`}
-        >
-          <DesignAtlasView
-            initialAtomFilter={activeAtomFilter}
-            initialStyleFilter={activeStyleFilter}
-            initialPrincipleFilter={activePrincipleFilter}
-            initialMediumFilter={activeMediumFilter}
-            onClearFilter={handleClearFilters}
-            onSelectAtom={handleExploreAtomInWorks}
-            onSelectStyle={handleExploreStyleInWorks}
-            onSelectPrinciple={handleExplorePrincipleInWorks}
-          />
-        </section>
-
-        {/* Architectural Staircase Gate 07 */}
-        <TierStaircaseGate
-          stepIndex={7}
-          title="算法海报重构工坊"
-          subtitle="Generative Book of Shapes Studio · 殿堂级参数化生成与导出"
-          elevationMeters={1380}
-          onAscend={() => handleSwitchChapter('shapes-lab')}
-        />
-
-        {/* Tier 7: LEVEL 07 · 算法海报重构工坊 (Book of Shapes Generative Studio) */}
-        <section 
-          id="chapter-shapes-lab" 
-          className={`scroll-mt-20 transition-all duration-500 ${currentView === 'shapes-lab' ? 'rack-focus-active' : 'rack-focus-inactive'}`}
-        >
-          <GenerativePosterStudio
-            currentTheme={currentTheme}
-            onSelectTheme={setCurrentTheme}
-          />
-        </section>
-
-        {/* Global Curated Exhibition Patron Banner (Google AdSense Unit) */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-16">
-          <GoogleAdSenseUnit variant="banner" />
+            {/* Clean Footer with Secret Trigger */}
+            <Footer onSecretTrigger={() => setIsAdminOpen(true)} />
+          </div>
         </div>
       </main>
-
-      {/* Clean Footer with Secret Trigger */}
-      <Footer onSecretTrigger={() => setIsAdminOpen(true)} />
 
       {/* Full-Featured Curator Admin CMS Modal */}
       <AdminCMSModal
