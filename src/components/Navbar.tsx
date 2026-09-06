@@ -26,10 +26,11 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'language', num: '03', label: 'LANGUAGE' },
     { id: 'dossiers', num: '04', label: 'DOSSIERS' },
     { id: 'lab', num: '05', label: 'LAB' },
+    { id: 'about', num: '06', label: 'ABOUT' },
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-[#F2F0E8]/10 bg-[#11110F]/90 backdrop-blur-md transition-colors duration-300">
+    <header className="sticky top-0 z-40 w-full border-b border-[#F2F0E8]/10 bg-[#11110F]/95 backdrop-blur-md transition-colors duration-300">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12 h-14 flex items-center justify-between gap-4">
         {/* Left: Brand Identity */}
         <div 
@@ -51,7 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Center: Swiss Editorial Navigation Links */}
-        <nav className="hidden md:flex items-center gap-6 lg:gap-8 font-mono text-xs">
+        <nav className="hidden md:flex items-center gap-5 lg:gap-7 font-mono text-xs">
           {tabs.map((tab) => {
             const isActive = currentTab === tab.id;
             return (
@@ -110,7 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Mobile Navigation Strip */}
-      <div className="md:hidden flex items-center justify-around border-t border-[#F2F0E8]/10 px-4 py-2 font-mono text-[11px]">
+      <div className="md:hidden flex items-center justify-around border-t border-[#F2F0E8]/10 px-2 py-2 font-mono text-[10px]">
         {tabs.map((tab) => {
           const isActive = currentTab === tab.id;
           return (
@@ -120,7 +121,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 playSpotlightClick();
                 onSelectTab(tab.id);
               }}
-              className={`transition-colors ${isActive ? 'text-[#D8FF3E] font-bold' : 'text-[#8B887F]'}`}
+              className={`transition-colors px-1.5 py-0.5 ${isActive ? 'text-[#D8FF3E] font-bold border-b border-[#D8FF3E]' : 'text-[#8B887F]'}`}
             >
               {tab.label}
             </button>

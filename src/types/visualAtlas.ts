@@ -1,4 +1,8 @@
-export type AtlasTab = 'index' | 'archive' | 'language' | 'dossiers' | 'lab';
+export type AtlasTab = 'index' | 'archive' | 'language' | 'dossiers' | 'lab' | 'about';
+
+export type AnalysisMode = 'overview' | 'composition' | 'color' | 'camera' | 'light';
+
+export type LabEngine = 'midjourney' | 'flux' | 'stable-diffusion' | 'gemini' | 'veo';
 
 export interface VisualDnaTag {
   category: 'mood' | 'light' | 'color' | 'camera' | 'composition';
@@ -17,3 +21,4 @@ export interface ResearchDossier {
   createdAt: string;
   tags: string[];
 }
+

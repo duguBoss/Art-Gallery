@@ -8,6 +8,7 @@ import { SceneDetailView } from './components/SceneDetailView';
 import { VisualConstellationView } from './components/VisualConstellationView';
 import { DossiersView } from './components/DossiersView';
 import { VisualLabView } from './components/VisualLabView';
+import { AboutManifestoView } from './components/AboutManifestoView';
 import { CommandPalette } from './components/CommandPalette';
 import { AdminCMSModal } from './components/AdminCMSModal';
 import { GoogleAdSenseUnit } from './components/GoogleAdSenseUnit';
@@ -177,8 +178,18 @@ export function App() {
             {currentTab === 'lab' && (
               <VisualLabView
                 initialScene={scenes[0]}
+                allScenes={scenes}
                 onSavePromptToDossier={(prompt) => {
                   alert('Prompt saved to research dossier.');
+                }}
+              />
+            )}
+
+            {currentTab === 'about' && (
+              <AboutManifestoView
+                onExploreArchive={() => {
+                  setCurrentTab('archive');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
               />
             )}

@@ -104,6 +104,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           >
             05 LAB
           </button>
+          <button 
+            onClick={() => { onNavigateTab('about'); onClose(); }}
+            className="px-2 py-0.5 border border-[#F2F0E8]/15 hover:border-[#D8FF3E] hover:text-[#D8FF3E] transition-colors"
+          >
+            06 ABOUT
+          </button>
         </div>
 
         {/* Search Results */}

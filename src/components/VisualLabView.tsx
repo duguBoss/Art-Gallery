@@ -1,35 +1,85 @@
 import React, { useState } from 'react';
 import type { CinemaScene } from '../types/cinema';
-import { Copy, Check, Bookmark, Sparkles, RefreshCw } from 'lucide-react';
+import type { LabEngine } from '../types/visualAtlas';
+import { Copy, Check, Bookmark, Sparkles, Sliders, Film, Layers, Download, Plus, Trash2, ChevronRight } from 'lucide-react';
 import { playSpotlightClick, playSuccessChime } from '../utils/audio';
 
 interface VisualLabViewProps {
   initialScene?: CinemaScene;
+  allScenes?: CinemaScene[];
   onSavePromptToDossier?: (promptText: string) => void;
 }
 
+type LabSubTool = 'prompt' | 'shot' | 'storyboard';
+
 export const VisualLabView: React.FC<VisualLabViewProps> = ({
   initialScene,
+  allScenes = [],
   onSavePromptToDossier,
 }) => {
+  const [activeTool, setActiveTool] = useState<LabSubTool>('prompt');
+  const [engine, setEngine] = useState<LabEngine>('midjourney');
+
+  // Prompt Generator State
   const [mood, setMood] = useState('Melancholic Dystopia');
   const [light, setLight] = useState('Low-Key Volumetric Rim');
   const [camera, setCamera] = useState('Cooke Anamorphic 35mm T/1.8');
   const [composition, setComposition] = useState('Negative Space 70%');
   const [color, setColor] = useState('Electric Cyan & Warm Amber Contrast');
-  const [aspect, setAspect] = useState('--ar 16:9');
+  const [aspect, setAspect] = useState('2.39:1');
   const [copied, setCopied] = useState(false);
 
-  const moodOptions = ['Melancholic Dystopia', 'Monumental Austere Brutalism', 'Poetic Editorial Silence', 'Eastern Misty Zen', 'Healing Ghibli Summer'];
-  const lightOptions = ['Low-Key Volumetric Rim', 'Cathedral Single-Source God Ray', '100% Diffuse North Window Light', 'Neon Wet Reflections', 'Golden Sunset Flare'];
-  const cameraOptions = ['Cooke Anamorphic 35mm T/1.8', 'Arri Signature Prime 24mm Wide', 'Leitz Summilux-C 50mm Prime', 'Hasselblad 80mm Medium Format'];
-  const compositionOptions = ['Negative Space 70%', 'Centered Scale Shock (5% Human vs 95% Wall)', 'Rule of Thirds Horizon', 'Layered Foreground Bokeh'];
-  const colorOptions = ['Electric Cyan & Warm Amber Contrast', 'Monochrome Architectural Grayscale', 'Warm Linen & Aged Oak', 'Deep Jade & Ink Stone'];
+  // Shot Builder State
+  const [shotScale, setShotScale] = useState('Wide Establishing Shot');
+  const [cameraMovement, setCameraMovement] = useState('Slow Smooth Dolly Forward');
+  const [cameraAngle, setCameraAngle] = useState('Low Angle 15°');
+  const [lightingSetup, setLightingSetup] = useState('Cathedral Single-Source God Ray');
 
-  const generatedPrompt = `[SCENE] Master cinematic visual production. ${mood}. ${light}. ${composition}. Optical capture: ${camera}. Color grading: ${color}. Photorealistic cinema frame, natural organic film grain, ultra-high dynamic range ${aspect} --v 6.1 --stylize 300`;
+  // Storyboard State
+  const [storyboardBeats, setStoryboardBeats] = useState([
+    { id: 'beat-1', act: '01 ESTABLISHING', scene: '雨夜东京：深渊霓虹漫步', lens: 'Cooke 35mm Anamorphic', note: 'Wide environmental tension' },
+    { id: 'beat-2', act: '02 REVEAL', scene: '纪念碑谷：粗野混凝土巨构', lens: 'Arri 24mm Ultra-Wide', note: 'Monumental scale shock' },
+    { id: 'beat-3', act: '03 ENCOUNTER', scene: '花样年华：狭长回廊的绿意与暗红', lens: 'Zeiss 50mm Prime', note: 'Intimate emotional claustrophobia' },
+    { id: 'beat-4', act: '04 RESOLUTION', scene: '潜行者之境：沉没水泽与时间回声', lens: 'LOMO 35mm Vintage', note: 'Poetic meditation and stasis' },
+  ]);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(generatedPrompt);
+  const moodOptions = ['Melancholic Dystopia', 'Monumental Austere Brutalism', 'Poetic Editorial Silence', 'Eastern Misty Zen', 'Chromatic Nostalgia', 'Cosmic Sublime'];
+  const lightOptions = ['Low-Key Volumetric Rim', 'Cathedral Single-Source God Ray', '100% Diffuse North Window Light', 'Neon Wet Reflections', 'Low Grazing Sunset Flare'];
+  const cameraOptions = ['Cooke Anamorphic 35mm T/1.8', 'Arri Signature Prime 24mm Wide', 'Leitz Summilux-C 50mm Prime', 'Panavision 65mm Ultra Vista', 'LOMO 35mm Soviet Prime'];
+  const compositionOptions = ['Negative Space 70%', 'Centered Scale Shock (5% Human vs 95% Wall)', 'Rule of Thirds Horizon', 'Frame within Frame Occlusion', 'Pure Symmetrical Vanishing Point'];
+  const colorOptions = ['Electric Cyan & Warm Amber Contrast', 'Monochrome Architectural Grayscale', 'Warm Linen & Aged Oak', 'Deep Emerald & Vermilion Lacquer', 'Arrakis Ochre & Copper Monochromatic'];
+
+  // Engine tailored generation
+  const buildEnginePrompt = () => {
+    if (engine === 'midjourney') {
+      return `A cinematic master shot, ${mood}. ${light}. ${composition}. Optical capture on ${camera}. Color grading ${color}. 35mm film grain, photorealistic cinematography --ar ${aspect} --v 6.1 --style raw --stylize 320`;
+    }
+    if (engine === 'flux') {
+      return `Cinematic 35mm still frame, ${mood.toLowerCase()}, ${light.toLowerCase()}, photographed on ${camera}, ${composition.toLowerCase()}, palette of ${color.toLowerCase()}, authentic photographic grain, ultra-high dynamic range, natural skin textures, 8k resolution.`;
+    }
+    if (engine === 'veo') {
+      return `[VIDEO GENERATION] Cinematic tracking camera movement, ${mood}. Lighting: ${light}. Optical style: ${camera}. Composition: ${composition}. Seamless organic camera drift, 24fps motion cadence, hyperrealistic lighting interaction.`;
+    }
+    if (engine === 'gemini') {
+      return `Visual Art Direction Brief: Construct a cinematic frame featuring ${mood}. The lighting scheme employs ${light} with a ${composition}. Color palette emphasizes ${color}. Render with the optical characteristics of a ${camera}.`;
+    }
+    return `masterpiece, cinematic visual production, ${mood}, ${light}, ${composition}, ${camera}, ${color}, ultra-detailed, 8k, raw photographic quality`;
+  };
+
+  const generatedPrompt = buildEnginePrompt();
+
+  const generatedShotCall = `[HOLLYWOOD CINEMATOGRAPHER SHOT SPECIFICATION]
+SHOT SCALE: ${shotScale.toUpperCase()}
+CAMERA RIG: ${camera.toUpperCase()}
+MOVEMENT: ${cameraMovement.toUpperCase()}
+ANGLE: ${cameraAngle.toUpperCase()}
+LIGHTING: ${lightingSetup.toUpperCase()}
+ATMOSPHERE: ${mood.toUpperCase()}
+COLOR GRADE: ${color.toUpperCase()}
+DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
     setCopied(true);
     playSuccessChime();
     setTimeout(() => setCopied(false), 2000);
@@ -37,173 +87,388 @@ export const VisualLabView: React.FC<VisualLabViewProps> = ({
 
   return (
     <div className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 py-8 lg:py-12 text-[#F2F0E8]">
-      {/* Header */}
-      <div className="border-b border-[#F2F0E8]/10 pb-6 mb-8">
-        <div className="text-[11px] font-mono tracking-widest text-[#D8FF3E] uppercase mb-1">
-          HOLLYWOOD PROMPT ENGINE // CREATIVE LABORATORY
+      {/* Top Header */}
+      <div className="border-b border-[#F2F0E8]/10 pb-6 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <div className="text-[11px] font-mono tracking-widest text-[#D8FF3E] uppercase mb-1">
+            CREATIVE SUITE // HOLLYWOOD WORKBENCH
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight uppercase">
+            VISUAL LAB
+          </h2>
+          <p className="text-xs text-[#8B887F] font-mono mt-1">
+            Synthesize aesthetic genomes into industrial-grade production prompts, camera specifications, and narrative storyboards.
+          </p>
         </div>
-        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight uppercase">
-          VISUAL LAB
-        </h2>
-        <p className="text-xs text-[#8B887F] font-mono mt-1">
-          Synthesize aesthetic genome tokens into precise cinematic AI production prompts.
-        </p>
+
+        {/* Sub-tool Switcher Tabs */}
+        <div className="flex items-center gap-2 font-mono text-xs">
+          {[
+            { id: 'prompt', label: '01 PROMPT GENERATOR', icon: Sparkles },
+            { id: 'shot', label: '02 SHOT BUILDER', icon: Sliders },
+            { id: 'storyboard', label: '03 STORYBOARD', icon: Film },
+          ].map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => {
+                playSpotlightClick();
+                setActiveTool(id as LabSubTool);
+              }}
+              className={`px-3 py-1.5 border flex items-center gap-1.5 transition-colors cursor-pointer ${
+                activeTool === id
+                  ? 'border-[#D8FF3E] bg-[#D8FF3E] text-[#11110F] font-bold'
+                  : 'border-[#F2F0E8]/15 bg-[#141412] text-[#8B887F] hover:text-[#F2F0E8]'
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              <span>{label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Mixer Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        {/* Left Column (7 Cols): Parameter Controls */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="text-xs font-mono text-[#D8FF3E] uppercase tracking-wider">
-            WHAT ARE YOU CREATING? // PARAMETERS
-          </div>
+      {/* SUB-TOOL 01: PROMPT GENERATOR */}
+      {activeTool === 'prompt' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          {/* Left Column (7 Cols): Parameter Controls */}
+          <div className="lg:col-span-7 space-y-6">
+            <div className="flex items-center justify-between text-xs font-mono text-[#D8FF3E] uppercase tracking-wider border-b border-[#F2F0E8]/10 pb-2">
+              <span>GENOME PARAMETERS</span>
+              <div className="flex items-center gap-2 text-[10px] text-[#8B887F]">
+                <span>ASPECT:</span>
+                {['2.39:1', '16:9', '4:3', '1:1'].map((ar) => (
+                  <button
+                    key={ar}
+                    onClick={() => setAspect(ar)}
+                    className={`px-2 py-0.5 border ${aspect === ar ? 'border-[#D8FF3E] text-[#D8FF3E]' : 'border-[#F2F0E8]/15 text-[#8B887F]'}`}
+                  >
+                    {ar}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-          {/* MOOD */}
-          <div>
-            <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">01 // MOOD GENOME</label>
-            <div className="flex flex-wrap gap-2">
-              {moodOptions.map((opt) => (
-                <button
-                  key={opt}
-                  onClick={() => { playSpotlightClick(); setMood(opt); }}
-                  className={`px-3 py-1.5 border text-xs font-mono transition-colors cursor-pointer ${
-                    mood === opt
-                      ? 'border-[#D8FF3E] bg-[#D8FF3E] text-[#11110F] font-bold'
-                      : 'border-[#F2F0E8]/15 bg-[#141412] text-[#F2F0E8] hover:border-[#F2F0E8]/40'
-                  }`}
-                >
-                  {opt}
-                </button>
-              ))}
+            {/* MOOD */}
+            <div>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">01 // MOOD GENOME</label>
+              <div className="flex flex-wrap gap-2">
+                {moodOptions.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => { playSpotlightClick(); setMood(opt); }}
+                    className={`px-3 py-1.5 border text-xs font-mono transition-colors cursor-pointer ${
+                      mood === opt
+                        ? 'border-[#D8FF3E] bg-[#D8FF3E] text-[#11110F] font-bold'
+                        : 'border-[#F2F0E8]/15 bg-[#141412] text-[#F2F0E8] hover:border-[#F2F0E8]/40'
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* LIGHT */}
+            <div>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">02 // LIGHTING GEOMETRY</label>
+              <div className="flex flex-wrap gap-2">
+                {lightOptions.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => { playSpotlightClick(); setLight(opt); }}
+                    className={`px-3 py-1.5 border text-xs font-mono transition-colors cursor-pointer ${
+                      light === opt
+                        ? 'border-[#D8FF3E] bg-[#D8FF3E] text-[#11110F] font-bold'
+                        : 'border-[#F2F0E8]/15 bg-[#141412] text-[#F2F0E8] hover:border-[#F2F0E8]/40'
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* OPTICS */}
+            <div>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">03 // OPTICAL SYNTAX (LENS)</label>
+              <div className="flex flex-wrap gap-2">
+                {cameraOptions.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => { playSpotlightClick(); setCamera(opt); }}
+                    className={`px-3 py-1.5 border text-xs font-mono transition-colors cursor-pointer ${
+                      camera === opt
+                        ? 'border-[#D8FF3E] bg-[#D8FF3E] text-[#11110F] font-bold'
+                        : 'border-[#F2F0E8]/15 bg-[#141412] text-[#F2F0E8] hover:border-[#F2F0E8]/40'
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* COMPOSITION */}
+            <div>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">04 // COMPOSITION & RATIO</label>
+              <div className="flex flex-wrap gap-2">
+                {compositionOptions.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => { playSpotlightClick(); setComposition(opt); }}
+                    className={`px-3 py-1.5 border text-xs font-mono transition-colors cursor-pointer ${
+                      composition === opt
+                        ? 'border-[#D8FF3E] bg-[#D8FF3E] text-[#11110F] font-bold'
+                        : 'border-[#F2F0E8]/15 bg-[#141412] text-[#F2F0E8] hover:border-[#F2F0E8]/40'
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* COLOR */}
+            <div>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">05 // COLOR PALETTE</label>
+              <div className="flex flex-wrap gap-2">
+                {colorOptions.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => { playSpotlightClick(); setColor(opt); }}
+                    className={`px-3 py-1.5 border text-xs font-mono transition-colors cursor-pointer ${
+                      color === opt
+                        ? 'border-[#D8FF3E] bg-[#D8FF3E] text-[#11110F] font-bold'
+                        : 'border-[#F2F0E8]/15 bg-[#141412] text-[#F2F0E8] hover:border-[#F2F0E8]/40'
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* LIGHT */}
-          <div>
-            <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">02 // LIGHTING GEOMETRY</label>
-            <div className="flex flex-wrap gap-2">
-              {lightOptions.map((opt) => (
-                <button
-                  key={opt}
-                  onClick={() => { playSpotlightClick(); setLight(opt); }}
-                  className={`px-3 py-1.5 border text-xs font-mono transition-colors cursor-pointer ${
-                    light === opt
-                      ? 'border-[#D8FF3E] bg-[#D8FF3E] text-[#11110F] font-bold'
-                      : 'border-[#F2F0E8]/15 bg-[#141412] text-[#F2F0E8] hover:border-[#F2F0E8]/40'
-                  }`}
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Right Column (5 Cols): Synthesized Result & Production Terminal */}
+          <div className="lg:col-span-5 flex flex-col justify-between space-y-6 bg-[#161614] border border-[#F2F0E8]/10 p-6">
+            <div>
+              {/* Engine Switcher */}
+              <div className="text-[10px] font-mono text-[#8B887F] uppercase mb-2">TARGET AI ENGINE SYNTAX</div>
+              <div className="flex flex-wrap gap-1.5 pb-4 border-b border-[#F2F0E8]/10 mb-4">
+                {[
+                  { id: 'midjourney', label: 'MIDJOURNEY V6' },
+                  { id: 'flux', label: 'FLUX.1 [DEV]' },
+                  { id: 'veo', label: 'RUNWAY / VEO (VIDEO)' },
+                  { id: 'gemini', label: 'GEMINI / PROSE' },
+                ].map(({ id, label }) => (
+                  <button
+                    key={id}
+                    onClick={() => {
+                      playSpotlightClick();
+                      setEngine(id as LabEngine);
+                    }}
+                    className={`px-2.5 py-1 text-[10px] font-mono border transition-colors cursor-pointer ${
+                      engine === id
+                        ? 'border-[#D8FF3E] text-[#D8FF3E] bg-[#11110F] font-bold'
+                        : 'border-[#F2F0E8]/10 text-[#8B887F] hover:text-[#F2F0E8]'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
 
-          {/* OPTICS */}
-          <div>
-            <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">03 // OPTICAL SYNTAX (LENS)</label>
-            <div className="flex flex-wrap gap-2">
-              {cameraOptions.map((opt) => (
-                <button
-                  key={opt}
-                  onClick={() => { playSpotlightClick(); setCamera(opt); }}
-                  className={`px-3 py-1.5 border text-xs font-mono transition-colors cursor-pointer ${
-                    camera === opt
-                      ? 'border-[#D8FF3E] bg-[#D8FF3E] text-[#11110F] font-bold'
-                      : 'border-[#F2F0E8]/15 bg-[#141412] text-[#F2F0E8] hover:border-[#F2F0E8]/40'
-                  }`}
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
-          </div>
+              <div className="flex items-center justify-between text-xs font-mono text-[#8B887F] pb-2 mb-2">
+                <span className="text-[#D8FF3E]">SYNTHESIZED HOLLYWOOD PROMPT</span>
+                <span>READY TO RENDER</span>
+              </div>
 
-          {/* COMPOSITION */}
-          <div>
-            <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">04 // COMPOSITION & RATIO</label>
-            <div className="flex flex-wrap gap-2">
-              {compositionOptions.map((opt) => (
-                <button
-                  key={opt}
-                  onClick={() => { playSpotlightClick(); setComposition(opt); }}
-                  className={`px-3 py-1.5 border text-xs font-mono transition-colors cursor-pointer ${
-                    composition === opt
-                      ? 'border-[#D8FF3E] bg-[#D8FF3E] text-[#11110F] font-bold'
-                      : 'border-[#F2F0E8]/15 bg-[#141412] text-[#F2F0E8] hover:border-[#F2F0E8]/40'
-                  }`}
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
-          </div>
+              <div className="bg-[#11110F] border border-[#F2F0E8]/10 p-4 font-mono text-xs text-[#F2F0E8] leading-relaxed whitespace-pre-wrap select-all min-h-[140px]">
+                {generatedPrompt}
+              </div>
 
-          {/* COLOR */}
-          <div>
-            <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">05 // COLOR PALETTE</label>
-            <div className="flex flex-wrap gap-2">
-              {colorOptions.map((opt) => (
+              <div className="mt-4 grid grid-cols-2 gap-3 text-[11px] font-mono text-[#8B887F]">
+                <div className="border-l border-[#D8FF3E] pl-2">
+                  <div>ENGINE TARGET</div>
+                  <div className="text-[#F2F0E8] mt-0.5 uppercase">{engine}</div>
+                </div>
+                <div className="border-l border-[#F2F0E8]/20 pl-2">
+                  <div>COLOR TEMPERATURE</div>
+                  <div className="text-[#F2F0E8] mt-0.5">High Dynamic Balance</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-4 border-t border-[#F2F0E8]/10">
+              <button
+                onClick={() => handleCopy(generatedPrompt)}
+                className="w-full py-3 bg-[#D8FF3E] text-[#11110F] text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-white transition-colors cursor-pointer"
+              >
+                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                <span>{copied ? 'PROMPT COPIED TO CLIPBOARD' : 'COPY SYNTHESIZED PROMPT'}</span>
+              </button>
+
+              {onSavePromptToDossier && (
                 <button
-                  key={opt}
-                  onClick={() => { playSpotlightClick(); setColor(opt); }}
-                  className={`px-3 py-1.5 border text-xs font-mono transition-colors cursor-pointer ${
-                    color === opt
-                      ? 'border-[#D8FF3E] bg-[#D8FF3E] text-[#11110F] font-bold'
-                      : 'border-[#F2F0E8]/15 bg-[#141412] text-[#F2F0E8] hover:border-[#F2F0E8]/40'
-                  }`}
+                  onClick={() => onSavePromptToDossier(generatedPrompt)}
+                  className="w-full py-3 border border-[#F2F0E8]/20 hover:border-[#D8FF3E] hover:text-[#D8FF3E] text-xs font-mono font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-2"
                 >
-                  {opt}
+                  <Bookmark className="w-4 h-4" />
+                  <span>SAVE PROMPT TO DOSSIER</span>
                 </button>
-              ))}
+              )}
             </div>
           </div>
         </div>
+      )}
 
-        {/* Right Column (5 Cols): Synthesized Result & Production Terminal */}
-        <div className="lg:col-span-5 flex flex-col justify-between space-y-6 bg-[#161614] border border-[#F2F0E8]/10 p-6">
-          <div>
-            <div className="flex items-center justify-between text-xs font-mono text-[#8B887F] border-b border-[#F2F0E8]/10 pb-3 mb-4">
-              <span className="text-[#D8FF3E]">SYNTHESIZED HOLLYWOOD PROMPT</span>
-              <span>READY TO RENDER</span>
+      {/* SUB-TOOL 02: SHOT BUILDER */}
+      {activeTool === 'shot' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-7 space-y-6">
+            <div className="text-xs font-mono text-[#D8FF3E] uppercase tracking-wider border-b border-[#F2F0E8]/10 pb-2">
+              DIRECTOR'S CAMERA SETUP // SHOT ARCHITECTURE
             </div>
 
-            <div className="bg-[#11110F] border border-[#F2F0E8]/10 p-4 font-mono text-xs text-[#F2F0E8] leading-relaxed whitespace-pre-wrap select-all">
-              {generatedPrompt}
-            </div>
-
-            <div className="mt-4 grid grid-cols-2 gap-3 text-[11px] font-mono text-[#8B887F]">
-              <div className="border-l border-[#D8FF3E] pl-2">
-                <div>ESTIMATED STYLIZE</div>
-                <div className="text-[#F2F0E8] mt-0.5">300 (Cinematic Focus)</div>
+            {/* SHOT SCALE */}
+            <div>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">01 // SHOT SCALE</label>
+              <div className="flex flex-wrap gap-2">
+                {['Extreme Wide Establishing', 'Wide Shot', 'Medium Full Shot', 'Close-Up Portrait', 'Extreme Macro Detail'].map((scale) => (
+                  <button
+                    key={scale}
+                    onClick={() => { playSpotlightClick(); setShotScale(scale); }}
+                    className={`px-3 py-1.5 border text-xs font-mono transition-colors cursor-pointer ${
+                      shotScale === scale ? 'border-[#D8FF3E] bg-[#D8FF3E] text-[#11110F] font-bold' : 'border-[#F2F0E8]/15 bg-[#141412] text-[#F2F0E8]'
+                    }`}
+                  >
+                    {scale}
+                  </button>
+                ))}
               </div>
-              <div className="border-l border-[#F2F0E8]/20 pl-2">
-                <div>COLOR BALANCE</div>
-                <div className="text-[#F2F0E8] mt-0.5">Complementary Contrast</div>
+            </div>
+
+            {/* CAMERA MOVEMENT */}
+            <div>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">02 // CAMERA MOVEMENT</label>
+              <div className="flex flex-wrap gap-2">
+                {['Static Master Lock-Off', 'Slow Smooth Dolly Forward', 'Lateral Tracking Pan', 'Fluid Steadicam Breathing', 'Top-Down Crane Retract'].map((mov) => (
+                  <button
+                    key={mov}
+                    onClick={() => { playSpotlightClick(); setCameraMovement(mov); }}
+                    className={`px-3 py-1.5 border text-xs font-mono transition-colors cursor-pointer ${
+                      cameraMovement === mov ? 'border-[#D8FF3E] bg-[#D8FF3E] text-[#11110F] font-bold' : 'border-[#F2F0E8]/15 bg-[#141412] text-[#F2F0E8]'
+                    }`}
+                  >
+                    {mov}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* CAMERA ANGLE */}
+            <div>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">03 // CAMERA ANGLE & ELEVATION</label>
+              <div className="flex flex-wrap gap-2">
+                {['Low Angle 15° (Monumental)', 'Neutral Eye Level', 'High Angle 45°', 'Dutch Cant 10° (Psychological)', 'Overhead God-View 90°'].map((ang) => (
+                  <button
+                    key={ang}
+                    onClick={() => { playSpotlightClick(); setCameraAngle(ang); }}
+                    className={`px-3 py-1.5 border text-xs font-mono transition-colors cursor-pointer ${
+                      cameraAngle === ang ? 'border-[#D8FF3E] bg-[#D8FF3E] text-[#11110F] font-bold' : 'border-[#F2F0E8]/15 bg-[#141412] text-[#F2F0E8]'
+                    }`}
+                  >
+                    {ang}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* LIGHTING SETUP */}
+            <div>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">04 // LIGHTING RIG</label>
+              <div className="flex flex-wrap gap-2">
+                {['Cathedral Single-Source God Ray', 'Low-Key Volumetric Cyan Rim', '100% Diffuse Window Daylight', 'Sodium Vapor Overhead Practical'].map((light) => (
+                  <button
+                    key={light}
+                    onClick={() => { playSpotlightClick(); setLightingSetup(light); }}
+                    className={`px-3 py-1.5 border text-xs font-mono transition-colors cursor-pointer ${
+                      lightingSetup === light ? 'border-[#D8FF3E] bg-[#D8FF3E] text-[#11110F] font-bold' : 'border-[#F2F0E8]/15 bg-[#141412] text-[#F2F0E8]'
+                    }`}
+                  >
+                    {light}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
 
-          <div className="space-y-3 pt-4 border-t border-[#F2F0E8]/10">
+          <div className="lg:col-span-5 bg-[#161614] border border-[#F2F0E8]/10 p-6 flex flex-col justify-between space-y-6">
+            <div>
+              <div className="text-xs font-mono text-[#D8FF3E] border-b border-[#F2F0E8]/10 pb-3 mb-4">
+                DIRECTOR CALL SHEET
+              </div>
+              <pre className="bg-[#11110F] border border-[#F2F0E8]/10 p-4 font-mono text-xs text-[#F2F0E8] leading-relaxed whitespace-pre-wrap select-all">
+                {generatedShotCall}
+              </pre>
+            </div>
             <button
-              onClick={handleCopy}
+              onClick={() => handleCopy(generatedShotCall)}
               className="w-full py-3 bg-[#D8FF3E] text-[#11110F] text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-white transition-colors cursor-pointer"
             >
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              <span>{copied ? 'PROMPT COPIED TO CLIPBOARD' : 'COPY SYNTHESIZED PROMPT'}</span>
+              <span>{copied ? 'COPIED TO CLIPBOARD' : 'COPY SHOT CALL SHEET'}</span>
             </button>
-
-            {onSavePromptToDossier && (
-              <button
-                onClick={() => onSavePromptToDossier(generatedPrompt)}
-                className="w-full py-3 border border-[#F2F0E8]/20 hover:border-[#D8FF3E] hover:text-[#D8FF3E] text-xs font-mono font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-2"
-              >
-                <Bookmark className="w-4 h-4" />
-                <span>SAVE PROMPT TO DOSSIER</span>
-              </button>
-            )}
           </div>
         </div>
-      </div>
+      )}
+
+      {/* SUB-TOOL 03: STORYBOARD SEQUENCER */}
+      {activeTool === 'storyboard' && (
+        <div className="space-y-8">
+          <div className="flex items-center justify-between border-b border-[#F2F0E8]/10 pb-4">
+            <div>
+              <div className="text-xs font-mono text-[#D8FF3E] uppercase">4-BEAT CINEMATIC TIMELINE SEQUENCE</div>
+              <div className="text-[11px] font-mono text-[#8B887F] mt-0.5">
+                Establish dramatic tension from scene to scene using contrast and rhythmic staging.
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                const sbText = storyboardBeats.map((b) => `[${b.act}] ${b.scene} | Optics: ${b.lens} | Note: ${b.note}`).join('\n');
+                handleCopy(sbText);
+              }}
+              className="px-4 py-2 bg-[#D8FF3E] text-[#11110F] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 hover:bg-white transition-colors cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>EXPORT STORYBOARD</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {storyboardBeats.map((beat, index) => (
+              <div key={beat.id} className="border border-[#F2F0E8]/15 bg-[#141412] p-5 space-y-4">
+                <div className="flex items-center justify-between text-xs font-mono border-b border-[#F2F0E8]/10 pb-2">
+                  <span className="text-[#D8FF3E] font-bold">{beat.act}</span>
+                  <span className="text-[#8B887F]">BEAT 0{index + 1}</span>
+                </div>
+                <div>
+                  <div className="text-[10px] font-mono text-[#8B887F] uppercase">KEY SCENE</div>
+                  <div className="text-sm font-bold text-[#F2F0E8] mt-1">{beat.scene}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-mono text-[#8B887F] uppercase">OPTICAL RIG</div>
+                  <div className="text-xs font-mono text-[#8B887F] mt-1">{beat.lens}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-mono text-[#8B887F] uppercase">DIRECTOR'S NOTE</div>
+                  <div className="text-xs font-mono text-[#D8FF3E] mt-1 italic">"{beat.note}"</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowRight, Film, Eye, Sparkles } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ArrowRight, Crosshair, Sparkles } from 'lucide-react';
 import type { CinemaScene } from '../types/cinema';
 import { playSpotlightClick } from '../utils/audio';
 
@@ -17,6 +17,11 @@ export const OpeningSequenceView: React.FC<OpeningSequenceViewProps> = ({
   onExploreArchive,
 }) => {
   const [stage, setStage] = useState<number>(0);
+  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [inspectionTag, setInspectionTag] = useState<string>('ANALYSIS READY // MOVE CURSOR');
+  const [isHovered, setIsHovered] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // 0.0s black, 0.3s line, 0.8s image, 1.2s text reveal
@@ -29,6 +34,37 @@ export const OpeningSequenceView: React.FC<OpeningSequenceViewProps> = ({
       clearTimeout(t3);
     };
   }, []);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(100, Math.round(((e.clientX - rect.left) / rect.width) * 100)));
+    const y = Math.max(0, Math.min(100, Math.round(((e.clientY - rect.top) / rect.height) * 100)));
+    setMousePos({ x, y });
+
+    // Subtle 3D tilt (max 3 degrees)
+    const tiltX = ((y - 50) / 50) * -2.5;
+    const tiltY = ((x - 50) / 50) * 2.5;
+    setTilt({ x: tiltX, y: tiltY });
+
+    // Dynamic Contextual Detection based on image coordinates (as specified in blueprint)
+    if (x > 35 && x < 65 && y > 30 && y < 75) {
+      setInspectionTag('SUBJECT DETECTED · ANAMORPHIC SILHOUETTE');
+    } else if (y < 35 && (x > 40 || x < 30)) {
+      setInspectionTag('LIGHT SOURCE · VOLUMETRIC CYAN RIM & PRACTICAL GLOW');
+    } else if (x < 30 || x > 75 || y > 75) {
+      const negPct = Math.round(30 + ((Math.abs(x - 50) + Math.abs(y - 50)) / 100) * 45);
+      setInspectionTag(`NEGATIVE SPACE · ${negPct}% EDITORIAL BALANCE`);
+    } else {
+      setInspectionTag('FOCAL DEPTH · COOKE 35MM ANAMORPHIC T/1.8');
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setTilt({ x: 0, y: 0 });
+    setInspectionTag('STUDY THE IMAGE // HOVER TO DECONSTRUCT');
+  };
 
   return (
     <div className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 py-8 lg:py-16 text-[#F2F0E8]">
@@ -94,7 +130,7 @@ export const OpeningSequenceView: React.FC<OpeningSequenceViewProps> = ({
               <div className="text-xs text-[#D8FF3E] font-bold mt-0.5">{featuredScene.sceneNumber}</div>
             </div>
             <div>
-              <div className="text-[10px] text-[#8B887F]">ASPECT</div>
+              <div className="text-[10px] text-[#8B887F]">ASPECT RATIO</div>
               <div className="text-xs text-[#F2F0E8] font-bold mt-0.5">2.39:1 CINEMA</div>
             </div>
             <div>
@@ -106,30 +142,72 @@ export const OpeningSequenceView: React.FC<OpeningSequenceViewProps> = ({
           </div>
         </div>
 
-        {/* Right Column (7 Cols): Monumental Cinematic Visual */}
+        {/* Right Column (7 Cols): Monumental Cinematic Visual with Interactive Research Inspection */}
         <div className={`lg:col-span-7 transition-all duration-1000 ${stage >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
           <div 
+            ref={containerRef}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
             onClick={() => {
               playSpotlightClick();
               onStudyScene(featuredScene.id);
             }}
-            className="group relative w-full aspect-video bg-[#181815] border border-[#F2F0E8]/15 overflow-hidden cursor-pointer"
+            style={{
+              transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+              transition: isHovered ? 'transform 0.1s ease-out' : 'transform 0.5s ease-out',
+            }}
+            className="group relative w-full aspect-video bg-[#181815] border border-[#F2F0E8]/15 overflow-hidden cursor-crosshair shadow-2xl"
           >
             <img
               src={featuredScene.coverImage}
               alt={featuredScene.title}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.025] filter group-hover:brightness-95"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.025] filter group-hover:brightness-90"
             />
-            
-            {/* Minimalist View Indicator Overlay */}
-            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-              <span className="px-4 py-2 border border-[#D8FF3E] bg-[#11110F]/90 text-[#D8FF3E] text-xs font-mono font-bold tracking-widest uppercase">
-                DECONSTRUCT SCENE →
+
+            {/* Subtle Research Crosshair overlay following mouse */}
+            {isHovered && (
+              <>
+                {/* Horizontal Guide */}
+                <div
+                  className="absolute left-0 right-0 border-t border-[#D8FF3E]/30 pointer-events-none transition-all duration-75"
+                  style={{ top: `${mousePos.y}%` }}
+                />
+                {/* Vertical Guide */}
+                <div
+                  className="absolute top-0 bottom-0 border-l border-[#D8FF3E]/30 pointer-events-none transition-all duration-75"
+                  style={{ left: `${mousePos.x}%` }}
+                />
+                {/* Central Target Reticle */}
+                <div
+                  className="absolute -translate-x-1/2 -translate-y-1/2 w-6 h-6 border border-[#D8FF3E] pointer-events-none flex items-center justify-center transition-all duration-75"
+                  style={{ left: `${mousePos.x}%`, top: `${mousePos.y}%` }}
+                >
+                  <div className="w-1 h-1 bg-[#D8FF3E]" />
+                </div>
+              </>
+            )}
+
+            {/* Top Telemetry Inspection Banner */}
+            <div className="absolute top-3 left-3 right-3 flex items-center justify-between text-[11px] font-mono pointer-events-none">
+              <div className="px-2.5 py-1 bg-[#11110F]/90 border border-[#F2F0E8]/20 text-[#D8FF3E] flex items-center gap-2">
+                <Crosshair className="w-3 h-3 text-[#D8FF3E] animate-pulse" />
+                <span>{inspectionTag}</span>
+              </div>
+              <div className="px-2.5 py-1 bg-[#11110F]/90 border border-[#F2F0E8]/20 text-[#F2F0E8] font-mono">
+                CURSOR X {mousePos.x.toString().padStart(3, '0')} Y {mousePos.y.toString().padStart(3, '0')}
+              </div>
+            </div>
+
+            {/* Center Call to Action on Hover */}
+            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+              <span className="px-5 py-2.5 border border-[#D8FF3E] bg-[#11110F]/90 text-[#D8FF3E] text-xs font-mono font-bold tracking-widest uppercase">
+                ENTER SCENE DECONSTRUCTION →
               </span>
             </div>
 
             {/* Bottom Floating Metadata Strip */}
-            <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/90 to-transparent flex items-end justify-between text-xs font-mono">
+            <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/95 via-black/80 to-transparent flex items-end justify-between text-xs font-mono pointer-events-none">
               <div>
                 <div className="text-[#D8FF3E] font-bold">{featuredScene.sceneNumber} · {featuredScene.title}</div>
                 <div className="text-[#8B887F] text-[11px] mt-0.5">{featuredScene.locationAndTime}</div>
