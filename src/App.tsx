@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { GalleryTheme } from './types/theme';
 import type { MediumType, VisualAtom, DesignPrinciple, StyleRuleEquation } from './types/atlas';
 import type { CinemaScene } from './types/cinema';
@@ -7,6 +7,7 @@ import { ChapterDock, CHAPTER_LIST } from './components/ChapterDock';
 import { VisualGuidanceRail } from './components/VisualGuidanceRail';
 import { VisualGuidanceWarpCurtain } from './components/VisualGuidanceWarpCurtain';
 import { SlideControlBar } from './components/SlideControlBar';
+import { InstaSpecsHUD } from './components/InstaSpecsHUD';
 import { PromptCinemaView } from './components/PromptCinemaView';
 import { VisualAtomsView } from './components/VisualAtomsView';
 import { DesignPrinciplesView } from './components/DesignPrinciplesView';
@@ -228,13 +229,20 @@ export function App() {
         color: 'var(--text-main)',
       }}
     >
-      {/* Three.js Interactive 3D Spatial Universe Canvas */}
-      <Spatial3DCanvas theme={currentTheme} isWarping={isWarping} />
+      {/* Three.js Interactive 360° Optical Camera & Lens Rig */}
+      <Spatial3DCanvas 
+        theme={currentTheme} 
+        currentView={currentView}
+        isWarping={isWarping} 
+      />
+
+      {/* Insta360 Flagship Camera Viewfinder & Specs HUD Overlay */}
+      <InstaSpecsHUD currentView={currentView} />
 
       {/* Fluid Magnetic Torch Cursor */}
       <MagneticCursor />
 
-      {/* Apple-Grade Visual Guidance Light Rail (Left Side) */}
+      {/* Visual Guidance Light Rail (Left Side) */}
       <VisualGuidanceRail
         currentView={currentView}
         onSelectChapter={handleSwitchChapter}

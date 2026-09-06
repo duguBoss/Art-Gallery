@@ -1,17 +1,23 @@
-import React, { useEffect, useRef } from 'react';
+﻿import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import type { GalleryTheme } from '../types/theme';
+import type { MainViewType } from './Navbar';
+import { CHAPTER_LIST } from './ChapterDock';
 
 interface Spatial3DCanvasProps {
   theme?: GalleryTheme;
+  currentView?: MainViewType;
   isWarping?: boolean;
 }
 
 export const Spatial3DCanvas: React.FC<Spatial3DCanvasProps> = ({
   theme = 'cozy-night',
+  currentView = 'cinema',
   isWarping = false,
 }) => {
   const mountRef = useRef<HTMLDivElement | null>(null);
+  const currentViewRef = useRef(currentView);
+  currentViewRef.current = currentView;
   const warpRef = useRef(isWarping);
   warpRef.current = isWarping;
 
@@ -19,110 +25,150 @@ export const Spatial3DCanvas: React.FC<Spatial3DCanvasProps> = ({
     const container = mountRef.current;
     if (!container) return;
 
-    // Dimensions
     let width = window.innerWidth;
     let height = window.innerHeight;
 
-    // Scene, Camera, Renderer
+    // 1. Scene & Perspective Camera
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 2000);
-    camera.position.z = 450;
+    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 2000);
+    camera.position.set(0, 0, 480);
 
+    // 2. High-performance Antialiased WebGL Renderer
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
-    // Color based on theme
-    const getThemeColor = () => {
+    // 3. Theme-based Chromatic Palettes
+    const getThemeColors = () => {
       switch (theme) {
         case 'cyber-neon':
-          return { primary: 0x00f0ff, secondary: 0xbd00ff, particles: 0x70d6ff };
+          return { primary: 0x00f0ff, secondary: 0xbd00ff, glass: 0x0088ff, metal: 0x182030 };
         case 'zen-mist':
-          return { primary: 0x52b788, secondary: 0x74c69d, particles: 0xa0b9ab };
+          return { primary: 0x52b788, secondary: 0x74c69d, glass: 0x2d6a4f, metal: 0x1a2620 };
         case 'grand-salon':
-          return { primary: 0xd4af37, secondary: 0xf3cf55, particles: 0xfdf7ec };
+          return { primary: 0xd4af37, secondary: 0xf3cf55, glass: 0x8c7326, metal: 0x282018 };
         case 'ghibli-breeze':
-          return { primary: 0x60a5fa, secondary: 0x34d399, particles: 0xdbeafe };
+          return { primary: 0x38bdf8, secondary: 0x34d399, glass: 0x0284c7, metal: 0x1e293b };
         case 'cozy-night':
         default:
-          return { primary: 0xe07a5f, secondary: 0xf4a261, particles: 0xf7efe8 };
+          return { primary: 0xf59e0b, secondary: 0xf97316, glass: 0xd97706, metal: 0x241a14 };
       }
     };
 
-    const colors = getThemeColor();
+    const palette = getThemeColors();
 
-    // 1. Interactive 3D Cosmic Dust Particles
-    const particleCount = 1000;
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(particleCount * 3);
-    const scales = new Float32Array(particleCount);
+    // 4. Lighting Rig for Insta360 Camera Lens
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+    scene.add(ambientLight);
 
-    for (let i = 0; i < particleCount; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 1400;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 1200;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 1400;
-      scales[i] = Math.random() * 2.5 + 0.8;
-    }
+    const keyLight = new THREE.DirectionalLight(palette.primary, 1.8);
+    keyLight.position.set(200, 300, 400);
+    scene.add(keyLight);
 
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('scale', new THREE.BufferAttribute(scales, 1));
+    const rimLight = new THREE.DirectionalLight(palette.secondary, 1.5);
+    rimLight.position.set(-250, -200, -150);
+    scene.add(rimLight);
 
-    const particleMaterial = new THREE.PointsMaterial({
-      color: colors.particles,
-      size: 2.2,
+    // 5. Central 3D Insta360 Dual-Lens Camera Rig Group
+    const cameraRig = new THREE.Group();
+    scene.add(cameraRig);
+
+    // 5a. Main Titanium Obsidian Camera Chassis
+    const chassisGeo = new THREE.CylinderGeometry(55, 55, 130, 32);
+    const chassisMat = new THREE.MeshStandardMaterial({
+      color: palette.metal,
+      metalness: 0.85,
+      roughness: 0.25,
+    });
+    const chassisMesh = new THREE.Mesh(chassisGeo, chassisMat);
+    cameraRig.add(chassisMesh);
+
+    // 5b. Front Fisheye Convex Lens Dome
+    const frontLensGeo = new THREE.SphereGeometry(46, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+    const lensMat = new THREE.MeshPhysicalMaterial({
+      color: palette.glass,
+      metalness: 0.2,
+      roughness: 0.05,
+      transmission: 0.85,
       transparent: true,
-      opacity: 0.35,
+      opacity: 0.85,
+      ior: 1.65,
+    });
+    const frontLens = new THREE.Mesh(frontLensGeo, lensMat);
+    frontLens.position.set(0, 20, 24);
+    frontLens.rotation.x = Math.PI / 2;
+    cameraRig.add(frontLens);
+
+    // 5c. Rear Fisheye Convex Lens Dome
+    const rearLens = new THREE.Mesh(frontLensGeo, lensMat);
+    rearLens.position.set(0, 20, -24);
+    rearLens.rotation.x = -Math.PI / 2;
+    cameraRig.add(rearLens);
+
+    // 5d. Knurled Optical Aperture Bezel Rings
+    const ringGeo = new THREE.TorusGeometry(48, 2.5, 16, 40);
+    const ringMat = new THREE.MeshStandardMaterial({
+      color: palette.primary,
+      metalness: 0.9,
+      roughness: 0.1,
+      wireframe: true,
+    });
+    const frontRing = new THREE.Mesh(ringGeo, ringMat);
+    frontRing.position.set(0, 20, 26);
+    cameraRig.add(frontRing);
+
+    const rearRing = new THREE.Mesh(ringGeo, ringMat);
+    rearRing.position.set(0, 20, -26);
+    cameraRig.add(rearRing);
+
+    // 5e. Rotating 360 Laser Gyroscope Gimbal Rings
+    const gyroGeo1 = new THREE.TorusGeometry(85, 1.2, 16, 60);
+    const gyroMat1 = new THREE.MeshBasicMaterial({ color: palette.primary, transparent: true, opacity: 0.35 });
+    const gyroRing1 = new THREE.Mesh(gyroGeo1, gyroMat1);
+    cameraRig.add(gyroRing1);
+
+    const gyroGeo2 = new THREE.TorusGeometry(105, 1.2, 16, 60);
+    const gyroMat2 = new THREE.MeshBasicMaterial({ color: palette.secondary, transparent: true, opacity: 0.25 });
+    const gyroRing2 = new THREE.Mesh(gyroGeo2, gyroMat2);
+    gyroRing2.rotation.x = Math.PI / 2;
+    cameraRig.add(gyroRing2);
+
+    // Initial position: slightly offset so text remains readable
+    cameraRig.position.set(0, 0, 0);
+
+    // 6. 3D Cosmic Atmosphere Dust Particles
+    const particleCount = 800;
+    const particleGeo = new THREE.BufferGeometry();
+    const particlePos = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
+      particlePos[i * 3] = (Math.random() - 0.5) * 1400;
+      particlePos[i * 3 + 1] = (Math.random() - 0.5) * 1000;
+      particlePos[i * 3 + 2] = (Math.random() - 0.5) * 1200;
+    }
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
+    const particleMat = new THREE.PointsMaterial({
+      color: palette.primary,
+      size: 2,
+      transparent: true,
+      opacity: 0.3,
       blending: THREE.AdditiveBlending,
     });
-
-    const particles = new THREE.Points(geometry, particleMaterial);
+    const particles = new THREE.Points(particleGeo, particleMat);
     scene.add(particles);
 
-    // 2. Floating 3D Geometric Polyhedra (Museum Kinetic Sculpture)
-    const wireMaterial1 = new THREE.MeshBasicMaterial({
-      color: colors.primary,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.12,
-    });
-
-    const wireMaterial2 = new THREE.MeshBasicMaterial({
-      color: colors.secondary,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.09,
-    });
-
-    // Object A: Icosahedron
-    const icosahedron = new THREE.Mesh(new THREE.IcosahedronGeometry(120, 1), wireMaterial1);
-    icosahedron.position.set(-350, 120, -100);
-    scene.add(icosahedron);
-
-    // Object B: Torus Knot
-    const torusKnot = new THREE.Mesh(new THREE.TorusKnotGeometry(75, 18, 80, 12), wireMaterial2);
-    torusKnot.position.set(380, -140, -150);
-    scene.add(torusKnot);
-
-    // Object C: Octahedron
-    const octahedron = new THREE.Mesh(new THREE.OctahedronGeometry(90, 0), wireMaterial1);
-    octahedron.position.set(280, 220, -250);
-    scene.add(octahedron);
-
-    // 3. Mouse Coordinate Smooth Tracking (Gyroscope Parallax)
+    // 7. Mouse Orbit Tracking
     let mouseX = 0;
     let mouseY = 0;
     let targetX = 0;
     let targetY = 0;
 
     const handleMouseMove = (e: MouseEvent) => {
-      mouseX = (e.clientX - width / 2) * 0.25;
-      mouseY = (e.clientY - height / 2) * 0.25;
+      mouseX = (e.clientX - width / 2) * 0.0015;
+      mouseY = (e.clientY - height / 2) * 0.0015;
     };
-
     window.addEventListener('mousemove', handleMouseMove);
 
-    // Resize Handler
     const handleResize = () => {
       width = window.innerWidth;
       height = window.innerHeight;
@@ -130,67 +176,66 @@ export const Spatial3DCanvas: React.FC<Spatial3DCanvasProps> = ({
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
     };
+    window.addEventListener('resize', handleResize);
 
-    let scrollY = 0;
-    let targetScrollY = 0;
-
-    const handleScroll = () => {
-      targetScrollY = window.scrollY || document.documentElement.scrollTop;
+    // 8. Stage-Target Rotation Angles for Insta360 Showcase
+    const stageRotations: Record<string, { x: number; y: number; z: number; scale: number; posX: number }> = {
+      cinema: { x: 0.1, y: 0.2, z: 0, scale: 1.1, posX: 140 },
+      atoms: { x: 0.5, y: 0.8, z: 0.2, scale: 1.25, posX: -150 },
+      principles: { x: 0, y: Math.PI / 2, z: 0.15, scale: 1.15, posX: 160 },
+      styles: { x: -0.4, y: 1.2, z: -0.3, scale: 1.05, posX: -140 },
+      mediums: { x: 0.2, y: Math.PI, z: 0, scale: 1.1, posX: 150 },
+      motion: { x: 0.6, y: 2.4, z: 0.4, scale: 1.2, posX: -160 },
+      atlas: { x: -0.2, y: 0.6, z: 0.1, scale: 1.0, posX: 130 },
+      'shapes-lab': { x: 0.3, y: 0.1, z: -0.2, scale: 1.15, posX: 0 },
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    // Animation Loop
+    // 9. Animation Loop
     let animationFrameId: number;
-    let warpVelocity = 0;
+    let currentRotX = 0;
+    let currentRotY = 0;
+    let currentRotZ = 0;
+    let currentScale = 1;
+    let currentPosX = 0;
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
 
-      // Mouse & Scroll Lerp
-      targetX += (mouseX - targetX) * 0.04;
-      targetY += (mouseY - targetY) * 0.04;
-      scrollY += (targetScrollY - scrollY) * 0.05;
+      // Mouse Lerp
+      targetX += (mouseX - targetX) * 0.05;
+      targetY += (mouseY - targetY) * 0.05;
 
-      camera.position.x = targetX * 0.4;
-      camera.position.y = -targetY * 0.4 - (scrollY * 0.08);
-      camera.position.z = 450 - ((scrollY * 0.25) % 400);
-      camera.lookAt(scene.position);
+      // Get target rotation for active stage
+      const view = currentViewRef.current;
+      const targetTransform = stageRotations[view] || stageRotations.cinema;
 
-      // Optical Camera Dolly-Zoom (Apple-grade cinematic lens rack)
-      const scrollSpeed = Math.abs(targetScrollY - scrollY);
-      const targetFov = warpRef.current ? 75 : (60 + Math.min(scrollSpeed * 0.04, 12));
-      camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, 0.08);
-      camera.updateProjectionMatrix();
+      // Responsive positioning: on smaller screens, center the model
+      const responsiveTargetX = width < 1024 ? 0 : targetTransform.posX;
 
-      // Warp speed acceleration when transitioning
+      currentRotX = THREE.MathUtils.lerp(currentRotX, targetTransform.x + targetY, 0.05);
+      currentRotY = THREE.MathUtils.lerp(currentRotY, targetTransform.y + targetX, 0.05);
+      currentRotZ = THREE.MathUtils.lerp(currentRotZ, targetTransform.z, 0.05);
+      currentScale = THREE.MathUtils.lerp(currentScale, targetTransform.scale, 0.05);
+      currentPosX = THREE.MathUtils.lerp(currentPosX, responsiveTargetX, 0.05);
+
+      cameraRig.rotation.x = currentRotX;
+      cameraRig.rotation.y = currentRotY + (Date.now() * 0.0003); // Subtle organic rotation
+      cameraRig.rotation.z = currentRotZ;
+      cameraRig.scale.set(currentScale, currentScale, currentScale);
+      cameraRig.position.x = currentPosX;
+
+      // Gimbal rings counter-rotation
+      gyroRing1.rotation.z += 0.004;
+      gyroRing2.rotation.y += 0.005;
+
+      // Warp speed acceleration effect
       if (warpRef.current) {
-        warpVelocity = THREE.MathUtils.lerp(warpVelocity, 48, 0.09);
+        camera.fov = THREE.MathUtils.lerp(camera.fov, 68, 0.1);
+        cameraRig.rotation.y += 0.05;
       } else {
-        warpVelocity = THREE.MathUtils.lerp(warpVelocity, 0.4, 0.05);
+        camera.fov = THREE.MathUtils.lerp(camera.fov, 50, 0.08);
       }
-
-      // Slowly rotate 3D polyhedra with scroll speed boost
-      const scrollRotationBoost = scrollY * 0.0001;
-      icosahedron.rotation.x += 0.002 + scrollRotationBoost;
-      icosahedron.rotation.y += 0.003 + scrollRotationBoost;
-
-      torusKnot.rotation.x += 0.003 + scrollRotationBoost;
-      torusKnot.rotation.y += 0.002 + scrollRotationBoost;
-
-      octahedron.rotation.y += 0.0025 + scrollRotationBoost;
-      octahedron.rotation.z += 0.0015 + scrollRotationBoost;
-
-      // Particle subtle organic drift
-      const positionsArr = geometry.attributes.position.array as Float32Array;
-      for (let i = 0; i < particleCount; i++) {
-        // Move forward along Z
-        positionsArr[i * 3 + 2] += warpVelocity;
-        if (positionsArr[i * 3 + 2] > 600) {
-          positionsArr[i * 3 + 2] = -800;
-        }
-      }
-      geometry.attributes.position.needsUpdate = true;
+      camera.updateProjectionMatrix();
 
       renderer.render(scene, camera);
     };
@@ -200,15 +245,22 @@ export const Spatial3DCanvas: React.FC<Spatial3DCanvasProps> = ({
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('scroll', handleScroll);
       cancelAnimationFrame(animationFrameId);
 
-      // Clean up Three.js resources
-      geometry.dispose();
-      particleMaterial.dispose();
-      wireMaterial1.dispose();
-      wireMaterial2.dispose();
       renderer.dispose();
+      chassisGeo.dispose();
+      chassisMat.dispose();
+      frontLensGeo.dispose();
+      lensMat.dispose();
+      ringGeo.dispose();
+      ringMat.dispose();
+      gyroGeo1.dispose();
+      gyroMat1.dispose();
+      gyroGeo2.dispose();
+      gyroMat2.dispose();
+      particleGeo.dispose();
+      particleMat.dispose();
+
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
@@ -218,7 +270,7 @@ export const Spatial3DCanvas: React.FC<Spatial3DCanvasProps> = ({
   return (
     <div 
       ref={mountRef} 
-      className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-80 transition-opacity duration-700" 
+      className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-90 transition-opacity duration-700" 
       aria-hidden="true"
     />
   );
