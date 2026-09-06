@@ -7,7 +7,7 @@ import { ChapterDock, CHAPTER_LIST } from './components/ChapterDock';
 import { VisualGuidanceRail } from './components/VisualGuidanceRail';
 import { VisualGuidanceWarpCurtain } from './components/VisualGuidanceWarpCurtain';
 import { SlideControlBar } from './components/SlideControlBar';
-import { InstaSpecsHUD } from './components/InstaSpecsHUD';
+import { DJIFlightSpecsHUD, type DJIFocalLength } from './components/DJIFlightSpecsHUD';
 import { PromptCinemaView } from './components/PromptCinemaView';
 import { VisualAtomsView } from './components/VisualAtomsView';
 import { DesignPrinciplesView } from './components/DesignPrinciplesView';
@@ -46,6 +46,7 @@ export function App() {
   const [currentView, setCurrentView] = useState<MainViewType>('cinema');
   const [slideDirection, setSlideDirection] = useState<'up' | 'down'>('up');
   const [isWarping, setIsWarping] = useState(false);
+  const [focalLength, setFocalLength] = useState<DJIFocalLength>('24mm');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Cross-Dimension Filters
@@ -229,15 +230,20 @@ export function App() {
         color: 'var(--text-main)',
       }}
     >
-      {/* Three.js Interactive 360° Optical Camera & Lens Rig */}
+      {/* Three.js Interactive DJI Mavic 3 Pro Tri-Camera Gimbal Pod */}
       <Spatial3DCanvas 
         theme={currentTheme} 
         currentView={currentView}
+        focalLength={focalLength}
         isWarping={isWarping} 
       />
 
-      {/* Insta360 Flagship Camera Viewfinder & Specs HUD Overlay */}
-      <InstaSpecsHUD currentView={currentView} />
+      {/* DJI Fly Flight Telemetry & Hasselblad Tri-Camera HUD Overlay */}
+      <DJIFlightSpecsHUD 
+        currentView={currentView}
+        focalLength={focalLength}
+        onSelectFocalLength={setFocalLength}
+      />
 
       {/* Fluid Magnetic Torch Cursor */}
       <MagneticCursor />
