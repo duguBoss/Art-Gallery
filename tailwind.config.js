@@ -8,6 +8,15 @@ export default {
   theme: {
     extend: {
       colors: {
+        atlas: {
+          canvas: '#11110F',
+          surface: '#181815',
+          surfaceHover: '#22221E',
+          paper: '#F2F0E8',
+          stone: '#8B887F',
+          acid: '#D8FF3E',
+          hairline: 'rgba(242, 240, 232, 0.12)',
+        },
         gallery: {
           950: '#070709',
           900: '#0f1013',

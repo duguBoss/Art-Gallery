@@ -1,22 +1,15 @@
-import { useState, useEffect } from 'react';
-import type { GalleryTheme } from './types/theme';
-import type { MediumType, VisualAtom, DesignPrinciple, StyleRuleEquation } from './types/atlas';
+import React, { useState, useEffect } from 'react';
+import type { AtlasTab } from './types/visualAtlas';
 import type { CinemaScene } from './types/cinema';
-import { Navbar, type MainViewType } from './components/Navbar';
-import { CHAPTER_LIST } from './components/ChapterDock';
-import { SlideControlBar } from './components/SlideControlBar';
-import { PromptCinemaView } from './components/PromptCinemaView';
-import { VisualAtomsView } from './components/VisualAtomsView';
-import { DesignPrinciplesView } from './components/DesignPrinciplesView';
-import { StyleMatrixView } from './components/StyleMatrixView';
-import { MediumMatrixView } from './components/MediumMatrixView';
-import { MotionCameraLab } from './components/MotionCameraLab';
-import { DesignAtlasView } from './components/DesignAtlasView';
-import { GenerativePosterStudio } from './components/GenerativePosterStudio';
-import { Spatial3DCanvas } from './components/Spatial3DCanvas';
-import { MagneticCursor } from './components/MagneticCursor';
+import { Navbar } from './components/Navbar';
+import { OpeningSequenceView } from './components/OpeningSequenceView';
+import { ArchiveContactSheet } from './components/ArchiveContactSheet';
+import { SceneDetailView } from './components/SceneDetailView';
+import { VisualConstellationView } from './components/VisualConstellationView';
+import { DossiersView } from './components/DossiersView';
+import { VisualLabView } from './components/VisualLabView';
+import { CommandPalette } from './components/CommandPalette';
 import { AdminCMSModal } from './components/AdminCMSModal';
-import { Footer } from './components/Footer';
 import { GoogleAdSenseUnit } from './components/GoogleAdSenseUnit';
 import { playSpotlightClick } from './utils/audio';
 import { 
@@ -27,330 +20,222 @@ import {
 } from './data/atlasStore';
 
 export function App() {
-  // Scenario-Based Artistic Atmosphere Theme
-  const [currentTheme, setCurrentTheme] = useState<GalleryTheme>(() => {
-    const saved = localStorage.getItem('art_gallery_theme');
-    const validThemes: GalleryTheme[] = ['cozy-night', 'zen-mist', 'cyber-neon', 'grand-salon', 'ghibli-breeze'];
-    return (validThemes.includes(saved as GalleryTheme) ? (saved as GalleryTheme) : 'cozy-night');
+  const [currentTab, setCurrentTab] = useState<AtlasTab>('index');
+  const [selectedSceneId, setSelectedSceneId] = useState<string | null>(null);
+  const [isCommandOpen, setIsCommandOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+
+  // Dynamic Scene Data Store
+  const [scenes, setScenes] = useState<CinemaScene[]>(() => getCinemaScenes());
+  const [visualAtoms, setVisualAtoms] = useState(() => getVisualAtoms());
+  const [designPrinciples, setDesignPrinciples] = useState(() => getDesignPrinciples());
+  const [styleRules, setStyleRules] = useState(() => getStyleRules());
+
+  // Personal Research Dossier Saved State
+  const [savedSceneIds, setSavedSceneIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('visual_atlas_dossier_scenes_v1');
+      return saved ? JSON.parse(saved) : [scenes[0]?.id].filter(Boolean);
+    } catch (e) {
+      return [scenes[0]?.id].filter(Boolean);
+    }
   });
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', currentTheme);
-    localStorage.setItem('art_gallery_theme', currentTheme);
-  }, [currentTheme]);
+    try {
+      localStorage.setItem('visual_atlas_dossier_scenes_v1', JSON.stringify(savedSceneIds));
+    } catch (e) {}
+  }, [savedSceneIds]);
 
-  // Active Presentation Slide (0 to 7)
-  const [currentView, setCurrentView] = useState<MainViewType>('cinema');
-  const [slideDirection, setSlideDirection] = useState<'up' | 'down'>('up');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-
-  // Cross-Dimension Filters
-  const [activeAtomFilter, setActiveAtomFilter] = useState<string | null>(null);
-  const [activeStyleFilter, setActiveStyleFilter] = useState<string | null>(null);
-  const [activePrincipleFilter, setActivePrincipleFilter] = useState<string | null>(null);
-  const [activeMediumFilter, setActiveMediumFilter] = useState<MediumType | 'all'>('all');
-
-  // Dynamic Atlas Store Managed via CMS
-  const [cinemaScenes, setCinemaScenes] = useState<CinemaScene[]>(() => getCinemaScenes());
-  const [visualAtoms, setVisualAtoms] = useState<VisualAtom[]>(() => getVisualAtoms());
-  const [designPrinciples, setDesignPrinciples] = useState<DesignPrinciple[]>(() => getDesignPrinciples());
-  const [styleRules, setStyleRules] = useState<StyleRuleEquation[]>(() => getStyleRules());
-
-  // Slide Switch Handler
-  const handleSwitchChapter = (newView: MainViewType) => {
-    if (newView === currentView) return;
-    playSpotlightClick();
-    const oldIdx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
-    const newIdx = CHAPTER_LIST.findIndex((c) => c.id === newView);
-    setSlideDirection(newIdx >= oldIdx ? 'up' : 'down');
-    setCurrentView(newView);
-  };
-
-  // Stealth / Direct Admin CMS State
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
-
-  // Cross-Navigation Handlers
-  const handleExploreAtomInWorks = (atomName: string) => {
-    setActiveAtomFilter(atomName);
-    setActiveStyleFilter(null);
-    setActivePrincipleFilter(null);
-    setActiveMediumFilter('all');
-    handleSwitchChapter('atlas');
-  };
-
-  const handleExploreStyleInWorks = (styleId: string) => {
-    setActiveStyleFilter(styleId);
-    setActiveAtomFilter(null);
-    setActivePrincipleFilter(null);
-    setActiveMediumFilter('all');
-    handleSwitchChapter('atlas');
-  };
-
-  const handleExplorePrincipleInWorks = (principleName: string) => {
-    setActivePrincipleFilter(principleName);
-    setActiveAtomFilter(null);
-    setActiveStyleFilter(null);
-    setActiveMediumFilter('all');
-    handleSwitchChapter('atlas');
-  };
-
-  const handleExploreMediumInWorks = (medium: MediumType) => {
-    setActiveMediumFilter(medium);
-    setActiveAtomFilter(null);
-    setActiveStyleFilter(null);
-    setActivePrincipleFilter(null);
-    handleSwitchChapter('atlas');
-  };
-
-  const handleClearFilters = () => {
-    setActiveAtomFilter(null);
-    setActiveStyleFilter(null);
-    setActivePrincipleFilter(null);
-    setActiveMediumFilter('all');
-  };
-
-  // PPT / Keynote Remote Wheel Flip: Natural boundary flip without killing native scroll
-  useEffect(() => {
-    let isLocked = false;
-    let lockTimer: ReturnType<typeof setTimeout> | null = null;
-
-    const handleWheel = (e: WheelEvent) => {
-      if (isAdminOpen) return;
-      if (e.ctrlKey || e.metaKey || e.altKey) return;
-      if (isLocked) return;
-
-      const isAtBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 25;
-      const isAtTop = window.scrollY <= 25;
-
-      if (e.deltaY > 40 && isAtBottom) {
-        const idx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
-        if (idx < CHAPTER_LIST.length - 1) {
-          isLocked = true;
-          handleSwitchChapter(CHAPTER_LIST[idx + 1].id);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          lockTimer = setTimeout(() => { isLocked = false; }, 600);
-        }
-      } else if (e.deltaY < -40 && isAtTop) {
-        const idx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
-        if (idx > 0) {
-          isLocked = true;
-          handleSwitchChapter(CHAPTER_LIST[idx - 1].id);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          lockTimer = setTimeout(() => { isLocked = false; }, 600);
-        }
-      }
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: true });
-    return () => {
-      window.removeEventListener('wheel', handleWheel);
-      if (lockTimer) clearTimeout(lockTimer);
-    };
-  }, [currentView, isAdminOpen]);
-
-  // PPT Keyboard Remote: Space, Arrows, PageUp/Down
-  useEffect(() => {
-    const handleChapterKeys = (e: KeyboardEvent) => {
-      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
-      if (isAdminOpen) return;
-
-      const idx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
-      if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown') {
-        e.preventDefault();
-        if (idx < CHAPTER_LIST.length - 1) {
-          handleSwitchChapter(CHAPTER_LIST[idx + 1].id);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') {
-        e.preventDefault();
-        if (idx > 0) {
-          handleSwitchChapter(CHAPTER_LIST[idx - 1].id);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      }
-    };
-    window.addEventListener('keydown', handleChapterKeys);
-    return () => window.removeEventListener('keydown', handleChapterKeys);
-  }, [currentView, isAdminOpen]);
-
-  // Touch Swipe Gesture (Mobile / iPad PPT flip)
-  useEffect(() => {
-    let touchStartY = 0;
-    let isLocked = false;
-
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartY = e.touches[0].clientY;
-    };
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      if (isLocked || isAdminOpen) return;
-      const touchEndY = e.changedTouches[0].clientY;
-      const deltaY = touchStartY - touchEndY;
-
-      const isAtBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 25;
-      const isAtTop = window.scrollY <= 25;
-
-      if (Math.abs(deltaY) > 50) {
-        const idx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
-        if (deltaY > 0 && isAtBottom && idx < CHAPTER_LIST.length - 1) {
-          isLocked = true;
-          handleSwitchChapter(CHAPTER_LIST[idx + 1].id);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          setTimeout(() => { isLocked = false; }, 600);
-        } else if (deltaY < 0 && isAtTop && idx > 0) {
-          isLocked = true;
-          handleSwitchChapter(CHAPTER_LIST[idx - 1].id);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          setTimeout(() => { isLocked = false; }, 600);
-        }
-      }
-    };
-
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchend', handleTouchEnd, { passive: true });
-    return () => {
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchend', handleTouchEnd);
-    };
-  }, [currentView, isAdminOpen]);
-
-  // Stealth Trigger 1: Global Shortcut Ctrl + Shift + A
+  // Global ⌘K Shortcut
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsCommandOpen((prev) => !prev);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'a') {
         e.preventDefault();
         setIsAdminOpen((prev) => !prev);
+      }
+      if (e.key === 'Escape') {
+        if (selectedSceneId) {
+          setSelectedSceneId(null);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [selectedSceneId]);
+
+  // Dossier Toggle Handlers
+  const handleToggleDossier = (scene: CinemaScene) => {
+    playSpotlightClick();
+    setSavedSceneIds((prev) =>
+      prev.includes(scene.id) ? prev.filter((id) => id !== scene.id) : [...prev, scene.id]
+    );
+  };
+
+  const handleRemoveFromDossier = (sceneId: string) => {
+    playSpotlightClick();
+    setSavedSceneIds((prev) => prev.filter((id) => id !== sceneId));
+  };
+
+  const activeScene = scenes.find((s) => s.id === selectedSceneId) || scenes[0];
 
   return (
-    <div
-      className="min-h-screen w-full flex flex-col font-sans transition-colors duration-300 relative select-none"
-      style={{
-        backgroundColor: 'var(--bg-page)',
-        color: 'var(--text-main)',
-      }}
-    >
-      {/* Ambient Atmospheric 3D Stardust Canvas */}
-      <Spatial3DCanvas 
-        theme={currentTheme} 
-        currentView={currentView}
-      />
-
-      {/* Fluid Magnetic Torch Cursor */}
-      <MagneticCursor />
-
-      {/* Top Global Navigation */}
+    <div className="min-h-screen w-full bg-[#11110F] text-[#F2F0E8] font-sans flex flex-col justify-between selection:bg-[#D8FF3E] selection:text-[#11110F]">
+      {/* Top Editorial Navbar */}
       <Navbar
-        currentView={currentView}
-        onSwitchView={handleSwitchChapter}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        currentTheme={currentTheme}
-        onSelectTheme={setCurrentTheme}
+        currentTab={currentTab}
+        onSelectTab={(tab) => {
+          setSelectedSceneId(null);
+          setCurrentTab(tab);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onOpenCommandPalette={() => setIsCommandOpen(true)}
         onOpenCMS={() => setIsAdminOpen(true)}
+        savedDossierCount={savedSceneIds.length}
       />
 
-      {/* Main Presentation Stage (Natural Fluid Height, Zero Clippings) */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 flex flex-col justify-start pb-24 relative z-10">
-        <div
-          key={currentView}
-          className={`w-full flex-1 flex flex-col justify-start ${
-            slideDirection === 'up' ? 'animate-keynote-up' : 'animate-keynote-down'
-          }`}
-        >
-          {/* Slide 00: 镜头式叙事与电影分镜 */}
-          {currentView === 'cinema' && (
-            <PromptCinemaView
-              scenes={cinemaScenes}
-              onOpenCMS={() => setIsAdminOpen(true)}
-              onExploreAtom={handleExploreAtomInWorks}
-              onExplorePrinciple={handleExplorePrincipleInWorks}
-            />
-          )}
-
-          {/* Slide 01: 视觉基础材料库 */}
-          {currentView === 'atoms' && (
-            <VisualAtomsView 
-              atoms={visualAtoms}
-              onExploreAtomInWorks={handleExploreAtomInWorks} 
-            />
-          )}
-
-          {/* Slide 02: 十大设计原则实验室 */}
-          {currentView === 'principles' && (
-            <DesignPrinciplesView 
-              principles={designPrinciples}
-              onExplorePrincipleInWorks={handleExplorePrincipleInWorks} 
-            />
-          )}
-
-          {/* Slide 03: 风格规则矩阵与方程 */}
-          {currentView === 'styles' && (
-            <StyleMatrixView 
-              styles={styleRules}
-              onExploreStyleInWorks={handleExploreStyleInWorks} 
-            />
-          )}
-
-          {/* Slide 04: 四大表现媒介矩阵 */}
-          {currentView === 'mediums' && (
-            <MediumMatrixView onExploreMediumInWorks={handleExploreMediumInWorks} />
-          )}
-
-          {/* Slide 05: 动态与镜头语言实验室 */}
-          {currentView === 'motion' && (
-            <MotionCameraLab />
-          )}
-
-          {/* Slide 06: 作品知识网络与多维拆解 */}
-          {currentView === 'atlas' && (
-            <DesignAtlasView
-              initialAtomFilter={activeAtomFilter}
-              initialStyleFilter={activeStyleFilter}
-              initialPrincipleFilter={activePrincipleFilter}
-              initialMediumFilter={activeMediumFilter}
-              onClearFilter={handleClearFilters}
-              onSelectAtom={handleExploreAtomInWorks}
-              onSelectStyle={handleExploreStyleInWorks}
-              onSelectPrinciple={handleExplorePrincipleInWorks}
-            />
-          )}
-
-          {/* Slide 07: 算法海报重构工坊 */}
-          {currentView === 'shapes-lab' && (
-            <div className="flex-1 flex flex-col justify-between overflow-y-auto no-scrollbar">
-              <GenerativePosterStudio
-                currentTheme={currentTheme}
-                onSelectTheme={setCurrentTheme}
+      {/* Main Exhibition Floor */}
+      <main className="flex-1 w-full">
+        {selectedSceneId ? (
+          <SceneDetailView
+            scene={activeScene}
+            allScenes={scenes}
+            onBack={() => {
+              setSelectedSceneId(null);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onSelectScene={(id) => {
+              setSelectedSceneId(id);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onExploreTag={(tag) => {
+              setSelectedSceneId(null);
+              setCurrentTab('archive');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onOpenInLab={() => {
+              setSelectedSceneId(null);
+              setCurrentTab('lab');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onSaveToDossier={handleToggleDossier}
+            isSavedInDossier={savedSceneIds.includes(activeScene.id)}
+          />
+        ) : (
+          <>
+            {currentTab === 'index' && (
+              <OpeningSequenceView
+                featuredScene={scenes[0]}
+                totalScenesCount={scenes.length}
+                onStudyScene={(id) => {
+                  setSelectedSceneId(id);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                onExploreArchive={() => {
+                  setCurrentTab('archive');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
               />
-              <div className="mt-8 mb-4">
-                <GoogleAdSenseUnit variant="banner" />
-              </div>
-              <Footer onSecretTrigger={() => setIsAdminOpen(true)} />
-            </div>
-          )}
-        </div>
+            )}
+
+            {currentTab === 'archive' && (
+              <ArchiveContactSheet
+                scenes={scenes}
+                onSelectScene={(id) => {
+                  setSelectedSceneId(id);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              />
+            )}
+
+            {currentTab === 'language' && (
+              <VisualConstellationView
+                scenes={scenes}
+                onSelectScene={(id) => {
+                  setSelectedSceneId(id);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              />
+            )}
+
+            {currentTab === 'dossiers' && (
+              <DossiersView
+                savedSceneIds={savedSceneIds}
+                allScenes={scenes}
+                onSelectScene={(id) => {
+                  setSelectedSceneId(id);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                onRemoveFromDossier={handleRemoveFromDossier}
+              />
+            )}
+
+            {currentTab === 'lab' && (
+              <VisualLabView
+                initialScene={scenes[0]}
+                onSavePromptToDossier={(prompt) => {
+                  alert('Prompt saved to research dossier.');
+                }}
+              />
+            )}
+          </>
+        )}
       </main>
 
-      {/* Floating Keynote Slide Control Bar */}
-      <SlideControlBar
-        currentView={currentView}
-        onSwitchView={handleSwitchChapter}
+      {/* AdSense Unit (Discreet Editorial Placement) */}
+      <div className="max-w-[1440px] mx-auto w-full px-6 lg:px-12 my-6">
+        <GoogleAdSenseUnit variant="banner" />
+      </div>
+
+      {/* Minimal Swiss Editorial Colophon Footer */}
+      <footer className="w-full border-t border-[#F2F0E8]/10 bg-[#0E0E0C] text-[#8B887F] text-xs font-mono py-8 px-6 lg:px-12">
+        <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-[#D8FF3E]">●</span>
+            <span className="text-[#F2F0E8] font-bold">VISUAL ATLAS</span>
+            <span>// 2026 ARCHIVE EDITION</span>
+          </div>
+          <div className="flex items-center gap-6 text-[11px]">
+            <span>SEE → DECODE → CONNECT → COLLECT → CREATE</span>
+            <button 
+              onClick={() => setIsAdminOpen(true)}
+              className="hover:text-[#D8FF3E] transition-colors cursor-pointer"
+            >
+              CURATOR CMS
+            </button>
+          </div>
+        </div>
+      </footer>
+
+      {/* Global ⌘K Command Palette Modal */}
+      <CommandPalette
+        isOpen={isCommandOpen}
+        onClose={() => setIsCommandOpen(false)}
+        scenes={scenes}
+        onSelectScene={(id) => {
+          setSelectedSceneId(id);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onNavigateTab={(tab) => {
+          setSelectedSceneId(null);
+          setCurrentTab(tab);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
       />
 
-      {/* Full-Featured Curator Admin CMS Modal */}
+      {/* Stealth / Curator Admin CMS Modal */}
       <AdminCMSModal
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
-        cinemaScenes={cinemaScenes}
+        cinemaScenes={scenes}
         visualAtoms={visualAtoms}
         designPrinciples={designPrinciples}
         styleRules={styleRules}
-        onUpdateCinemaScenes={setCinemaScenes}
+        onUpdateCinemaScenes={setScenes}
         onUpdateVisualAtoms={setVisualAtoms}
         onUpdateDesignPrinciples={setDesignPrinciples}
         onUpdateStyleRules={setStyleRules}

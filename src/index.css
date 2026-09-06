@@ -2,8 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --canvas-bg: #11110F;
+  --text-primary: #F2F0E8;
+  --text-secondary: #8B887F;
+  --accent: #D8FF3E;
+  --border-hairline: rgba(242, 240, 232, 0.12);
+  --surface-muted: #181815;
+  --surface-hover: #22221E;
+}
+
 /* ===================================================
-   5 SCENARIO-BASED ARTISTIC THEMES (场景化沉浸主题)
+   VISUAL ATLAS · THE CINEMA & AESTHETIC LANGUAGE SYSTEM
+   Swiss Editorial + Museum Catalog + Film Contact Sheet
    =================================================== */
 
 /* 1. 暖夜微光 (Warm Night Hearth) - 用户的核心参考：夜晚灯光下的温馨场景 */
