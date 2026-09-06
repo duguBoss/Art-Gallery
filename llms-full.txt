@@ -1,0 +1,49 @@
+# VISUAL ATLAS: The Cinema & Aesthetic Language System
+> A structured visual design knowledge archive & cinematic language ontology for humans and AI agents.
+> Website: https://duguboss.github.io/Art-Gallery/
+> Language: Bilingual (English / 简体中文)
+
+## Purpose & Overview
+VISUAL ATLAS is not a generic image gallery or portfolio. It is an interactive visual knowledge system designed to deconstruct why cinematic masterworks evoke emotional resonance and aesthetic awe. 
+It establishes a unified visual syntax bridging optical rigs, lighting ratios, chromatic tension, geometric compositions, and AI generative prompt engineering.
+
+Core User & Agent Journey:
+SEE → DECODE → CONNECT → COLLECT → CREATE (看 → 拆 → 关联 → 收藏 → 创作)
+
+## Core Knowledge Endpoints & Resources
+- Complete Machine-Readable Knowledge Base: https://duguboss.github.io/Art-Gallery/llms-full.txt
+- Raw Visual Knowledge API (JSON): https://duguboss.github.io/Art-Gallery/visual-knowledge.json
+- Contact Sheet Archive: https://duguboss.github.io/Art-Gallery/#/archive
+- Visual Constellation Language Map: https://duguboss.github.io/Art-Gallery/#/language
+- Visual Prompt Laboratory: https://duguboss.github.io/Art-Gallery/#/lab
+- Research Dossiers: https://duguboss.github.io/Art-Gallery/#/dossiers
+- Aesthetic Manifesto & Anti-AI Constitution: https://duguboss.github.io/Art-Gallery/#/about
+
+## Visual Analysis Ontology (Visual DNA)
+Every cinematic scene in VISUAL ATLAS is deconstructed into five fundamental dimensions:
+1. MOOD (情绪基因): Emotional cadence, psychological distance, and subconscious resonance (e.g., Melancholic Nocturne, Monumental Austere, Poetic Editorial, Eastern Zen).
+2. LIGHT (光影几何): Key-to-fill ratios, directionality, volumetric falloff, and diffusion (e.g., Low-Key Volumetric Rim 1:8, Cathedral Single-Source God Ray, 100% Diffuse North Window Light).
+3. COLOR (色彩色谱): Chromatic polarity, color temperature separation, and film emulsion (e.g., Electric Cyan & Warm Amber Contrast, Monochrome Architectural Grayscale, Deep Emerald & Vermilion).
+4. CAMERA & OPTICS (光学句法): Focal length, lens compression, sensor format, aspect ratio, and shutter angle (e.g., Cooke Anamorphic 35mm T/1.8, Arri Signature Prime 24mm, 24.000 FPS / 180° Shutter).
+5. COMPOSITION (构图法则): Geometric grid, negative space ratio, and perspective convergence (e.g., Negative Space 78%, Centered Scale Shock 5% Human vs 95% Wall, One-Point Kubrickian Symmetry).
+
+## Recommended AI Prompt Pattern
+When an AI agent is instructed to create or review visual work based on VISUAL ATLAS, it should execute the following reasoning chain:
+1. Select the emotional atmosphere (Mood).
+2. Determine spatial geometry and negative space percentage (Composition).
+3. Establish lighting direction and key/fill contrast ratio (Lighting).
+4. Define chromatic polarity and palette temperature (Color).
+5. Select physical camera rig, anamorphic distortion, and focal compression (Camera Optics).
+6. Synthesize into engine-specific syntax (Midjourney v6.1, FLUX.1 [dev], Runway Gen-3 / Veo, or Gemini Art Direction Brief).
+
+## Anti-AI Design Restraints (Design Constitution)
+- Strict Swiss 12-column grid and hairline borders (0.14 opacity).
+- Restrained color palette: Darkroom Canvas (#11110F) + Acid Chartreuse (#D8FF3E).
+- NO purple-blue gradients, glassmorphism cards, 3D blobs, or fake sci-fi HUD dashboards without semantic purpose.
+- Images must dominate the experience as structural proof, not wallpaper.
+
+
+==================================================
+
+# COMPLETE VISUAL KNOWLEDGE GRAPH (ALL MASTER SCENES & DNA ONTOLOGY)
+
