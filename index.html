@@ -15,6 +15,46 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- AI Discovery & Knowledge Ontology Links (AIO / GEO) -->
+    <link rel="alternate" type="text/plain" href="./llms.txt" title="LLMs.txt" />
+    <link rel="alternate" type="application/json" href="./visual-knowledge.json" title="Visual Knowledge Ontology" />
+
+    <!-- Structured Knowledge Graph (Schema.org JSON-LD) for Search & AI Agents -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://duguboss.github.io/Art-Gallery/#website",
+          "url": "https://duguboss.github.io/Art-Gallery/",
+          "name": "VISUAL ATLAS · The Cinema & Aesthetic Language System",
+          "description": "A structured visual design knowledge archive and cinematic language ontology deconstructing composition, lighting ratios, color palettes, optical rigs, and AI prompt engineering.",
+          "inLanguage": ["zh-CN", "en"]
+        },
+        {
+          "@type": "Dataset",
+          "@id": "https://duguboss.github.io/Art-Gallery/#dataset",
+          "name": "Visual Atlas Cinema & Visual Design Ontology",
+          "description": "Structured dataset of master cinematic scenes with Visual DNA, lighting vectors, camera rigs, and prompt recipes.",
+          "license": "https://creativecommons.org/licenses/by/4.0/",
+          "distribution": [
+            {
+              "@type": "DataDownload",
+              "encodingFormat": "text/plain",
+              "contentUrl": "https://duguboss.github.io/Art-Gallery/llms.txt"
+            },
+            {
+              "@type": "DataDownload",
+              "encodingFormat": "application/json",
+              "contentUrl": "https://duguboss.github.io/Art-Gallery/visual-knowledge.json"
+            }
+          ]
+        }
+      ]
+    }
+    </script>
   </head>
   <body class="bg-[#11110F] text-[#F2F0E8] antialiased min-h-screen overflow-x-hidden selection:bg-[#D8FF3E] selection:text-[#11110F]">
     <div id="root"></div>

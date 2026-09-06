@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Sliders, Globe } from 'lucide-react';
+import { Search, Sliders, Globe, Sparkles } from 'lucide-react';
 import { playSpotlightClick } from '../utils/audio';
 import type { AtlasTab } from '../types/visualAtlas';
 import { useLanguage } from '../context/LanguageContext';
@@ -11,6 +11,7 @@ interface NavbarProps {
   onSelectTab: (tab: AtlasTab) => void;
   onOpenCommandPalette: () => void;
   onOpenCMS: () => void;
+  onOpenAI: () => void;
   savedDossierCount?: number;
 }
 
@@ -19,6 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectTab,
   onOpenCommandPalette,
   onOpenCMS,
+  onOpenAI,
   savedDossierCount = 0,
 }) => {
   const { lang, toggleLang, t } = useLanguage();
@@ -84,6 +86,20 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right Tools: Language Switcher, ⌘K Command Trigger & CMS Entry */}
         <div className="flex items-center gap-2.5 font-mono text-xs">
+          {/* AIO / USE WITH AI Trigger */}
+          <button
+            onClick={() => {
+              playSpotlightClick();
+              onOpenAI();
+            }}
+            className="flex items-center gap-1.5 px-2.5 py-1 border border-[#D8FF3E]/40 hover:border-[#D8FF3E] bg-[#D8FF3E]/10 hover:bg-[#D8FF3E]/20 text-[#D8FF3E] transition-colors cursor-pointer text-xs font-bold"
+            title="Use Visual Atlas with AI / AI 智能体调用"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">USE WITH AI</span>
+            <span className="sm:hidden">AI</span>
+          </button>
+
           {/* Bilingual Language Switcher */}
           <button
             onClick={() => {

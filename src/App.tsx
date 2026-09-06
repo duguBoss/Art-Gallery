@@ -12,6 +12,7 @@ import { VisualLabView } from './components/VisualLabView';
 import { AboutManifestoView } from './components/AboutManifestoView';
 import { CommandPalette } from './components/CommandPalette';
 import { AdminCMSModal } from './components/AdminCMSModal';
+import { UseWithAIModal } from './components/UseWithAIModal';
 import { GoogleAdSenseUnit } from './components/GoogleAdSenseUnit';
 import { playSpotlightClick } from './utils/audio';
 import { 
@@ -27,6 +28,7 @@ function AppContent() {
   const [selectedSceneId, setSelectedSceneId] = useState<string | null>(null);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isAIOpen, setIsAIOpen] = useState(false);
 
   // Dynamic Scene Data Store
   const [scenes, setScenes] = useState<CinemaScene[]>(() => getCinemaScenes());
@@ -98,6 +100,7 @@ function AppContent() {
         }}
         onOpenCommandPalette={() => setIsCommandOpen(true)}
         onOpenCMS={() => setIsAdminOpen(true)}
+        onOpenAI={() => setIsAIOpen(true)}
         savedDossierCount={savedSceneIds.length}
       />
 
@@ -252,6 +255,12 @@ function AppContent() {
         onUpdateVisualAtoms={setVisualAtoms}
         onUpdateDesignPrinciples={setDesignPrinciples}
         onUpdateStyleRules={setStyleRules}
+      />
+
+      {/* AIO / GEO / Use With AI Modal */}
+      <UseWithAIModal
+        isOpen={isAIOpen}
+        onClose={() => setIsAIOpen(false)}
       />
     </div>
   );

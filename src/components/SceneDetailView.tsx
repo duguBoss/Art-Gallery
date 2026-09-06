@@ -28,6 +28,8 @@ export const SceneDetailView: React.FC<SceneDetailViewProps> = ({
 }) => {
   const { lang, t } = useLanguage();
   const [copied, setCopied] = useState(false);
+  const [dnaViewMode, setDnaViewMode] = useState<'human' | 'json'>('human');
+  const [copiedJson, setCopiedJson] = useState(false);
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>('overview');
 
   const currentIdx = allScenes.findIndex((s) => s.id === scene.id);
@@ -406,92 +408,200 @@ export const SceneDetailView: React.FC<SceneDetailViewProps> = ({
             </p>
           </div>
 
-          {/* DNA Section: MOOD */}
-          <div className="border-t border-[#F2F0E8]/10 pt-3">
-            <div className="text-[10px] font-mono text-[#8B887F] uppercase mb-2">{t('scene.dnaMood')}</div>
-            <div className="flex flex-wrap gap-2">
-              {visualDna.mood.map((m) => (
-                <button
-                  key={m}
-                  onClick={() => onExploreTag(m, 'mood')}
-                  className="px-3 py-1 bg-[#181815] border border-[#F2F0E8]/15 hover:border-[#D8FF3E] hover:text-[#D8FF3E] text-xs font-mono transition-colors cursor-pointer"
-                >
-                  {m}
-                </button>
-              ))}
+          {/* Format View Toggle */}
+          <div className="flex items-center justify-between border-t border-[#F2F0E8]/10 pt-3">
+            <span className="text-[10px] font-mono text-[#8B887F] uppercase">
+              {lang === 'zh' ? '呈现格式 / FORMAT:' : 'VIEW FORMAT:'}
+            </span>
+            <div className="flex items-center gap-1 font-mono text-[10px]">
+              <button
+                onClick={() => {
+                  playSpotlightClick();
+                  setDnaViewMode('human');
+                }}
+                className={`px-2.5 py-1 border transition-colors cursor-pointer ${
+                  dnaViewMode === 'human'
+                    ? 'border-[#D8FF3E] text-[#D8FF3E] bg-[#D8FF3E]/10 font-bold'
+                    : 'border-[#F2F0E8]/10 text-[#8B887F] hover:text-[#F2F0E8]'
+                }`}
+              >
+                HUMAN
+              </button>
+              <button
+                onClick={() => {
+                  playSpotlightClick();
+                  setDnaViewMode('json');
+                }}
+                className={`px-2.5 py-1 border transition-colors cursor-pointer ${
+                  dnaViewMode === 'json'
+                    ? 'border-[#D8FF3E] text-[#D8FF3E] bg-[#D8FF3E]/10 font-bold'
+                    : 'border-[#F2F0E8]/10 text-[#8B887F] hover:text-[#F2F0E8]'
+                }`}
+              >
+                AI JSON
+              </button>
             </div>
           </div>
 
-          {/* DNA Section: LIGHT */}
-          <div className="border-t border-[#F2F0E8]/10 pt-3">
-            <div className="text-[10px] font-mono text-[#8B887F] uppercase mb-2">{t('scene.dnaLight')}</div>
-            <div className="flex flex-wrap gap-2">
-              {visualDna.light.map((l) => (
+          {dnaViewMode === 'json' ? (
+            /* MACHINE-READABLE JSON VIEW (FOR AI AGENTS & RESEARCHERS) */
+            <div className="space-y-3 font-mono text-xs animate-fadeIn">
+              <div className="flex items-center justify-between text-[10px] text-[#8B887F]">
+                <span className="text-[#D8FF3E]">MACHINE-READABLE VISUAL ONTOLOGY</span>
                 <button
-                  key={l}
-                  onClick={() => onExploreTag(l, 'light')}
-                  className="px-3 py-1 bg-[#181815] border border-[#F2F0E8]/15 hover:border-[#D8FF3E] hover:text-[#D8FF3E] text-xs font-mono transition-colors cursor-pointer"
+                  onClick={() => {
+                    const sceneJson = JSON.stringify({
+                      id: scene.id,
+                      sceneNumber: scene.sceneNumber,
+                      title: scene.title,
+                      titleEn: scene.titleEn,
+                      aspectRatio: "2.39:1",
+                      visualDNA: visualDna,
+                      cameraRig: scene.cameraRig,
+                      lightingVector: {
+                        type: scene.cameraRig.lighting,
+                        ratio: "8:1 (Chiaroscuro Falloff)",
+                        keyAngle: "45° Rim / Volumetric"
+                      },
+                      compositionAudit: {
+                        atom: scene.behindTheScenes?.atomName,
+                        principle: scene.behindTheScenes?.principleName,
+                        style: scene.behindTheScenes?.styleName,
+                        rationale: scene.behindTheScenes?.whyItWorks
+                      },
+                      colorPalette: scene.colorPalette,
+                      productionPrompt: scene.scriptPrompt
+                    }, null, 2);
+                    navigator.clipboard.writeText(sceneJson);
+                    setCopiedJson(true);
+                    playSuccessChime();
+                    setTimeout(() => setCopiedJson(false), 2000);
+                  }}
+                  className="px-2 py-0.5 border border-[#D8FF3E] text-[#D8FF3E] hover:bg-[#D8FF3E] hover:text-[#11110F] text-[9px] font-bold uppercase transition-colors cursor-pointer flex items-center gap-1"
                 >
-                  {l}
+                  <Copy className="w-3 h-3" />
+                  <span>{copiedJson ? (lang === 'zh' ? '已复制 JSON' : 'JSON COPIED') : (lang === 'zh' ? '复制标准 JSON' : 'COPY JSON')}</span>
                 </button>
-              ))}
-            </div>
-          </div>
-
-          {/* DNA Section: COLOR PALETTE */}
-          <div className="border-t border-[#F2F0E8]/10 pt-3">
-            <div className="text-[10px] font-mono text-[#8B887F] uppercase mb-2">{t('scene.dnaColor')}</div>
-            <div className="flex items-center gap-2">
-              {visualDna.color.map((hex) => (
-                <div key={hex} className="group relative flex items-center gap-1.5 font-mono text-[11px] text-[#8B887F]">
-                  <div
-                    className="w-5 h-5 border border-[#F2F0E8]/20 cursor-pointer hover:scale-110 transition-transform"
-                    style={{ backgroundColor: hex }}
-                    onClick={() => onExploreTag(hex, 'color')}
-                    title={hex}
-                  />
-                  <span>{hex}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* DNA Section: CAMERA */}
-          <div className="border-t border-[#F2F0E8]/10 pt-3">
-            <div className="text-[10px] font-mono text-[#8B887F] uppercase mb-2">{t('scene.dnaCamera')}</div>
-            <div className="flex flex-wrap gap-2">
-              {visualDna.camera.map((c) => (
-                <button
-                  key={c}
-                  onClick={() => onExploreTag(c, 'camera')}
-                  className="px-3 py-1 bg-[#181815] border border-[#F2F0E8]/15 hover:border-[#D8FF3E] hover:text-[#D8FF3E] text-xs font-mono transition-colors cursor-pointer"
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* DNA Section: COMPOSITION */}
-          <div className="border-t border-[#F2F0E8]/10 pt-3">
-            <div className="text-[10px] font-mono text-[#8B887F] uppercase mb-2">{t('scene.dnaComposition')}</div>
-            <div className="flex flex-wrap gap-2 mb-3">
-              {visualDna.composition.map((comp) => (
-                <button
-                  key={comp}
-                  onClick={() => onExploreTag(comp, 'composition')}
-                  className="px-3 py-1 bg-[#181815] border border-[#F2F0E8]/15 hover:border-[#D8FF3E] hover:text-[#D8FF3E] text-xs font-mono transition-colors cursor-pointer"
-                >
-                  {comp}
-                </button>
-              ))}
-            </div>
-            {scene.behindTheScenes && (
-              <div className="text-xs font-sans text-[#8B887F] leading-relaxed border-l-2 border-[#D8FF3E] pl-3 py-1">
-                {scene.behindTheScenes.whyItWorks}
               </div>
-            )}
-          </div>
+
+              <pre className="p-4 bg-[#0E0E0C] border border-[#F2F0E8]/10 text-[11px] text-[#F2F0E8] leading-relaxed overflow-x-auto select-all max-h-96">
+                {JSON.stringify({
+                  "@context": "https://duguboss.github.io/Art-Gallery/llms.txt",
+                  "@type": "VisualKnowledgeAtom",
+                  "id": scene.id,
+                  "sceneNumber": scene.sceneNumber,
+                  "title": scene.title,
+                  "titleEn": scene.titleEn,
+                  "aspectRatio": "2.39:1",
+                  "visualDNA": visualDna,
+                  "cameraRig": scene.cameraRig,
+                  "lightingVector": {
+                    type: scene.cameraRig.lighting,
+                    ratio: "8:1 (Chiaroscuro Falloff)",
+                    keyAngle: "45° Rim / Volumetric"
+                  },
+                  "compositionAudit": {
+                    atom: scene.behindTheScenes?.atomName,
+                    principle: scene.behindTheScenes?.principleName,
+                    style: scene.behindTheScenes?.styleName,
+                    rationale: scene.behindTheScenes?.whyItWorks
+                  },
+                  "colorPalette": scene.colorPalette,
+                  "productionPrompt": scene.scriptPrompt
+                }, null, 2)}
+              </pre>
+            </div>
+          ) : (
+            /* HUMAN VISUAL INTERACTIVE VIEW */
+            <>
+              {/* DNA Section: MOOD */}
+              <div className="border-t border-[#F2F0E8]/10 pt-3">
+                <div className="text-[10px] font-mono text-[#8B887F] uppercase mb-2">{t('scene.dnaMood')}</div>
+                <div className="flex flex-wrap gap-2">
+                  {visualDna.mood.map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => onExploreTag(m, 'mood')}
+                      className="px-3 py-1 bg-[#181815] border border-[#F2F0E8]/15 hover:border-[#D8FF3E] hover:text-[#D8FF3E] text-xs font-mono transition-colors cursor-pointer"
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* DNA Section: LIGHT */}
+              <div className="border-t border-[#F2F0E8]/10 pt-3">
+                <div className="text-[10px] font-mono text-[#8B887F] uppercase mb-2">{t('scene.dnaLight')}</div>
+                <div className="flex flex-wrap gap-2">
+                  {visualDna.light.map((l) => (
+                    <button
+                      key={l}
+                      onClick={() => onExploreTag(l, 'light')}
+                      className="px-3 py-1 bg-[#181815] border border-[#F2F0E8]/15 hover:border-[#D8FF3E] hover:text-[#D8FF3E] text-xs font-mono transition-colors cursor-pointer"
+                    >
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* DNA Section: COLOR PALETTE */}
+              <div className="border-t border-[#F2F0E8]/10 pt-3">
+                <div className="text-[10px] font-mono text-[#8B887F] uppercase mb-2">{t('scene.dnaColor')}</div>
+                <div className="flex items-center gap-2">
+                  {visualDna.color.map((hex) => (
+                    <div key={hex} className="group relative flex items-center gap-1.5 font-mono text-[11px] text-[#8B887F]">
+                      <div
+                        className="w-5 h-5 border border-[#F2F0E8]/20 cursor-pointer hover:scale-110 transition-transform"
+                        style={{ backgroundColor: hex }}
+                        onClick={() => onExploreTag(hex, 'color')}
+                        title={hex}
+                      />
+                      <span>{hex}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* DNA Section: CAMERA */}
+              <div className="border-t border-[#F2F0E8]/10 pt-3">
+                <div className="text-[10px] font-mono text-[#8B887F] uppercase mb-2">{t('scene.dnaCamera')}</div>
+                <div className="flex flex-wrap gap-2">
+                  {visualDna.camera.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => onExploreTag(c, 'camera')}
+                      className="px-3 py-1 bg-[#181815] border border-[#F2F0E8]/15 hover:border-[#D8FF3E] hover:text-[#D8FF3E] text-xs font-mono transition-colors cursor-pointer"
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* DNA Section: COMPOSITION */}
+              <div className="border-t border-[#F2F0E8]/10 pt-3">
+                <div className="text-[10px] font-mono text-[#8B887F] uppercase mb-2">{t('scene.dnaComposition')}</div>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {visualDna.composition.map((comp) => (
+                    <button
+                      key={comp}
+                      onClick={() => onExploreTag(comp, 'composition')}
+                      className="px-3 py-1 bg-[#181815] border border-[#F2F0E8]/15 hover:border-[#D8FF3E] hover:text-[#D8FF3E] text-xs font-mono transition-colors cursor-pointer"
+                    >
+                      {comp}
+                    </button>
+                  ))}
+                </div>
+                {scene.behindTheScenes && (
+                  <div className="text-xs font-sans text-[#8B887F] leading-relaxed border-l-2 border-[#D8FF3E] pl-3 py-1">
+                    {scene.behindTheScenes.whyItWorks}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
