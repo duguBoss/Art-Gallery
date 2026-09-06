@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Copy, Check, Bookmark, Sliders, ChevronLeft, ChevronRight, Eye, Grid, Palette, Camera, Sun } from 'lucide-react';
+import { ArrowLeft, Copy, Check, Bookmark, Sliders, ChevronLeft, ChevronRight, Eye, Grid, Palette, Camera, Sun, Sparkles } from 'lucide-react';
 import type { CinemaScene } from '../types/cinema';
 import type { AnalysisMode } from '../types/visualAtlas';
 import { playSpotlightClick, playSuccessChime } from '../utils/audio';
 import { useLanguage } from '../context/LanguageContext';
+import { getAtomsForScene } from '../data/canonicalKnowledgeGraph';
 
 interface SceneDetailViewProps {
   scene: CinemaScene;
@@ -46,6 +47,8 @@ export const SceneDetailView: React.FC<SceneDetailViewProps> = ({
   const displayTitle = lang === 'en' ? (scene.titleEn || scene.title) : scene.title;
   const displayPrevTitle = lang === 'en' ? (prevScene.titleEn || prevScene.title) : prevScene.title;
   const displayNextTitle = lang === 'en' ? (nextScene.titleEn || nextScene.title) : nextScene.title;
+
+  const canonicalAtoms = getAtomsForScene(scene.id);
 
   // Extract Visual DNA tags
   const visualDna = {
@@ -595,8 +598,34 @@ export const SceneDetailView: React.FC<SceneDetailViewProps> = ({
                   ))}
                 </div>
                 {scene.behindTheScenes && (
-                  <div className="text-xs font-sans text-[#8B887F] leading-relaxed border-l-2 border-[#D8FF3E] pl-3 py-1">
+                  <div className="text-xs font-sans text-[#8B887F] leading-relaxed border-l-2 border-[#D8FF3E] pl-3 py-1 mb-3">
                     {scene.behindTheScenes.whyItWorks}
+                  </div>
+                )}
+
+                {/* Canonical Knowledge Atoms */}
+                {canonicalAtoms.length > 0 && (
+                  <div className="border-t border-[#D8FF3E]/20 bg-[#D8FF3E]/5 p-3 mt-2">
+                    <div className="text-[10px] font-mono text-[#D8FF3E] uppercase font-bold mb-2 flex items-center gap-1.5">
+                      <Sparkles className="w-3 h-3" />
+                      <span>{lang === 'zh' ? '关联视觉本体构件' : 'LINKED KNOWLEDGE ATOMS'}</span>
+                    </div>
+                    <div className="space-y-2">
+                      {canonicalAtoms.map((atom) => (
+                        <div key={atom.id} className="text-xs border border-[#F2F0E8]/10 p-2 bg-[#11110F]">
+                          <div className="flex items-center justify-between text-[9px] font-mono mb-0.5">
+                            <span className="text-[#D8FF3E] uppercase font-bold">{atom.category}</span>
+                            <span className="text-[#8B887F]">{atom.id}</span>
+                          </div>
+                          <div className="font-bold text-xs text-[#F2F0E8]">
+                            {atom.name[lang === 'zh' ? 'zh-CN' : lang] || atom.name.en}
+                          </div>
+                          <div className="text-[11px] text-[#8B887F] mt-0.5">
+                            {atom.definition[lang === 'zh' ? 'zh-CN' : lang] || atom.definition.en}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

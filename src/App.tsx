@@ -13,6 +13,8 @@ import { AboutManifestoView } from './components/AboutManifestoView';
 import { CommandPalette } from './components/CommandPalette';
 import { AdminCMSModal } from './components/AdminCMSModal';
 import { UseWithAIModal } from './components/UseWithAIModal';
+import { AIKnowledgeCockpit } from './components/AIKnowledgeCockpit';
+import { useAtlasRouter } from './router/useAtlasRouter';
 import { GoogleAdSenseUnit } from './components/GoogleAdSenseUnit';
 import { playSpotlightClick } from './utils/audio';
 import { 
@@ -23,12 +25,31 @@ import {
 } from './data/atlasStore';
 
 function AppContent() {
-  const { t } = useLanguage();
+  const { lang, setLang, t } = useLanguage();
   const [currentTab, setCurrentTab] = useState<AtlasTab>('index');
   const [selectedSceneId, setSelectedSceneId] = useState<string | null>(null);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
+
+  // Two-way synchronization with URL hash for deep-linking & crawler support
+  useAtlasRouter(
+    lang,
+    currentTab === 'language' ? 'constellation' : (currentTab as any),
+    selectedSceneId,
+    (route) => {
+      if (route.locale && route.locale !== lang) {
+        setLang(route.locale);
+      }
+      if (route.tab) {
+        const mappedTab = route.tab === 'constellation' ? 'language' : route.tab;
+        setCurrentTab(mappedTab as AtlasTab);
+      }
+      if (route.sceneId !== undefined) {
+        setSelectedSceneId(route.sceneId || null);
+      }
+    }
+  );
 
   // Dynamic Scene Data Store
   const [scenes, setScenes] = useState<CinemaScene[]>(() => getCinemaScenes());
@@ -197,6 +218,10 @@ function AppContent() {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
               />
+            )}
+
+            {currentTab === 'ai' && (
+              <AIKnowledgeCockpit />
             )}
           </>
         )}

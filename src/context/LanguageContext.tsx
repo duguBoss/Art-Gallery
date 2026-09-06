@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
-export type Language = 'zh' | 'en';
+export type Language = 'zh' | 'en' | 'ja' | 'ko';
 
 interface LanguageContextType {
   lang: Language;
@@ -18,6 +18,7 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.dossiers': '04 研究案卷',
     'nav.lab': '05 创作工坊',
     'nav.about': '06 存在宣言',
+    'nav.ai': '07 AI 驾驶舱',
     'nav.search': '全局检索',
     'nav.searchPlaceholder': '按 ⌘K 或 Ctrl+K 搜索',
     'nav.curator': '策展后台',
@@ -58,102 +59,35 @@ const translations: Record<Language, Record<string, string>> = {
     'archive.filterEditorial': '画报诗性',
     'archive.filterZen': '东方水墨',
     'archive.filterGhibli': '治愈晴风',
-    'archive.viewScene': '检视分镜',
 
-    // 03 Scene Detail
-    'scene.return': '返回档案馆',
-    'scene.hudLabel': '分析 HUD:',
-    'scene.modeOverview': '01 大师画幅',
-    'scene.modeComposition': '02 构图法则',
-    'scene.modeColor': '03 色彩色谱',
-    'scene.modeCamera': '04 光学取景框',
-    'scene.modeLight': '05 光影流向',
-    'scene.stateLabel': '状态:',
-    'scene.stateActive': '%mode% 解构激活',
-    'scene.auditTitle': '构图审计:',
-    'scene.auditRuleOfThirds': '• 三分法则: 人物视觉重心穿透',
-    'scene.auditHarmonic': '• 黄金分割: 1:1.618 比例极值',
-    'scene.auditNegative': '• 负空间占比: 64% 观者停泊留白',
-    'scene.auditPerspective': '• 透视结构:',
-    'scene.colorTitle': '色相对比提取',
-    'scene.colorSpectrum': '高动态色阶范围',
-    'scene.colorTheory': '色彩原理:',
-    'scene.fpsLabel': 'FPS: 24.000 // 快门角: 180.0°',
-    'scene.opticsLabel': '光学系统:',
-    'scene.trackLabel': '运镜轨道:',
-    'scene.rawLabel': 'RAW 数字底片 // ISO 800',
-    'scene.lightMapTitle': '光线流向与空间测绘:',
-    'scene.keyFillRatio': '主暗比: 1:8 (低调沉郁)',
-    'scene.falloff': '衰减: 反平方定律',
-    'scene.atmosphere': '氛围: 丁达尔体积雾',
-    'scene.diffusion': '漫射: 有机柔光',
-    'scene.callSheetTitle': '好莱坞制作通告单与提示词',
-    'scene.copyPrompt': '复制提示词',
-    'scene.copied': '已复制到剪贴板',
-    'scene.lensHeader': '光学镜头',
-    'scene.shutterHeader': '快门与帧率',
-    'scene.movementHeader': '摄影机运动',
-    'scene.addToDossier': '存入研究案卷',
-    'scene.savedInDossier': '已存入案卷',
-    'scene.remixInLab': '在实验室重混',
-    'scene.correlatedTitle': '探索共享相同美学法则的相关分镜:',
-    'scene.dnaTitle': 'VISUAL DNA 视觉基因',
-    'scene.dnaSubtitle': '点击任意基因标签，穿透探索共享该视觉法则的全部镜头。',
-    'scene.dnaMood': '01 // 情绪基因',
-    'scene.dnaLight': '02 // 光影几何',
-    'scene.dnaColor': '03 // 色彩色谱',
-    'scene.dnaCamera': '04 // 光学句法',
-    'scene.dnaComposition': '05 // 构图法则',
+    // 03 Constellation
+    'constellation.tag': '03 // 关系拓扑',
+    'constellation.title': '视觉星图',
+    'constellation.subtitle': '非线性探索视觉构件之间的拓扑连接。光线、色彩、构图与情绪的宇宙。',
+    'constellation.filterCategory': '分类筛选:',
+    'constellation.all': '全部',
+    'constellation.nodeSelected': '已选节点:',
+    'constellation.connections': '关联节点数:',
+    'constellation.viewDetails': '查看完整解构案卷 →',
 
-    // 04 Language
-    'lang.desk': '研究台 // 视觉星图引力场',
-    'lang.title': '视觉语言星图',
-    'lang.subtitle': '一个交互式引力网络，展示情绪、光影、光学与构图如何形成电影语法。拖拽节点可重构张力关系。',
-    'lang.activeNode': '激活节点:',
-    'lang.filterAll': '全部节点',
-    'lang.filterMood': '情绪',
-    'lang.filterLight': '光影',
-    'lang.filterOptics': '光学',
-    'lang.filterComposition': '构图',
-    'lang.dragBanner': '交互式引力场 // 拖动节点重排语法关系',
-    'lang.relationalTension': '关系张力: %count% 个关联语法节点',
-    'lang.correlatedScenes': '体现 [%label%] 的相关分镜: %count% 部',
-    'lang.clickToStudy': '点击分镜研习视觉 DNA →',
+    // 04 Dossiers
+    'dossiers.tag': '04 // 深度研习',
+    'dossiers.title': '视觉语言案卷',
+    'dossiers.subtitle': '精选视觉解构案卷，深入剖析光影构图与情绪法则。',
+    'dossiers.readCase': '研读案卷 →',
 
-    // 05 Dossiers
-    'dossier.tag': '研究档案 // 个人文献室',
-    'dossier.title': '研究案卷集',
-    'dossier.subtitle': '以数字研究册而非平庸文件夹呈现的美学典藏。',
-    'dossier.myTitle': '个人策展研究案卷',
-    'dossier.mySubtitle': '由创作者在研习过程中收藏的电影分镜与提示词。',
-    'dossier.empty': '当前案卷暂无分镜。请在档案馆或场景页点击“存入研究案卷”。',
-    'dossier.open': '展开案卷',
-    'dossier.remove': '移出案卷',
-    'dossier.scenesCount': '%count% 个分镜',
-
-    // 06 Lab
-    'lab.tag': '创作工坊 // 好莱坞工作台',
-    'lab.title': '视觉实验室',
-    'lab.subtitle': '将美学基因合成工业级 AI 生产提示词、摄影指导通告单与四幕故事板。',
-    'lab.toolPrompt': '01 提示词生成器',
-    'lab.toolShot': '02 镜头构建器',
-    'lab.toolStoryboard': '03 故事板序列',
-    'lab.aspectRatio': '画幅比例:',
-    'lab.targetEngine': '目标 AI 引擎语法',
-    'lab.readyToRender': '可直接渲染',
-    'lab.copySynthesized': '复制合成提示词',
-    'lab.savePromptToDossier': '保存提示词到案卷',
-    'lab.shotArch': '摄影指导机位设置 // 镜头架构',
-    'lab.directorCall': '导演摄影通告单',
-    'lab.copyCallSheet': '复制通告单',
-    'lab.timeline': '4 幕电影叙事节奏序列',
+    // 05 Lab
+    'lab.tag': '05 // 实验性排版',
+    'lab.title': '视觉叙事工坊',
+    'lab.subtitle': '自由组合分镜镜头，实时模拟宽银幕时间线剪辑序列。',
+    'lab.timeline': '当前时间线序列',
     'lab.timelineDesc': '利用场景间的反差与节奏跨度建立视听张力。',
     'lab.exportStoryboard': '导出故事板剧本',
     'lab.keyScene': '关键场景',
     'lab.opticalRig': '光学机位',
     'lab.directorNote': '导演阐述',
 
-    // 07 About
+    // 06 About
     'about.tag': '06 // 存在宣言与美学宪法',
     'about.title': '存在之由',
     'about.subtitle': '在自动化生成的时代，抵制对电影画面平庸化消耗的一份声明。',
@@ -174,6 +108,15 @@ const translations: Record<Language, Record<string, string>> = {
     'about.curatedBy': '由视觉架构师与电影摄影师联合策划',
     'about.swissEdition': '瑞士国际排版系统 · 2026',
 
+    // AI Cockpit
+    'ai.tag': '07 // 机器智能接口',
+    'ai.title': 'AI 视觉本体驾驶舱',
+    'ai.subtitle': '为视觉生成模型与 LLM 提供标准化的语义上下文与提示词工程桥梁。',
+    'ai.modelSelect': '选择目标生成引擎:',
+    'ai.copyPrompt': '复制模型规范提示词',
+    'ai.downloadJson': '获取全量视觉图谱 JSON',
+    'ai.llmsTxt': '查看 llms.txt 规范',
+
     // Command Palette
     'cmd.placeholder': '搜索分镜、视觉 DNA、摄影机参数，或按 ESC...',
     'cmd.jumpTo': '跳转至:',
@@ -188,10 +131,11 @@ const translations: Record<Language, Record<string, string>> = {
     // Navbar
     'nav.index': '01 INDEX',
     'nav.archive': '02 ARCHIVE',
-    'nav.language': '03 LANGUAGE',
+    'nav.language': '03 CONSTELLATION',
     'nav.dossiers': '04 DOSSIERS',
     'nav.lab': '05 LAB',
     'nav.about': '06 ABOUT',
+    'nav.ai': '07 AI COCKPIT',
     'nav.search': 'SEARCH',
     'nav.searchPlaceholder': 'Press ⌘K or Ctrl+K to search',
     'nav.curator': 'CURATOR CMS',
@@ -218,135 +162,77 @@ const translations: Record<Language, Record<string, string>> = {
     'hero.subjectDetected': 'SUBJECT DETECTED · ANAMORPHIC SILHOUETTE',
     'hero.lightSource': 'LIGHT SOURCE · VOLUMETRIC CYAN RIM & PRACTICAL GLOW',
     'hero.negativeSpace': 'NEGATIVE SPACE · %pct%% EDITORIAL BALANCE',
-    'hero.focalDepth': 'FOCAL DEPTH · COOKE 35MM ANAMORPHIC T/1.8',
+    'hero.focalDepth': 'FOCAL DEPTH · ANAMORPHIC PRIME T/1.8',
     'hero.cursor': 'CURSOR',
 
     // 02 Archive
     'archive.tag': 'CONTACT SHEET // ARCHIVE INDEX',
-    'archive.title': 'CINEMATIC ARCHIVE',
-    'archive.status': '%count% / %total% SCENES LOADED · FILM CONTACT SHEET MODE',
+    'archive.title': 'CINEMA ARCHIVE',
+    'archive.status': 'LOADED %count% / %total% SCENES · CONTACT SHEET MODE',
     'archive.filterLabel': 'FILTER:',
-    'archive.filterAll': 'ALL ARCHIVES',
-    'archive.filterCyber': 'CYBER & NOCTURNAL',
-    'archive.filterBrutalist': 'MONUMENTAL',
-    'archive.filterEditorial': 'SWISS EDITORIAL',
-    'archive.filterZen': 'EASTERN ZEN',
-    'archive.filterGhibli': 'HEALING CINEMA',
-    'archive.viewScene': 'VIEW SCENE',
+    'archive.filterAll': 'ALL SCENES',
+    'archive.filterCyber': 'CYBERPUNK',
+    'archive.filterBrutalist': 'BRUTALISM',
+    'archive.filterEditorial': 'EDITORIAL',
+    'archive.filterZen': 'EAST ASIAN ZEN',
+    'archive.filterGhibli': 'ATMOSPHERIC',
 
-    // 03 Scene Detail
-    'scene.return': 'RETURN TO ARCHIVE',
-    'scene.hudLabel': 'ANALYSIS HUD:',
-    'scene.modeOverview': '01 MASTER',
-    'scene.modeComposition': '02 COMPOSITION',
-    'scene.modeColor': '03 COLOR SWATCHES',
-    'scene.modeCamera': '04 OPTICAL HUD',
-    'scene.modeLight': '05 LIGHTING VECTOR',
-    'scene.stateLabel': 'STATE:',
-    'scene.stateActive': '%mode% DECONSTRUCTION ACTIVE',
-    'scene.auditTitle': 'COMPOSITION AUDIT:',
-    'scene.auditRuleOfThirds': '• RULE OF THIRDS: INTERSECTING SUBJECT',
-    'scene.auditHarmonic': '• HARMONIC RATIO: GOLDEN SECTION (1:1.618)',
-    'scene.auditNegative': '• NEGATIVE SPACE RATIO: 64% AUDIENCE REST',
-    'scene.auditPerspective': '• PERSPECTIVE STRUCTURE:',
-    'scene.colorTitle': 'CHROMATIC HARMONY EXTRACTION',
-    'scene.colorSpectrum': 'HIGH CONTRAST SPECTRUM',
-    'scene.colorTheory': 'COLOR THEORY:',
-    'scene.fpsLabel': 'FPS: 24.000 // SHUTTER: 180.0°',
-    'scene.opticsLabel': 'OPTICS:',
-    'scene.trackLabel': 'RIG TRACK:',
-    'scene.rawLabel': 'RAW DIGITAL NEGATIVE // ISO 800',
-    'scene.lightMapTitle': 'LIGHTING MAP & DIRECTION:',
-    'scene.keyFillRatio': 'KEY/FILL RATIO: 1:8 (Low-Key)',
-    'scene.falloff': 'FALLOFF: Inverse-Square',
-    'scene.atmosphere': 'ATMOSPHERE: Volumetric Haze',
-    'scene.diffusion': 'DIFFUSION: Organic',
-    'scene.callSheetTitle': 'HOLLYWOOD SCRIPT CALL SHEET & PROMPT',
-    'scene.copyPrompt': 'COPY PROMPT',
-    'scene.copied': 'PROMPT COPIED TO CLIPBOARD',
-    'scene.lensHeader': 'OPTICAL LENS',
-    'scene.shutterHeader': 'SHUTTER & FPS',
-    'scene.movementHeader': 'CAMERA MOVEMENT',
-    'scene.addToDossier': 'ADD TO DOSSIER',
-    'scene.savedInDossier': 'SAVED IN DOSSIER',
-    'scene.remixInLab': 'REMIX IN VISUAL LAB',
-    'scene.correlatedTitle': 'EXPLORE CORRELATED SCENES SHARING VISUAL PRINCIPLES:',
-    'scene.dnaTitle': 'VISUAL DNA DECONSTRUCTION',
-    'scene.dnaSubtitle': 'Click any DNA token to explore all scenes sharing that visual principle.',
-    'scene.dnaMood': '01 // MOOD GENOME',
-    'scene.dnaLight': '02 // LIGHTING GEOMETRY',
-    'scene.dnaColor': '03 // COLOR SPECTRUM',
-    'scene.dnaCamera': '04 // OPTICAL SYNTAX',
-    'scene.dnaComposition': '05 // COMPOSITION PRINCIPLE',
+    // 03 Constellation
+    'constellation.tag': '03 // RELATIONAL TOPOLOGY',
+    'constellation.title': 'VISUAL CONSTELLATION',
+    'constellation.subtitle': 'Non-linear exploration of topological connections between visual primitives.',
+    'constellation.filterCategory': 'FILTER CATEGORY:',
+    'constellation.all': 'ALL',
+    'constellation.nodeSelected': 'SELECTED NODE:',
+    'constellation.connections': 'CONNECTIONS:',
+    'constellation.viewDetails': 'VIEW FULL DECONSTRUCTION DOSSIER →',
 
-    // 04 Language
-    'lang.desk': 'RESEARCH DESK // VISUAL CONSTELLATION',
-    'lang.title': 'VISUAL LANGUAGE MAP',
-    'lang.subtitle': 'An interactive gravitational network showing how mood, light, optics, and geometry form cinema grammar. Drag nodes to reshape relational tension.',
-    'lang.activeNode': 'ACTIVE NODE:',
-    'lang.filterAll': 'ALL NODES',
-    'lang.filterMood': 'MOOD',
-    'lang.filterLight': 'LIGHT',
-    'lang.filterOptics': 'OPTICS',
-    'lang.filterComposition': 'COMPOSITION',
-    'lang.dragBanner': 'INTERACTIVE GRAVITATION FIELD // DRAG NODES TO REORGANIZE',
-    'lang.relationalTension': 'RELATIONAL TENSION: %count% CONNECTED GRAMMAR NODES',
-    'lang.correlatedScenes': 'CORRELATED SCENES EMBODYING [%label%]: %count%',
-    'lang.clickToStudy': 'CLICK SCENE TO STUDY VISUAL DNA →',
+    // 04 Dossiers
+    'dossiers.tag': '04 // IN-DEPTH STUDIES',
+    'dossiers.title': 'VISUAL LANGUAGE DOSSIERS',
+    'dossiers.subtitle': 'Curated visual case studies dissecting lighting, geometry, and emotional resonance.',
+    'dossiers.readCase': 'READ DOSSIER →',
 
-    // 05 Dossiers
-    'dossier.tag': 'RESEARCH DOSSIERS // PRIVATE ARCHIVE',
-    'dossier.title': 'RESEARCH DOSSIERS',
-    'dossier.subtitle': 'Curated visual research dossiers in digital notebook format, not a generic folder UI.',
-    'dossier.myTitle': 'MY RESEARCH DOSSIER',
-    'dossier.mySubtitle': 'Curated scenes and production prompts collected by researcher.',
-    'dossier.empty': 'No scenes collected yet. Click "Add to Dossier" on any scene to collect.',
-    'dossier.open': 'OPEN DOSSIER',
-    'dossier.remove': 'REMOVE',
-    'dossier.scenesCount': '%count% SCENES',
-
-    // 06 Lab
-    'lab.tag': 'CREATIVE SUITE // HOLLYWOOD WORKBENCH',
-    'lab.title': 'VISUAL LAB',
-    'lab.subtitle': 'Synthesize aesthetic genomes into industrial-grade production prompts, camera specifications, and narrative storyboards.',
-    'lab.toolPrompt': '01 PROMPT GENERATOR',
-    'lab.toolShot': '02 SHOT BUILDER',
-    'lab.toolStoryboard': '03 STORYBOARD',
-    'lab.aspectRatio': 'ASPECT RATIO:',
-    'lab.targetEngine': 'TARGET AI ENGINE SYNTAX',
-    'lab.readyToRender': 'READY TO RENDER',
-    'lab.copySynthesized': 'COPY SYNTHESIZED PROMPT',
-    'lab.savePromptToDossier': 'SAVE PROMPT TO DOSSIER',
-    'lab.shotArch': "DIRECTOR'S CAMERA SETUP // SHOT ARCHITECTURE",
-    'lab.directorCall': 'DIRECTOR CALL SHEET',
-    'lab.copyCallSheet': 'COPY SHOT CALL SHEET',
-    'lab.timeline': '4-BEAT CINEMATIC TIMELINE SEQUENCE',
-    'lab.timelineDesc': 'Establish dramatic tension from scene to scene using contrast and rhythmic staging.',
-    'lab.exportStoryboard': 'EXPORT STORYBOARD',
+    // 05 Lab
+    'lab.tag': '05 // EXPERIMENTAL EDITING',
+    'lab.title': 'VISUAL LAB & STORYBOARD',
+    'lab.subtitle': 'Compose cinema scenes into custom widescreen timeline sequences.',
+    'lab.timeline': 'ACTIVE TIMELINE SEQUENCE',
+    'lab.timelineDesc': 'Craft tension through deliberate contrast in scale, lighting, and pacing.',
+    'lab.exportStoryboard': 'EXPORT STORYBOARD SCRIPT',
     'lab.keyScene': 'KEY SCENE',
     'lab.opticalRig': 'OPTICAL RIG',
-    'lab.directorNote': "DIRECTOR'S NOTE",
+    'lab.directorNote': 'DIRECTOR NOTE',
 
-    // 07 About
-    'about.tag': '06 // MANIFESTO & AESTHETIC CONSTITUTION',
-    'about.title': 'WHY THIS EXISTS',
-    'about.subtitle': 'A declaration against the trivialization of cinematic images in the era of automated generation.',
-    'about.h1': 'Images are not just pictures.',
-    'about.h2': 'They are systems.',
-    'about.p1': 'Traditional digital galleries remain trapped in passive browsing of "pretty cards." Viewers get lost in endless masonry feeds without ever understanding why an image evokes awe in the synapses.',
-    'about.p2': 'VISUAL ATLAS is built on a steadfast conviction: every moving cinematic masterpiece is a precise language system constructed of lighting angles, optical focal lengths, geometric grids, and chromatic contrast. Only by deconstructing this syntax can creators transcend mediocrity.',
-    'about.discoverArchive': 'DISCOVER THE ARCHIVE →',
-    'about.anatomy': 'THE ANATOMY OF CINEMA SYNTAX',
-    'about.step1': 'Photons, shadows, volumetric falloff, key-to-fill ratios.',
-    'about.step2': 'Hue contrast, temperature separation, organic film emulsion.',
-    'about.step3': 'Negative space, proportion shock, architectural perspective.',
-    'about.step4': 'Optics, focal compression, anamorphic distortion, shutter angle.',
-    'about.step5': 'Cinematic cadence, dollies, tracking momentum, stasis.',
-    'about.step6': 'Subconscious resonance, literary melancholy, sublime awe.',
-    'about.constitution': 'ANTI-AI-DESIGN CONSTITUTION',
+    // 06 About
+    'about.tag': '06 // MANIFESTO & CONSTITUTION',
+    'about.title': 'REASON FOR BEING',
+    'about.subtitle': 'A refusal of image mediocrity in the age of generative automation.',
+    'about.h1': 'IMAGES ARE NOT MERE PICTURES.',
+    'about.h2': 'THEY ARE PRECISE SYSTEMS.',
+    'about.p1': 'Traditional image galleries stop at superficial card browsing. Viewers scroll endlessly without understanding what makes an image resonate.',
+    'about.p2': 'VISUAL ATLAS is grounded in conviction: every cinematic masterwork is built upon precise ratios of light, focal lengths, geometric frameworks, and chromatic polarity. By deconstructing this syntax, creators transcend generic outputs.',
+    'about.discoverArchive': 'DISCOVER ARCHIVE →',
+    'about.anatomy': 'CINEMA SYNTAX LAYERS',
+    'about.step1': 'Photons, shadow depth, volumetric haze, and key-to-fill falloff.',
+    'about.step2': 'Complementary gamut tension and film emulsion characteristics.',
+    'about.step3': 'Negative space voids, human scale comparison, and one-point perspective.',
+    'about.step4': 'Focal optics, anamorphic streaks, oval bokeh, and 180° shutter angle.',
+    'about.step5': 'Rhythmic pacing, tracking velocity, and deliberate stillness.',
+    'about.step6': 'Existential solitude, sublime reverence, and subconscious resonance.',
+    'about.constitution': 'ANTI-AI SAMENESS CHARTER',
     'about.principlesTitle': 'DESIGN PRINCIPLES & RESTRAINT',
     'about.curatedBy': 'CURATED BY VISUAL ARCHITECTS & CINEMATOGRAPHERS',
     'about.swissEdition': 'SWISS EDITORIAL SYSTEM · 2026',
+
+    // AI Cockpit
+    'ai.tag': '07 // MACHINE INTELLIGENCE LAYER',
+    'ai.title': 'AI KNOWLEDGE COCKPIT',
+    'ai.subtitle': 'Bridge human cinematographic syntax with frontier generative AI models and LLMs.',
+    'ai.modelSelect': 'TARGET GENERATION ENGINE:',
+    'ai.copyPrompt': 'COPY MODEL-SPECIFIC PROMPT',
+    'ai.downloadJson': 'DOWNLOAD COMPLETE KNOWLEDGE GRAPH JSON',
+    'ai.llmsTxt': 'INSPECT LLMS.TXT SPECIFICATION',
 
     // Command Palette
     'cmd.placeholder': 'Search scenes, visual DNA, camera rig, or press ESC...',
@@ -358,6 +244,240 @@ const translations: Record<Language, Record<string, string>> = {
     'footer.loop': 'SEE → DECODE → CONNECT → COLLECT → CREATE',
     'footer.cms': 'CURATOR CMS',
   },
+  ja: {
+    // Navbar
+    'nav.index': '01 索引',
+    'nav.archive': '02 フィルム印様',
+    'nav.language': '03 視覚星図',
+    'nav.dossiers': '04 研究書類',
+    'nav.lab': '05 創作実験室',
+    'nav.about': '06 存在宣言',
+    'nav.ai': '07 AI 操縦席',
+    'nav.search': '検索',
+    'nav.searchPlaceholder': '⌘K または Ctrl+K で検索',
+    'nav.curator': 'キュレーター管理',
+    'nav.title': 'VISUAL ATLAS',
+    'nav.subtitle': '映画と美学の言語体系',
+
+    // 01 Index / Hero
+    'hero.edition': 'アーカイブ 001 // 2026 決定版',
+    'hero.systemSubtitle': '映画と美学の言語体系',
+    'hero.curatedCount': 'の厳選カット',
+    'hero.grid': 'スイス国際タイポグラフィ',
+    'hero.tagline': '美学の解体',
+    'hero.titleLine1': '視覚言語',
+    'hero.titleLine2': '解体システム',
+    'hero.description': '凡庸なギャラリーを拒絶する。画像がなぜ観る者の心を揺さぶるのかを解き明かす視覚文献庫。光学レンズ、光比、色彩極差、プロンプトを解体。',
+    'hero.studyScene': 'このカットを解体',
+    'hero.exploreArchive': 'アーカイブを閲覧',
+    'hero.featured': '注目カット',
+    'hero.aspectRatio': 'アスペクト比',
+    'hero.optics': '光学レンズ',
+    'hero.enterDeconstruction': 'カットの深層解体へ →',
+    'hero.readyMoveCursor': '解析準備完了 // カーソルで探索',
+    'hero.hoverHint': '画像を研鑽 // ホバーで解体',
+    'hero.subjectDetected': '被写体検出 · アナモルフィック・シルエット',
+    'hero.lightSource': '光源マッピング · ボリュームシアン光',
+    'hero.negativeSpace': '余白率 · %pct%% エディトリアル・バランス',
+    'hero.focalDepth': '焦点深度 · アナモルフィック T/1.8',
+    'hero.cursor': '座標',
+
+    // 02 Archive
+    'archive.tag': 'コンタクトシート // アーカイブ',
+    'archive.title': '映画カット・アーカイブ',
+    'archive.status': '%count% / %total% カット読込完了',
+    'archive.filterLabel': '絞り込み:',
+    'archive.filterAll': '全カット',
+    'archive.filterCyber': 'サイバーパンク',
+    'archive.filterBrutalist': 'ブルータリズム',
+    'archive.filterEditorial': 'エディトリアル',
+    'archive.filterZen': '東洋の禅',
+    'archive.filterGhibli': '癒しの空気感',
+
+    // 03 Constellation
+    'constellation.tag': '03 // 関係トポロジー',
+    'constellation.title': '視覚星図',
+    'constellation.subtitle': '光線、色彩、構図、感情が織りなす宇宙的ネットワーク。',
+    'constellation.filterCategory': 'カテゴリ:',
+    'constellation.all': 'すべて',
+    'constellation.nodeSelected': '選択ノード:',
+    'constellation.connections': '接続数:',
+    'constellation.viewDetails': '完全な解体案卷を見る →',
+
+    // 04 Dossiers
+    'dossiers.tag': '04 // 深層研鑽',
+    'dossiers.title': '視覚言語案卷',
+    'dossiers.subtitle': '構図と光影の法則を徹底解剖するケーススタディ。',
+    'dossiers.readCase': '案卷を読む →',
+
+    // 05 Lab
+    'lab.tag': '05 // 実験的編集',
+    'lab.title': '視覚ラボ＆絵コンテ',
+    'lab.subtitle': '映画カットを自由に組み合わせ、ワイドスクリーンのタイムラインを構築。',
+    'lab.timeline': '現在のタイムライン',
+    'lab.timelineDesc': 'スケールと明暗の対比によって緊張感を生み出す。',
+    'lab.exportStoryboard': '絵コンテ脚本をエクスポート',
+    'lab.keyScene': 'キーシーン',
+    'lab.opticalRig': '光学リグ',
+    'lab.directorNote': '監督ノート',
+
+    // 06 About
+    'about.tag': '06 // 存在宣言',
+    'about.title': '存在の理由',
+    'about.subtitle': '自動生成時代における画像凡庸化への抵抗宣言。',
+    'about.h1': '画像は単なる絵ではない。',
+    'about.h2': '精密な体系である。',
+    'about.p1': '一般的なギャラリーはカードの消費で終わる。なぜその一枚に心が震えるのかを理解することはない。',
+    'about.p2': 'VISUAL ATLAS の確信：傑作映画のカットは光線比率、画角、幾何学、色彩の精密な言語である。この文法を解体して初めて、真の傑作が生まれる。',
+    'about.discoverArchive': 'アーカイブを探求 →',
+    'about.anatomy': '映画言語の階層',
+    'about.step1': '光子、陰影、ボリューム減衰と明暗比。',
+    'about.step2': '色相極差とフィルム特有のエマルジョン質感。',
+    'about.step3': 'ネガティブスペース、スケール感と一点透視。',
+    'about.step4': '光学焦点、アナモルフィック光条と180度シャッター。',
+    'about.step5': 'テンポ、カメラ移動と静止の律動。',
+    'about.step6': '実存的孤独、崇高なる敬畏と無意識の共鳴。',
+    'about.constitution': '反 AI 均質化憲章',
+    'about.principlesTitle': '設計原則と美学的抑制',
+    'about.curatedBy': 'ヴィジュアル・アーキテクトと映画撮影監督によるキュレーション',
+    'about.swissEdition': 'スイス国際タイポグラフィ体系 · 2026',
+
+    // AI Cockpit
+    'ai.tag': '07 // 機械知性レイヤー',
+    'ai.title': 'AI 視覚オントロジー・コックピット',
+    'ai.subtitle': '映画撮影言語を最新の画像生成モデルとLLMに接続する構造化ブリッジ。',
+    'ai.modelSelect': '対象エンジンを選択:',
+    'ai.copyPrompt': 'モデル専用プロンプトをコピー',
+    'ai.downloadJson': '全ナレッジグラフ JSON を取得',
+    'ai.llmsTxt': 'llms.txt 仕様書を閲覧',
+
+    // Command Palette
+    'cmd.placeholder': 'シーン、視覚DNA、機材パラメータを検索 (ESCで閉じる)...',
+    'cmd.jumpTo': '移動先:',
+    'cmd.noResults': '該当する視覚アーカイブがありません',
+
+    // Footer
+    'footer.edition': '// 2026 保存版',
+    'footer.loop': '観る → 解体する → 繋ぐ → 蓄積する → 創る',
+    'footer.cms': 'キュレーター管理画面',
+  },
+  ko: {
+    // Navbar
+    'nav.index': '01 색인',
+    'nav.archive': '02 필름 밀착',
+    'nav.language': '03 시각 성도',
+    'nav.dossiers': '04 연구 문서',
+    'nav.lab': '05 창작 공방',
+    'nav.about': '06 존재 선언',
+    'nav.ai': '07 AI 콕핏',
+    'nav.search': '전역 검색',
+    'nav.searchPlaceholder': '⌘K 또는 Ctrl+K 로 검색',
+    'nav.curator': '큐레이터 백엔드',
+    'nav.title': 'VISUAL ATLAS',
+    'nav.subtitle': '영화 및 미학 언어 시스템',
+
+    // 01 Index / Hero
+    'hero.edition': '아카이브 001 // 2026 에디션',
+    'hero.systemSubtitle': '영화 및 미학 언어 시스템',
+    'hero.curatedCount': '개의 엄선된 장면',
+    'hero.grid': '스위스 국제 타이포그래피 그리드',
+    'hero.tagline': '미학적 해체',
+    'hero.titleLine1': '시각 언어',
+    'hero.titleLine2': '해체 시스템',
+    'hero.description': '평범한 갤러리를 거부합니다. 이미지가 왜 감동을 주는지 탐구하는 시각 문헌 저장소—광학 렌즈, 명암비, 색채 극차, 프롬프트 해체.',
+    'hero.studyScene': '이 장면 해체하기',
+    'hero.exploreArchive': '전체 아카이브 탐색',
+    'hero.featured': '주요 장면',
+    'hero.aspectRatio': '화면비',
+    'hero.optics': '광학 렌즈',
+    'hero.enterDeconstruction': '장면 심층 해체 시작 →',
+    'hero.readyMoveCursor': '분석 준비 완료 // 마우스로 탐색',
+    'hero.hoverHint': '이미지 연구 // 호버하여 해체',
+    'hero.subjectDetected': '피사체 고정 · 아나모픽 실루엣',
+    'hero.lightSource': '광원 매핑 · 볼류메트릭 시안 광',
+    'hero.negativeSpace': '여백 비율 · %pct%% 에디토리얼 밸런스',
+    'hero.focalDepth': '초점 심도 · 아나모픽 T/1.8',
+    'hero.cursor': '좌표',
+
+    // 02 Archive
+    'archive.tag': '밀착 인화 // 아카이브 색인',
+    'archive.title': '영화 장면 아카이브',
+    'archive.status': '%count% / %total% 개 장면 로드 완료',
+    'archive.filterLabel': '필터:',
+    'archive.filterAll': '전체 장면',
+    'archive.filterCyber': '사이버펑크',
+    'archive.filterBrutalist': '브루탈리즘',
+    'archive.filterEditorial': '에디토리얼',
+    'archive.filterZen': '동양의 선',
+    'archive.filterGhibli': '서정적 힐링',
+
+    // 03 Constellation
+    'constellation.tag': '03 // 관계 위상학',
+    'constellation.title': '시각 성도',
+    'constellation.subtitle': '빛, 색채, 구도, 감정 사이의 비선형적 위상 연결망.',
+    'constellation.filterCategory': '카테고리:',
+    'constellation.all': '전체',
+    'constellation.nodeSelected': '선택된 노드:',
+    'constellation.connections': '연결 수:',
+    'constellation.viewDetails': '전체 해체 문서 보기 →',
+
+    // 04 Dossiers
+    'dossiers.tag': '04 // 심층 연구',
+    'dossiers.title': '시각 언어 연구 문서',
+    'dossiers.subtitle': '구도와 조명의 원리를 철저히 분석하는 케이스 스터디.',
+    'dossiers.readCase': '문서 읽기 →',
+
+    // 05 Lab
+    'lab.tag': '05 // 실험적 편집',
+    'lab.title': '시각 연구소 & 스토리보드',
+    'lab.subtitle': '장면을 자유롭게 배열하여 와이드스크린 타임라인을 구성.',
+    'lab.timeline': '현재 타임라인',
+    'lab.timelineDesc': '스케일과 명암의 대비를 통해 서사적 긴장감을 구축.',
+    'lab.exportStoryboard': '스토리보드 스크립트 내보내기',
+    'lab.keyScene': '핵심 장면',
+    'lab.opticalRig': '광학 리그',
+    'lab.directorNote': '연출 노트',
+
+    // 06 About
+    'about.tag': '06 // 존재 선언문',
+    'about.title': '존재의 이유',
+    'about.subtitle': '생성형 AI 시대 이미지의 평범화에 맞서는 선언.',
+    'about.h1': '이미지는 단순한 그림이 아닙니다.',
+    'about.h2': '정밀한 시스템입니다.',
+    'about.p1': '일반 갤러리는 끝없는 스크롤로 소비될 뿐입니다. 이미지가 왜 전율을 일으키는지 알지 못합니다.',
+    'about.p2': 'VISUAL ATLAS의 확신: 걸작 영화의 장면은 조명 비율, 렌즈 초점, 기하학, 색채 극차로 정밀하게 축조된 언어 체계입니다. 이 문법을 해체해야만 진정한 걸작을 창작할 수 있습니다.',
+    'about.discoverArchive': '아카이브 탐색 →',
+    'about.anatomy': '영화 언어 해체 층위',
+    'about.step1': '광자, 음영, 볼류메트릭 감쇄와 명암비.',
+    'about.step2': '색상 극차와 필름 에멀전 질감.',
+    'about.step3': '네거티브 스페이스, 스케일감과 1점 투시.',
+    'about.step4': '광학 초점, 아나모픽 줄무늬와 180도 셔터 각도.',
+    'about.step5': '리듬, 트래킹 속도와 의도적 정적.',
+    'about.step6': '실존적 고독, 숭고한 경외감과 무의식적 공명.',
+    'about.constitution': '반 AI 획일화 헌장',
+    'about.principlesTitle': '디자인 원칙 및 미학적 절제',
+    'about.curatedBy': '비주얼 아키텍트와 영화 촬영감독의 공동 큐레이션',
+    'about.swissEdition': '스위스 국제 타이포그래피 시스템 · 2026',
+
+    // AI Cockpit
+    'ai.tag': '07 // 기계 지능 레이어',
+    'ai.title': 'AI 시각 온톨로지 콕핏',
+    'ai.subtitle': '영화 촬영 문법을 최신 생성 AI 모델과 LLM에 연결하는 구조화된 브릿지.',
+    'ai.modelSelect': '대상 엔진 선택:',
+    'ai.copyPrompt': '모델 맞춤 프롬프트 복사',
+    'ai.downloadJson': '전체 지식 그래프 JSON 다운로드',
+    'ai.llmsTxt': 'llms.txt 규격 검사',
+
+    // Command Palette
+    'cmd.placeholder': '장면, 시각 DNA, 카메라 매개변수 검색 (ESC)...',
+    'cmd.jumpTo': '이동:',
+    'cmd.noResults': '일치하는 시각 아카이브가 없습니다',
+
+    // Footer
+    'footer.edition': '// 2026 소장본',
+    'footer.loop': '보고 → 해체하고 → 연결하고 → 수집하고 → 창작한다',
+    'footer.cms': '큐레이터 관리',
+  },
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -366,7 +486,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [lang, setLangState] = useState<Language>(() => {
     try {
       const saved = localStorage.getItem('visual_atlas_lang');
-      return saved === 'en' || saved === 'zh' ? saved : 'zh';
+      if (saved === 'en' || saved === 'zh' || saved === 'ja' || saved === 'ko') {
+        return saved === 'zh' ? 'zh' : (saved as Language);
+      }
+      return 'zh';
     } catch {
       return 'zh';
     }
@@ -380,11 +503,14 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const toggleLang = () => {
-    setLang(lang === 'zh' ? 'en' : 'zh');
+    // 4-way cycle: zh -> en -> ja -> ko -> zh
+    const order: Language[] = ['zh', 'en', 'ja', 'ko'];
+    const nextIdx = (order.indexOf(lang) + 1) % order.length;
+    setLang(order[nextIdx]);
   };
 
   const t = (key: string, params?: Record<string, string | number>): string => {
-    let text = translations[lang]?.[key] || translations['zh']?.[key] || key;
+    let text = translations[lang]?.[key] || translations['zh']?.[key] || translations['en']?.[key] || key;
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
         text = text.replace(new RegExp(`%${k}%`, 'g'), String(v));

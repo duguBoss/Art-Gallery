@@ -1,4 +1,4 @@
-export type AtlasTab = 'index' | 'archive' | 'language' | 'dossiers' | 'lab' | 'about';
+export type AtlasTab = 'index' | 'archive' | 'language' | 'dossiers' | 'lab' | 'about' | 'ai';
 
 export type AnalysisMode = 'overview' | 'composition' | 'color' | 'camera' | 'light';
 

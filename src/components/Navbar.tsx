@@ -23,7 +23,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAI,
   savedDossierCount = 0,
 }) => {
-  const { lang, toggleLang, t } = useLanguage();
+  const { lang, setLang, toggleLang, t } = useLanguage();
 
   const tabs: { id: AtlasTab; num: string; labelKey: string }[] = [
     { id: 'index', num: '01', labelKey: 'nav.index' },
@@ -32,6 +32,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'dossiers', num: '04', labelKey: 'nav.dossiers' },
     { id: 'lab', num: '05', labelKey: 'nav.lab' },
     { id: 'about', num: '06', labelKey: 'nav.about' },
+    { id: 'ai', num: '07', labelKey: 'nav.ai' },
   ];
 
   return (
@@ -100,18 +101,29 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="sm:hidden">AI</span>
           </button>
 
-          {/* Bilingual Language Switcher */}
-          <button
-            onClick={() => {
-              playSpotlightClick();
-              toggleLang();
-            }}
-            className="flex items-center gap-1.5 px-2.5 py-1 border border-[#F2F0E8]/15 hover:border-[#D8FF3E] text-[#8B887F] hover:text-[#D8FF3E] transition-colors cursor-pointer text-xs"
-            title="Switch Language / 切换语言 (中 / EN)"
-          >
-            <Globe className="w-3.5 h-3.5 text-[#D8FF3E]" />
-            <span className="font-bold tracking-wider">{lang === 'zh' ? 'EN' : '中文'}</span>
-          </button>
+          {/* 4-Language Switcher (ZH / EN / JA / KO) */}
+          <div className="flex items-center border border-[#F2F0E8]/15 bg-[#161614] text-[11px] font-mono">
+            {(['zh', 'en', 'ja', 'ko'] as const).map((l) => {
+              const active = lang === l;
+              return (
+                <button
+                  key={l}
+                  onClick={() => {
+                    playSpotlightClick();
+                    setLang(l);
+                  }}
+                  className={`px-2 py-0.5 transition-colors cursor-pointer ${
+                    active
+                      ? 'bg-[#D8FF3E] text-[#11110F] font-bold'
+                      : 'text-[#8B887F] hover:text-[#F2F0E8]'
+                  }`}
+                  title={`Switch language to ${l.toUpperCase()}`}
+                >
+                  {l === 'zh' ? '中' : l.toUpperCase()}
+                </button>
+              );
+            })}
+          </div>
 
           {/* Quick ⌘K Search Trigger */}
           <button
