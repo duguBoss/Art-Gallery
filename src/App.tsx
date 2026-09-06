@@ -3,11 +3,8 @@ import type { GalleryTheme } from './types/theme';
 import type { MediumType, VisualAtom, DesignPrinciple, StyleRuleEquation } from './types/atlas';
 import type { CinemaScene } from './types/cinema';
 import { Navbar, type MainViewType } from './components/Navbar';
-import { ChapterDock, CHAPTER_LIST } from './components/ChapterDock';
-import { VisualGuidanceRail } from './components/VisualGuidanceRail';
-import { VisualGuidanceWarpCurtain } from './components/VisualGuidanceWarpCurtain';
+import { CHAPTER_LIST } from './components/ChapterDock';
 import { SlideControlBar } from './components/SlideControlBar';
-import { DJIFlightSpecsHUD, type DJIFocalLength } from './components/DJIFlightSpecsHUD';
 import { PromptCinemaView } from './components/PromptCinemaView';
 import { VisualAtomsView } from './components/VisualAtomsView';
 import { DesignPrinciplesView } from './components/DesignPrinciplesView';
@@ -45,8 +42,6 @@ export function App() {
   // Active Presentation Slide (0 to 7)
   const [currentView, setCurrentView] = useState<MainViewType>('cinema');
   const [slideDirection, setSlideDirection] = useState<'up' | 'down'>('up');
-  const [isWarping, setIsWarping] = useState(false);
-  const [focalLength, setFocalLength] = useState<DJIFocalLength>('24mm');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Cross-Dimension Filters
@@ -68,8 +63,6 @@ export function App() {
     const oldIdx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
     const newIdx = CHAPTER_LIST.findIndex((c) => c.id === newView);
     setSlideDirection(newIdx >= oldIdx ? 'up' : 'down');
-    setIsWarping(true);
-    setTimeout(() => setIsWarping(false), 550);
     setCurrentView(newView);
   };
 
@@ -230,41 +223,14 @@ export function App() {
         color: 'var(--text-main)',
       }}
     >
-      {/* Three.js Interactive DJI Mavic 3 Pro Tri-Camera Gimbal Pod */}
+      {/* Ambient Atmospheric 3D Stardust Canvas */}
       <Spatial3DCanvas 
         theme={currentTheme} 
         currentView={currentView}
-        focalLength={focalLength}
-        isWarping={isWarping} 
-      />
-
-      {/* DJI Fly Flight Telemetry & Hasselblad Tri-Camera HUD Overlay */}
-      <DJIFlightSpecsHUD 
-        currentView={currentView}
-        focalLength={focalLength}
-        onSelectFocalLength={setFocalLength}
       />
 
       {/* Fluid Magnetic Torch Cursor */}
       <MagneticCursor />
-
-      {/* Visual Guidance Light Rail (Left Side) */}
-      <VisualGuidanceRail
-        currentView={currentView}
-        onSelectChapter={handleSwitchChapter}
-      />
-
-      {/* Cinematic Optical Warp Portal Curtain */}
-      <VisualGuidanceWarpCurtain
-        isWarping={isWarping}
-        targetView={currentView}
-      />
-
-      {/* Floating Right-Side Chapter Deck Indicator (Film Gauge Scrubber) */}
-      <ChapterDock
-        currentView={currentView}
-        onSwitchView={handleSwitchChapter}
-      />
 
       {/* Top Global Navigation */}
       <Navbar

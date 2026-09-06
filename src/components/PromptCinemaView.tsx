@@ -160,42 +160,6 @@ export const PromptCinemaView: React.FC<PromptCinemaViewProps> = ({
           <div className="absolute inset-0 bg-radial-vignette opacity-70 pointer-events-none" />
         </div>
 
-        {/* ARRI / RED Director Monitor Viewfinder Safe Frame & Optical HUD */}
-        <div className="absolute inset-3 sm:inset-6 border border-white/[0.08] pointer-events-none z-10 flex flex-col justify-between select-none">
-          {/* Top HUD */}
-          <div className="flex justify-between items-center text-[9px] font-mono tracking-widest text-white/40 uppercase p-2 sm:p-3">
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-              <span>REC 24.00 FPS</span>
-              <span className="text-white/20">|</span>
-              <span>4K DCI · 2.39:1</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span>TC 00:{playbackSeconds < 10 ? '0' : ''}{Math.floor(playbackSeconds)}:18:04</span>
-            </div>
-          </div>
-
-          {/* Center Subtle Crosshair */}
-          <div className="self-center text-white/20 text-xs font-mono font-light select-none pointer-events-none">
-            +
-          </div>
-
-          {/* Bottom HUD */}
-          <div className="flex justify-between items-center text-[9px] font-mono tracking-widest text-white/40 uppercase p-2 sm:p-3">
-            <div className="flex items-center gap-2">
-              <span>ISO 800</span>
-              <span className="text-white/20">|</span>
-              <span>5600K</span>
-              <span className="text-white/20">|</span>
-              <span>{activeScene.cameraRig.lens}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span>BAT 98%</span>
-              <span className="text-white/20">|</span>
-              <span>PRORES 4444XQ</span>
-            </div>
-          </div>
-        </div>
 
         {/* TOP CINEMA HUD (Scene Timecode & Slate) */}
         <div className="relative z-20 px-6 py-4 flex items-center justify-between text-xs font-mono text-white/80 border-b border-white/10 backdrop-blur-md bg-black/40">
