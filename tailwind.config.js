@@ -48,11 +48,9 @@ export default {
         }
       },
       fontFamily: {
-        serif: ['"Cormorant Garamond"', '"Playfair Display"', 'Georgia', 'serif'],
-        sans: ['"Plus Jakarta Sans"', '"Inter"', 'system-ui', '-apple-system', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'monospace'],
-        display: ['"Cinzel"', '"Playfair Display"', 'serif'],
-        cormorant: ['"Cormorant Garamond"', 'serif'],
+        sans: ['"Inter Tight"', '"Noto Sans SC"', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['"IBM Plex Mono"', 'monospace'],
+        display: ['"Inter Tight"', '"Helvetica Neue"', 'sans-serif'],
       },
       boxShadow: {
         'gallery': '0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 20px 0 rgba(212, 163, 39, 0.08)',
