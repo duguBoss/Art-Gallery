@@ -6,7 +6,7 @@ import { Navbar, type MainViewType } from './components/Navbar';
 import { ChapterDock, CHAPTER_LIST } from './components/ChapterDock';
 import { VisualGuidanceRail } from './components/VisualGuidanceRail';
 import { VisualGuidanceWarpCurtain } from './components/VisualGuidanceWarpCurtain';
-import { StageHeaderHUD } from './components/StageHeaderHUD';
+import { SlideControlBar } from './components/SlideControlBar';
 import { PromptCinemaView } from './components/PromptCinemaView';
 import { VisualAtomsView } from './components/VisualAtomsView';
 import { DesignPrinciplesView } from './components/DesignPrinciplesView';
@@ -41,8 +41,10 @@ export function App() {
     localStorage.setItem('art_gallery_theme', currentTheme);
   }, [currentTheme]);
 
-  // Core Visual Atlas Views (8 Stages)
+  // Active Presentation Slide (0 to 7)
   const [currentView, setCurrentView] = useState<MainViewType>('cinema');
+  const [slideDirection, setSlideDirection] = useState<'up' | 'down'>('up');
+  const [isWarping, setIsWarping] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Cross-Dimension Filters
@@ -57,21 +59,22 @@ export function App() {
   const [designPrinciples, setDesignPrinciples] = useState<DesignPrinciple[]>(() => getDesignPrinciples());
   const [styleRules, setStyleRules] = useState<StyleRuleEquation[]>(() => getStyleRules());
 
-  // 3D Warp Velocity & Screen Index
-  const [isWarping, setIsWarping] = useState(false);
-  const currentIdx = Math.max(0, CHAPTER_LIST.findIndex((c) => c.id === currentView));
-
+  // Slide Switch Handler
   const handleSwitchChapter = (newView: MainViewType) => {
+    if (newView === currentView) return;
     playSpotlightClick();
+    const oldIdx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
+    const newIdx = CHAPTER_LIST.findIndex((c) => c.id === newView);
+    setSlideDirection(newIdx >= oldIdx ? 'up' : 'down');
     setIsWarping(true);
-    setTimeout(() => setIsWarping(false), 700);
+    setTimeout(() => setIsWarping(false), 550);
     setCurrentView(newView);
   };
 
   // Stealth / Direct Admin CMS State
   const [isAdminOpen, setIsAdminOpen] = useState(false);
 
-  // Cross-Navigation Handler: Explore Atom in Works
+  // Cross-Navigation Handlers
   const handleExploreAtomInWorks = (atomName: string) => {
     setActiveAtomFilter(atomName);
     setActiveStyleFilter(null);
@@ -80,7 +83,6 @@ export function App() {
     handleSwitchChapter('atlas');
   };
 
-  // Cross-Navigation Handler: Explore Style in Works
   const handleExploreStyleInWorks = (styleId: string) => {
     setActiveStyleFilter(styleId);
     setActiveAtomFilter(null);
@@ -89,7 +91,6 @@ export function App() {
     handleSwitchChapter('atlas');
   };
 
-  // Cross-Navigation Handler: Explore Principle in Works
   const handleExplorePrincipleInWorks = (principleName: string) => {
     setActivePrincipleFilter(principleName);
     setActiveAtomFilter(null);
@@ -98,7 +99,6 @@ export function App() {
     handleSwitchChapter('atlas');
   };
 
-  // Cross-Navigation Handler: Explore Medium in Works
   const handleExploreMediumInWorks = (medium: MediumType) => {
     setActiveMediumFilter(medium);
     setActiveAtomFilter(null);
@@ -114,7 +114,7 @@ export function App() {
     setActiveMediumFilter('all');
   };
 
-  // Single-Screen Wheel Snap: Scroll once to switch exactly one full screen
+  // PPT / Keynote Remote Wheel Flip: Scroll once to flip exactly one slide
   useEffect(() => {
     let isLocked = false;
     let lockTimer: ReturnType<typeof setTimeout> | null = null;
@@ -122,46 +122,57 @@ export function App() {
     const handleWheel = (e: WheelEvent) => {
       if (isAdminOpen) return;
       if (e.ctrlKey || e.metaKey || e.altKey) return;
+      
+      // Stop native page scrolling so wheel acts 100% as a PPT slide clicker!
+      e.preventDefault();
+
       if (isLocked) return;
 
-      // Find active screen scrollable container
-      const activeStage = document.getElementById(`stage-${currentView}`);
-      if (activeStage) {
-        const { scrollTop, scrollHeight, clientHeight } = activeStage;
-        const hasInternalOverflow = scrollHeight > clientHeight + 15;
-
-        // If scrolling down, but haven't reached bottom of internal content
-        if (e.deltaY > 0 && hasInternalOverflow && scrollTop + clientHeight < scrollHeight - 20) {
-          return;
-        }
-        // If scrolling up, but haven't reached top of internal content
-        if (e.deltaY < 0 && hasInternalOverflow && scrollTop > 20) {
-          return;
-        }
-      }
-
-      if (Math.abs(e.deltaY) > 25) {
+      if (Math.abs(e.deltaY) > 8) {
         const idx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
         if (e.deltaY > 0 && idx < CHAPTER_LIST.length - 1) {
           isLocked = true;
           handleSwitchChapter(CHAPTER_LIST[idx + 1].id);
-          lockTimer = setTimeout(() => { isLocked = false; }, 750);
+          lockTimer = setTimeout(() => { isLocked = false; }, 550);
         } else if (e.deltaY < 0 && idx > 0) {
           isLocked = true;
           handleSwitchChapter(CHAPTER_LIST[idx - 1].id);
-          lockTimer = setTimeout(() => { isLocked = false; }, 750);
+          lockTimer = setTimeout(() => { isLocked = false; }, 550);
         }
       }
     };
 
-    window.addEventListener('wheel', handleWheel, { passive: true });
+    window.addEventListener('wheel', handleWheel, { passive: false });
     return () => {
       window.removeEventListener('wheel', handleWheel);
       if (lockTimer) clearTimeout(lockTimer);
     };
   }, [currentView, isAdminOpen]);
 
-  // Touch Swipe Gesture for Mobile / Trackpad (1 swipe = 1 screen)
+  // PPT Keyboard Remote: Space, Arrows, PageUp/Down
+  useEffect(() => {
+    const handleChapterKeys = (e: KeyboardEvent) => {
+      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
+      if (isAdminOpen) return;
+
+      const idx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
+      if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown') {
+        e.preventDefault();
+        if (idx < CHAPTER_LIST.length - 1) {
+          handleSwitchChapter(CHAPTER_LIST[idx + 1].id);
+        }
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') {
+        e.preventDefault();
+        if (idx > 0) {
+          handleSwitchChapter(CHAPTER_LIST[idx - 1].id);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleChapterKeys);
+    return () => window.removeEventListener('keydown', handleChapterKeys);
+  }, [currentView, isAdminOpen]);
+
+  // Touch Swipe Gesture (Mobile / iPad PPT flip)
   useEffect(() => {
     let touchStartY = 0;
     let isLocked = false;
@@ -175,16 +186,16 @@ export function App() {
       const touchEndY = e.changedTouches[0].clientY;
       const deltaY = touchStartY - touchEndY;
 
-      if (Math.abs(deltaY) > 50) {
+      if (Math.abs(deltaY) > 35) {
         const idx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
         if (deltaY > 0 && idx < CHAPTER_LIST.length - 1) {
           isLocked = true;
           handleSwitchChapter(CHAPTER_LIST[idx + 1].id);
-          setTimeout(() => { isLocked = false; }, 750);
+          setTimeout(() => { isLocked = false; }, 550);
         } else if (deltaY < 0 && idx > 0) {
           isLocked = true;
           handleSwitchChapter(CHAPTER_LIST[idx - 1].id);
-          setTimeout(() => { isLocked = false; }, 750);
+          setTimeout(() => { isLocked = false; }, 550);
         }
       }
     };
@@ -195,29 +206,6 @@ export function App() {
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [currentView, isAdminOpen]);
-
-  // Global Keyboard Navigation (Arrow / Page keys switch exactly one screen)
-  useEffect(() => {
-    const handleChapterKeys = (e: KeyboardEvent) => {
-      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
-      if (isAdminOpen) return;
-
-      const idx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
-      if (e.key === 'PageDown' || e.key === 'ArrowDown') {
-        e.preventDefault();
-        if (idx < CHAPTER_LIST.length - 1) {
-          handleSwitchChapter(CHAPTER_LIST[idx + 1].id);
-        }
-      } else if (e.key === 'PageUp' || e.key === 'ArrowUp') {
-        e.preventDefault();
-        if (idx > 0) {
-          handleSwitchChapter(CHAPTER_LIST[idx - 1].id);
-        }
-      }
-    };
-    window.addEventListener('keydown', handleChapterKeys);
-    return () => window.removeEventListener('keydown', handleChapterKeys);
   }, [currentView, isAdminOpen]);
 
   // Stealth Trigger 1: Global Shortcut Ctrl + Shift + A
@@ -246,7 +234,7 @@ export function App() {
       {/* Fluid Magnetic Torch Cursor */}
       <MagneticCursor />
 
-      {/* Apple-Grade Visual Guidance Light Rail (Left-Side Screen Navigator) */}
+      {/* Apple-Grade Visual Guidance Light Rail (Left Side) */}
       <VisualGuidanceRail
         currentView={currentView}
         onSelectChapter={handleSwitchChapter}
@@ -275,135 +263,60 @@ export function App() {
         onOpenCMS={() => setIsAdminOpen(true)}
       />
 
-      {/* Main Fullscreen 100vh Viewport Deck (One Scroll Flick = One Screen Transition) */}
-      <main className="fixed inset-x-0 top-16 bottom-0 overflow-hidden z-10">
-        <div 
-          className="w-full h-full transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col"
-          style={{ transform: `translateY(-${currentIdx * 100}%)` }}
+      {/* Main Full-Bleed Presentation Stage (Apple Keynote Slide Flip Stage) */}
+      <main className="fixed inset-x-0 top-16 bottom-14 overflow-hidden z-10 flex flex-col items-center justify-center p-2 sm:p-4">
+        <div
+          key={currentView}
+          className={`w-full h-full max-w-7xl mx-auto overflow-y-auto no-scrollbar flex flex-col justify-center ${
+            slideDirection === 'up' ? 'animate-keynote-up' : 'animate-keynote-down'
+          }`}
         >
-          {/* Stage 00: 镜头式叙事与电影分镜 */}
-          <div 
-            id="stage-cinema" 
-            className="w-full h-full flex-shrink-0 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6 relative"
-          >
-            <StageHeaderHUD
-              stepIndex={0}
-              title="镜头式叙事与电影分镜"
-              titleEn="Prompt Cinema Viewport"
-              desc="16:9 电影画幅 · 制作通告单 · 运镜分层解析 · 场景情绪定调"
-              elevationMeters={0}
-              onNextScreen={() => handleSwitchChapter('atoms')}
-            />
+          {/* Slide 00: 镜头式叙事与电影分镜 */}
+          {currentView === 'cinema' && (
             <PromptCinemaView
               scenes={cinemaScenes}
               onOpenCMS={() => setIsAdminOpen(true)}
               onExploreAtom={handleExploreAtomInWorks}
               onExplorePrinciple={handleExplorePrincipleInWorks}
             />
-          </div>
+          )}
 
-          {/* Stage 01: 视觉基础材料库 */}
-          <div 
-            id="stage-atoms" 
-            className="w-full h-full flex-shrink-0 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6 relative"
-          >
-            <StageHeaderHUD
-              stepIndex={1}
-              title="视觉基础材料库"
-              titleEn="Visual Atoms & Raw Aesthetics"
-              desc="色彩对撞 · 负空间留白 · 极端尺度反差 · 丁达尔光束 · 材质触感"
-              elevationMeters={100}
-              onNextScreen={() => handleSwitchChapter('principles')}
-            />
+          {/* Slide 01: 视觉基础材料库 */}
+          {currentView === 'atoms' && (
             <VisualAtomsView 
               atoms={visualAtoms}
               onExploreAtomInWorks={handleExploreAtomInWorks} 
             />
-          </div>
+          )}
 
-          {/* Stage 02: 十大设计原则实验室 */}
-          <div 
-            id="stage-principles" 
-            className="w-full h-full flex-shrink-0 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6 relative"
-          >
-            <StageHeaderHUD
-              stepIndex={2}
-              title="十大设计原则实验室"
-              titleEn="Ten Design Principles · The Bridge"
-              desc="对比 · 平衡 · 层级 · 节奏 · 比例 · 动势 · 秩序法则"
-              elevationMeters={240}
-              onNextScreen={() => handleSwitchChapter('styles')}
-            />
+          {/* Slide 02: 十大设计原则实验室 */}
+          {currentView === 'principles' && (
             <DesignPrinciplesView 
               principles={designPrinciples}
               onExplorePrincipleInWorks={handleExplorePrincipleInWorks} 
             />
-          </div>
+          )}
 
-          {/* Stage 03: 风格规则矩阵与方程 */}
-          <div 
-            id="stage-styles" 
-            className="w-full h-full flex-shrink-0 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6 relative"
-          >
-            <StageHeaderHUD
-              stepIndex={3}
-              title="风格规则矩阵与方程"
-              titleEn="Style Matrix Equations"
-              desc="瑞士国际 · 粗野主义 · 赛博朋克 · 杂志编辑美学算法"
-              elevationMeters={420}
-              onNextScreen={() => handleSwitchChapter('mediums')}
-            />
+          {/* Slide 03: 风格规则矩阵与方程 */}
+          {currentView === 'styles' && (
             <StyleMatrixView 
               styles={styleRules}
               onExploreStyleInWorks={handleExploreStyleInWorks} 
             />
-          </div>
+          )}
 
-          {/* Stage 04: 四大表现媒介矩阵 */}
-          <div 
-            id="stage-mediums" 
-            className="w-full h-full flex-shrink-0 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6 relative"
-          >
-            <StageHeaderHUD
-              stepIndex={4}
-              title="四大表现媒介矩阵"
-              titleEn="The 4 Mediums: Image · Interface · Space · Motion"
-              desc="平面画作 · UI界面 · 3D空间建筑 · 影视动效矩阵跨媒介"
-              elevationMeters={600}
-              onNextScreen={() => handleSwitchChapter('motion')}
-            />
+          {/* Slide 04: 四大表现媒介矩阵 */}
+          {currentView === 'mediums' && (
             <MediumMatrixView onExploreMediumInWorks={handleExploreMediumInWorks} />
-          </div>
+          )}
 
-          {/* Stage 05: 动态与镜头语言实验室 */}
-          <div 
-            id="stage-motion" 
-            className="w-full h-full flex-shrink-0 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6 relative"
-          >
-            <StageHeaderHUD
-              stepIndex={5}
-              title="动态与镜头语言实验室"
-              titleEn="Motion & Camera Cinematography"
-              desc="运镜调度 · 遮罩转场 · 时间阻尼 · 视觉节奏时序分镜"
-              elevationMeters={820}
-              onNextScreen={() => handleSwitchChapter('atlas')}
-            />
+          {/* Slide 05: 动态与镜头语言实验室 */}
+          {currentView === 'motion' && (
             <MotionCameraLab />
-          </div>
+          )}
 
-          {/* Stage 06: 作品知识网络与多维拆解 */}
-          <div 
-            id="stage-atlas" 
-            className="w-full h-full flex-shrink-0 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6 relative"
-          >
-            <StageHeaderHUD
-              stepIndex={6}
-              title="作品知识网络与多维拆解"
-              titleEn="Works Atlas & Multidimensional Deconstruction"
-              desc="多维交叉筛选 · 构图网格 · 一个作品等于一个美学入口"
-              elevationMeters={1080}
-              onNextScreen={() => handleSwitchChapter('shapes-lab')}
-            />
+          {/* Slide 06: 作品知识网络与多维拆解 */}
+          {currentView === 'atlas' && (
             <DesignAtlasView
               initialAtomFilter={activeAtomFilter}
               initialStyleFilter={activeStyleFilter}
@@ -414,35 +327,29 @@ export function App() {
               onSelectStyle={handleExploreStyleInWorks}
               onSelectPrinciple={handleExplorePrincipleInWorks}
             />
-          </div>
+          )}
 
-          {/* Stage 07: 算法海报重构工坊 */}
-          <div 
-            id="stage-shapes-lab" 
-            className="w-full h-full flex-shrink-0 overflow-y-auto px-4 sm:px-8 py-4 sm:py-6 relative pb-20"
-          >
-            <StageHeaderHUD
-              stepIndex={7}
-              title="算法海报重构工坊"
-              titleEn="Generative Book of Shapes Studio"
-              desc="参数化几何海报生成 · 殿堂级 SVG / PNG 高清导出"
-              elevationMeters={1380}
-            />
-            <GenerativePosterStudio
-              currentTheme={currentTheme}
-              onSelectTheme={setCurrentTheme}
-            />
-
-            {/* Global Curated Exhibition Patron Banner (Google AdSense Unit) */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-12 mb-6">
-              <GoogleAdSenseUnit variant="banner" />
+          {/* Slide 07: 算法海报重构工坊 */}
+          {currentView === 'shapes-lab' && (
+            <div className="flex-1 flex flex-col justify-between overflow-y-auto no-scrollbar">
+              <GenerativePosterStudio
+                currentTheme={currentTheme}
+                onSelectTheme={setCurrentTheme}
+              />
+              <div className="mt-8 mb-4">
+                <GoogleAdSenseUnit variant="banner" />
+              </div>
+              <Footer onSecretTrigger={() => setIsAdminOpen(true)} />
             </div>
-
-            {/* Clean Footer with Secret Trigger */}
-            <Footer onSecretTrigger={() => setIsAdminOpen(true)} />
-          </div>
+          )}
         </div>
       </main>
+
+      {/* Floating Keynote Slide Control Bar */}
+      <SlideControlBar
+        currentView={currentView}
+        onSwitchView={handleSwitchChapter}
+      />
 
       {/* Full-Featured Curator Admin CMS Modal */}
       <AdminCMSModal
