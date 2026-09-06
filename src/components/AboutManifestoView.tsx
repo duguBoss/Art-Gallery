@@ -1,6 +1,7 @@
 import React from 'react';
-import { ArrowDown, ShieldAlert, Sparkles, Compass, CheckCircle2 } from 'lucide-react';
+import { ShieldAlert, CheckCircle2 } from 'lucide-react';
 import { playSpotlightClick } from '../utils/audio';
+import { useLanguage } from '../context/LanguageContext';
 
 interface AboutManifestoViewProps {
   onExploreArchive: () => void;
@@ -9,36 +10,49 @@ interface AboutManifestoViewProps {
 export const AboutManifestoView: React.FC<AboutManifestoViewProps> = ({
   onExploreArchive,
 }) => {
+  const { lang, t } = useLanguage();
+
   const systemFlow = [
-    { label: 'LIGHT', desc: 'Photons, shadows, volumetric falloff, key-to-fill ratios.' },
-    { label: 'COLOR', desc: 'Hue contrast, temperature separation, organic film emulsion.' },
-    { label: 'SPACE', desc: 'Negative space, proportion shock, architectural perspective.' },
-    { label: 'CAMERA', desc: 'Optics, focal compression, anamorphic distortion, shutter angle.' },
-    { label: 'MOVEMENT', desc: 'Cinematic cadence, dollies, tracking momentum, stasis.' },
-    { label: 'EMOTION', desc: 'Subconscious resonance, literary melancholy, sublime awe.' },
+    { label: lang === 'zh' ? '01 光影几何 (LIGHT)' : 'LIGHT', desc: t('about.step1') },
+    { label: lang === 'zh' ? '02 色彩色谱 (COLOR)' : 'COLOR', desc: t('about.step2') },
+    { label: lang === 'zh' ? '03 空间透视 (SPACE)' : 'SPACE', desc: t('about.step3') },
+    { label: lang === 'zh' ? '04 光学句法 (CAMERA)' : 'CAMERA', desc: t('about.step4') },
+    { label: lang === 'zh' ? '05 运镜动量 (MOVEMENT)' : 'MOVEMENT', desc: t('about.step5') },
+    { label: lang === 'zh' ? '06 心理共鸣 (EMOTION)' : 'EMOTION', desc: t('about.step6') },
   ];
 
-  const antiAiRules = [
-    'NO purple-blue gradients or neon chromatic aberration.',
+  const antiAiRulesZh = [
+    '严禁紫蓝渐变与廉价的霓虹色差 (Chromatic Aberration)。',
+    '严禁拟物毛玻璃、悬浮模糊卡片与伪 3D 悬浮球体。',
+    '严禁通用 Pinterest 风格的无意义瀑布流图片堆砌。',
+    '严禁缺乏语义目的的虚假科幻 HUD 仪表盘。',
+    '恪守严格的瑞士国际 12 栏排版网格与发丝细线 (0.14 浅透明度)。',
+    '极度克制的美学调色：#11110F 暗房底色 + #D8FF3E 强酸黄绿 (Acid Chartreuse)。',
+  ];
+
+  const antiAiRulesEn = [
+    'NO purple-blue gradients or cheap chromatic aberration.',
     'NO glassmorphism, floating blurred cards, or 3D blobs.',
     'NO generic Pinterest-style masonry image dump.',
-    'NO fake telemetry HUD dashboards without semantic purpose.',
+    'NO fake sci-fi HUD telemetry dashboards without semantic purpose.',
     'STRICT Swiss 12-column grid and hairline borders (0.14 opacity).',
     'Aesthetic restrained palette: #11110F Darkroom Canvas + #D8FF3E Acid Chartreuse.',
   ];
+
+  const activeRules = lang === 'zh' ? antiAiRulesZh : antiAiRulesEn;
 
   return (
     <div className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 py-12 lg:py-20 text-[#F2F0E8] animate-fadeIn">
       {/* Top Banner */}
       <div className="border-b border-[#F2F0E8]/10 pb-6 mb-12">
         <div className="text-[11px] font-mono tracking-widest text-[#D8FF3E] uppercase mb-1">
-          06 // MANIFESTO & AESTHETIC CONSTITUTION
+          {t('about.tag')}
         </div>
         <h1 className="text-4xl sm:text-6xl font-bold tracking-tight uppercase">
-          WHY THIS EXISTS
+          {t('about.title')}
         </h1>
         <p className="text-sm font-mono text-[#8B887F] mt-2 max-w-xl">
-          A declaration against the trivialization of cinematic images in the era of automated generation.
+          {t('about.subtitle')}
         </p>
       </div>
 
@@ -46,15 +60,15 @@ export const AboutManifestoView: React.FC<AboutManifestoViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 border-b border-[#F2F0E8]/10 pb-16 mb-16">
         <div className="lg:col-span-6 space-y-6">
           <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-[#F2F0E8] leading-tight">
-            Images are not just pictures.<br />
-            <span className="text-[#D8FF3E]">They are systems.</span>
+            {t('about.h1')}<br />
+            <span className="text-[#D8FF3E]">{t('about.h2')}</span>
           </h2>
 
           <p className="text-base text-[#8B887F] leading-relaxed font-sans">
-            普通的数字图库往往停留在“漂亮卡片”的被动浏览中。观者在无限滚动的瀑布流中迷失，却从未真正理解一张画面为何能在神经突触间激发战栗。
+            {t('about.p1')}
           </p>
           <p className="text-base text-[#8B887F] leading-relaxed font-sans">
-            <strong>VISUAL ATLAS</strong> 建立于一个笃定信念：每一幅打动人心的电影杰作，都是由光线角度、光学焦段、几何网格与色彩极差精确构筑的语言体系。只有解构这种语法，创作者才能跨越平庸，创作出拥有永恒张力的作品。
+            {t('about.p2')}
           </p>
 
           <div className="pt-4">
@@ -65,7 +79,7 @@ export const AboutManifestoView: React.FC<AboutManifestoViewProps> = ({
               }}
               className="px-6 py-3.5 bg-[#D8FF3E] text-[#11110F] text-xs font-mono font-bold uppercase tracking-wider hover:bg-white transition-colors cursor-pointer"
             >
-              DISCOVER THE ARCHIVE →
+              {t('about.discoverArchive')}
             </button>
           </div>
         </div>
@@ -73,7 +87,7 @@ export const AboutManifestoView: React.FC<AboutManifestoViewProps> = ({
         {/* Vertical System Flow Pipeline */}
         <div className="lg:col-span-6 border border-[#F2F0E8]/15 bg-[#141412] p-8 font-mono space-y-4">
           <div className="text-xs text-[#D8FF3E] uppercase tracking-widest border-b border-[#F2F0E8]/10 pb-2">
-            THE ANATOMY OF CINEMA SYNTAX
+            {t('about.anatomy')}
           </div>
 
           <div className="space-y-4 pt-2">
@@ -105,15 +119,15 @@ export const AboutManifestoView: React.FC<AboutManifestoViewProps> = ({
         <div className="flex items-center gap-3 border-b border-[#F2F0E8]/10 pb-4">
           <ShieldAlert className="w-5 h-5 text-[#D8FF3E]" />
           <div>
-            <div className="text-xs font-mono text-[#D8FF3E] uppercase">ANTI-AI-DESIGN CONSTITUTION</div>
+            <div className="text-xs font-mono text-[#D8FF3E] uppercase">{t('about.constitution')}</div>
             <h3 className="text-2xl font-bold uppercase tracking-tight text-[#F2F0E8]">
-              DESIGN PRINCIPLES & RESTRAINT
+              {t('about.principlesTitle')}
             </h3>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 font-mono text-xs">
-          {antiAiRules.map((rule, idx) => (
+          {activeRules.map((rule, idx) => (
             <div key={idx} className="flex items-start gap-3 border border-[#F2F0E8]/10 p-4 bg-[#11110F]">
               <CheckCircle2 className="w-4 h-4 text-[#D8FF3E] shrink-0 mt-0.5" />
               <span className="text-[#8B887F] leading-relaxed">
@@ -124,8 +138,8 @@ export const AboutManifestoView: React.FC<AboutManifestoViewProps> = ({
         </div>
 
         <div className="pt-4 border-t border-[#F2F0E8]/10 flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono text-[#8B887F] gap-2">
-          <span>CURATED BY VISUAL ARCHITECTS & CINEMATOGRAPHERS</span>
-          <span className="text-[#D8FF3E]">SWISS EDITORIAL SYSTEM · 2026</span>
+          <span>{t('about.curatedBy')}</span>
+          <span className="text-[#D8FF3E]">{t('about.swissEdition')}</span>
         </div>
       </div>
     </div>

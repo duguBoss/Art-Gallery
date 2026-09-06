@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import type { CinemaScene } from '../types/cinema';
 import type { LabEngine } from '../types/visualAtlas';
-import { Copy, Check, Bookmark, Sparkles, Sliders, Film, Layers, Download, Plus, Trash2, ChevronRight } from 'lucide-react';
+import { Copy, Check, Bookmark, Sparkles, Sliders, Film, Download } from 'lucide-react';
 import { playSpotlightClick, playSuccessChime } from '../utils/audio';
+import { useLanguage } from '../context/LanguageContext';
 
 interface VisualLabViewProps {
   initialScene?: CinemaScene;
@@ -17,6 +18,7 @@ export const VisualLabView: React.FC<VisualLabViewProps> = ({
   allScenes = [],
   onSavePromptToDossier,
 }) => {
+  const { lang, t } = useLanguage();
   const [activeTool, setActiveTool] = useState<LabSubTool>('prompt');
   const [engine, setEngine] = useState<LabEngine>('midjourney');
 
@@ -36,12 +38,36 @@ export const VisualLabView: React.FC<VisualLabViewProps> = ({
   const [lightingSetup, setLightingSetup] = useState('Cathedral Single-Source God Ray');
 
   // Storyboard State
-  const [storyboardBeats, setStoryboardBeats] = useState([
-    { id: 'beat-1', act: '01 ESTABLISHING', scene: '雨夜东京：深渊霓虹漫步', lens: 'Cooke 35mm Anamorphic', note: 'Wide environmental tension' },
-    { id: 'beat-2', act: '02 REVEAL', scene: '纪念碑谷：粗野混凝土巨构', lens: 'Arri 24mm Ultra-Wide', note: 'Monumental scale shock' },
-    { id: 'beat-3', act: '03 ENCOUNTER', scene: '花样年华：狭长回廊的绿意与暗红', lens: 'Zeiss 50mm Prime', note: 'Intimate emotional claustrophobia' },
-    { id: 'beat-4', act: '04 RESOLUTION', scene: '潜行者之境：沉没水泽与时间回声', lens: 'LOMO 35mm Vintage', note: 'Poetic meditation and stasis' },
-  ]);
+  const storyboardBeats = [
+    { 
+      id: 'beat-1', 
+      act: '01 ESTABLISHING', 
+      scene: lang === 'zh' ? '雨夜东京：深渊霓虹漫步' : 'Tokyo Rain: Neon Nocturne Walk', 
+      lens: 'Cooke 35mm Anamorphic', 
+      note: lang === 'zh' ? '全景环境张力与孤独沉溺' : 'Wide environmental tension and solitude' 
+    },
+    { 
+      id: 'beat-2', 
+      act: '02 REVEAL', 
+      scene: lang === 'zh' ? '纪念碑谷：粗野混凝土巨构' : 'Monument Valley: Brutalist Monolith', 
+      lens: 'Arri 24mm Ultra-Wide', 
+      note: lang === 'zh' ? '极端体量对比与崇高敬畏' : 'Monumental scale shock and awe' 
+    },
+    { 
+      id: 'beat-3', 
+      act: '03 ENCOUNTER', 
+      scene: lang === 'zh' ? '花样年华：狭长回廊的绿意与暗红' : 'In the Mood: Green Corridor & Deep Rouge', 
+      lens: 'Zeiss 50mm Prime', 
+      note: lang === 'zh' ? '亲密幽闭的情绪压抑与试探' : 'Intimate emotional claustrophobia' 
+    },
+    { 
+      id: 'beat-4', 
+      act: '04 RESOLUTION', 
+      scene: lang === 'zh' ? '潜行者之境：沉没水泽与时间回声' : 'Stalker Zone: Submerged Murmur & Silence', 
+      lens: 'LOMO 35mm Vintage', 
+      note: lang === 'zh' ? '诗性冥想与静止凝视' : 'Poetic meditation and stasis' 
+    },
+  ];
 
   const moodOptions = ['Melancholic Dystopia', 'Monumental Austere Brutalism', 'Poetic Editorial Silence', 'Eastern Misty Zen', 'Chromatic Nostalgia', 'Cosmic Sublime'];
   const lightOptions = ['Low-Key Volumetric Rim', 'Cathedral Single-Source God Ray', '100% Diffuse North Window Light', 'Neon Wet Reflections', 'Low Grazing Sunset Flare'];
@@ -91,22 +117,22 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
       <div className="border-b border-[#F2F0E8]/10 pb-6 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <div className="text-[11px] font-mono tracking-widest text-[#D8FF3E] uppercase mb-1">
-            CREATIVE SUITE // HOLLYWOOD WORKBENCH
+            {t('lab.tag')}
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight uppercase">
-            VISUAL LAB
+            {t('lab.title')}
           </h2>
           <p className="text-xs text-[#8B887F] font-mono mt-1">
-            Synthesize aesthetic genomes into industrial-grade production prompts, camera specifications, and narrative storyboards.
+            {t('lab.subtitle')}
           </p>
         </div>
 
         {/* Sub-tool Switcher Tabs */}
         <div className="flex items-center gap-2 font-mono text-xs">
           {[
-            { id: 'prompt', label: '01 PROMPT GENERATOR', icon: Sparkles },
-            { id: 'shot', label: '02 SHOT BUILDER', icon: Sliders },
-            { id: 'storyboard', label: '03 STORYBOARD', icon: Film },
+            { id: 'prompt', label: t('lab.toolPrompt'), icon: Sparkles },
+            { id: 'shot', label: t('lab.toolShot'), icon: Sliders },
+            { id: 'storyboard', label: t('lab.toolStoryboard'), icon: Film },
           ].map(({ id, label, icon: Icon }) => (
             <button
               key={id}
@@ -130,12 +156,12 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
       {/* SUB-TOOL 01: PROMPT GENERATOR */}
       {activeTool === 'prompt' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          {/* Left Column (7 Cols): Parameter Controls */}
+          {/* Left Column: Parameter Controls */}
           <div className="lg:col-span-7 space-y-6">
             <div className="flex items-center justify-between text-xs font-mono text-[#D8FF3E] uppercase tracking-wider border-b border-[#F2F0E8]/10 pb-2">
-              <span>GENOME PARAMETERS</span>
+              <span>{lang === 'zh' ? '美学基因参数' : 'GENOME PARAMETERS'}</span>
               <div className="flex items-center gap-2 text-[10px] text-[#8B887F]">
-                <span>ASPECT:</span>
+                <span>{lang === 'zh' ? '画幅:' : 'ASPECT:'}</span>
                 {['2.39:1', '16:9', '4:3', '1:1'].map((ar) => (
                   <button
                     key={ar}
@@ -150,7 +176,9 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
 
             {/* MOOD */}
             <div>
-              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">01 // MOOD GENOME</label>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">
+                01 // {lang === 'zh' ? '情绪基调基因' : 'MOOD GENOME'}
+              </label>
               <div className="flex flex-wrap gap-2">
                 {moodOptions.map((opt) => (
                   <button
@@ -170,7 +198,9 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
 
             {/* LIGHT */}
             <div>
-              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">02 // LIGHTING GEOMETRY</label>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">
+                02 // {lang === 'zh' ? '光影几何布光' : 'LIGHTING GEOMETRY'}
+              </label>
               <div className="flex flex-wrap gap-2">
                 {lightOptions.map((opt) => (
                   <button
@@ -190,7 +220,9 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
 
             {/* OPTICS */}
             <div>
-              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">03 // OPTICAL SYNTAX (LENS)</label>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">
+                03 // {lang === 'zh' ? '光学句法 (摄影镜头)' : 'OPTICAL SYNTAX (LENS)'}
+              </label>
               <div className="flex flex-wrap gap-2">
                 {cameraOptions.map((opt) => (
                   <button
@@ -210,7 +242,9 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
 
             {/* COMPOSITION */}
             <div>
-              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">04 // COMPOSITION & RATIO</label>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">
+                04 // {lang === 'zh' ? '构图比例与网格' : 'COMPOSITION & RATIO'}
+              </label>
               <div className="flex flex-wrap gap-2">
                 {compositionOptions.map((opt) => (
                   <button
@@ -230,7 +264,9 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
 
             {/* COLOR */}
             <div>
-              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">05 // COLOR PALETTE</label>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">
+                05 // {lang === 'zh' ? '色彩方案' : 'COLOR PALETTE'}
+              </label>
               <div className="flex flex-wrap gap-2">
                 {colorOptions.map((opt) => (
                   <button
@@ -249,11 +285,13 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
             </div>
           </div>
 
-          {/* Right Column (5 Cols): Synthesized Result & Production Terminal */}
+          {/* Right Column: Synthesized Result & Production Terminal */}
           <div className="lg:col-span-5 flex flex-col justify-between space-y-6 bg-[#161614] border border-[#F2F0E8]/10 p-6">
             <div>
               {/* Engine Switcher */}
-              <div className="text-[10px] font-mono text-[#8B887F] uppercase mb-2">TARGET AI ENGINE SYNTAX</div>
+              <div className="text-[10px] font-mono text-[#8B887F] uppercase mb-2">
+                {t('lab.targetEngine')}
+              </div>
               <div className="flex flex-wrap gap-1.5 pb-4 border-b border-[#F2F0E8]/10 mb-4">
                 {[
                   { id: 'midjourney', label: 'MIDJOURNEY V6' },
@@ -279,8 +317,10 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
               </div>
 
               <div className="flex items-center justify-between text-xs font-mono text-[#8B887F] pb-2 mb-2">
-                <span className="text-[#D8FF3E]">SYNTHESIZED HOLLYWOOD PROMPT</span>
-                <span>READY TO RENDER</span>
+                <span className="text-[#D8FF3E]">
+                  {lang === 'zh' ? '好莱坞级合成提示词' : 'SYNTHESIZED HOLLYWOOD PROMPT'}
+                </span>
+                <span>{t('lab.readyToRender')}</span>
               </div>
 
               <div className="bg-[#11110F] border border-[#F2F0E8]/10 p-4 font-mono text-xs text-[#F2F0E8] leading-relaxed whitespace-pre-wrap select-all min-h-[140px]">
@@ -305,7 +345,7 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
                 className="w-full py-3 bg-[#D8FF3E] text-[#11110F] text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-white transition-colors cursor-pointer"
               >
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                <span>{copied ? 'PROMPT COPIED TO CLIPBOARD' : 'COPY SYNTHESIZED PROMPT'}</span>
+                <span>{copied ? (lang === 'zh' ? '已复制到剪贴板' : 'PROMPT COPIED TO CLIPBOARD') : t('lab.copySynthesized')}</span>
               </button>
 
               {onSavePromptToDossier && (
@@ -314,7 +354,7 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
                   className="w-full py-3 border border-[#F2F0E8]/20 hover:border-[#D8FF3E] hover:text-[#D8FF3E] text-xs font-mono font-bold uppercase tracking-wider transition-colors cursor-pointer flex items-center justify-center gap-2"
                 >
                   <Bookmark className="w-4 h-4" />
-                  <span>SAVE PROMPT TO DOSSIER</span>
+                  <span>{t('lab.savePromptToDossier')}</span>
                 </button>
               )}
             </div>
@@ -327,12 +367,14 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           <div className="lg:col-span-7 space-y-6">
             <div className="text-xs font-mono text-[#D8FF3E] uppercase tracking-wider border-b border-[#F2F0E8]/10 pb-2">
-              DIRECTOR'S CAMERA SETUP // SHOT ARCHITECTURE
+              {t('lab.shotArch')}
             </div>
 
             {/* SHOT SCALE */}
             <div>
-              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">01 // SHOT SCALE</label>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">
+                01 // {lang === 'zh' ? '景别尺度' : 'SHOT SCALE'}
+              </label>
               <div className="flex flex-wrap gap-2">
                 {['Extreme Wide Establishing', 'Wide Shot', 'Medium Full Shot', 'Close-Up Portrait', 'Extreme Macro Detail'].map((scale) => (
                   <button
@@ -350,7 +392,9 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
 
             {/* CAMERA MOVEMENT */}
             <div>
-              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">02 // CAMERA MOVEMENT</label>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">
+                02 // {lang === 'zh' ? '摄影机运镜' : 'CAMERA MOVEMENT'}
+              </label>
               <div className="flex flex-wrap gap-2">
                 {['Static Master Lock-Off', 'Slow Smooth Dolly Forward', 'Lateral Tracking Pan', 'Fluid Steadicam Breathing', 'Top-Down Crane Retract'].map((mov) => (
                   <button
@@ -368,7 +412,9 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
 
             {/* CAMERA ANGLE */}
             <div>
-              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">03 // CAMERA ANGLE & ELEVATION</label>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">
+                03 // {lang === 'zh' ? '机位仰角与透视' : 'CAMERA ANGLE & ELEVATION'}
+              </label>
               <div className="flex flex-wrap gap-2">
                 {['Low Angle 15° (Monumental)', 'Neutral Eye Level', 'High Angle 45°', 'Dutch Cant 10° (Psychological)', 'Overhead God-View 90°'].map((ang) => (
                   <button
@@ -386,7 +432,9 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
 
             {/* LIGHTING SETUP */}
             <div>
-              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">04 // LIGHTING RIG</label>
+              <label className="text-[10px] font-mono text-[#8B887F] uppercase block mb-2">
+                04 // {lang === 'zh' ? '布光配置' : 'LIGHTING RIG'}
+              </label>
               <div className="flex flex-wrap gap-2">
                 {['Cathedral Single-Source God Ray', 'Low-Key Volumetric Cyan Rim', '100% Diffuse Window Daylight', 'Sodium Vapor Overhead Practical'].map((light) => (
                   <button
@@ -406,7 +454,7 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
           <div className="lg:col-span-5 bg-[#161614] border border-[#F2F0E8]/10 p-6 flex flex-col justify-between space-y-6">
             <div>
               <div className="text-xs font-mono text-[#D8FF3E] border-b border-[#F2F0E8]/10 pb-3 mb-4">
-                DIRECTOR CALL SHEET
+                {t('lab.directorCall')}
               </div>
               <pre className="bg-[#11110F] border border-[#F2F0E8]/10 p-4 font-mono text-xs text-[#F2F0E8] leading-relaxed whitespace-pre-wrap select-all">
                 {generatedShotCall}
@@ -417,7 +465,7 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
               className="w-full py-3 bg-[#D8FF3E] text-[#11110F] text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-white transition-colors cursor-pointer"
             >
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              <span>{copied ? 'COPIED TO CLIPBOARD' : 'COPY SHOT CALL SHEET'}</span>
+              <span>{copied ? (lang === 'zh' ? '通告单已复制' : 'COPIED TO CLIPBOARD') : t('lab.copyCallSheet')}</span>
             </button>
           </div>
         </div>
@@ -428,9 +476,9 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
         <div className="space-y-8">
           <div className="flex items-center justify-between border-b border-[#F2F0E8]/10 pb-4">
             <div>
-              <div className="text-xs font-mono text-[#D8FF3E] uppercase">4-BEAT CINEMATIC TIMELINE SEQUENCE</div>
+              <div className="text-xs font-mono text-[#D8FF3E] uppercase">{t('lab.timeline')}</div>
               <div className="text-[11px] font-mono text-[#8B887F] mt-0.5">
-                Establish dramatic tension from scene to scene using contrast and rhythmic staging.
+                {t('lab.timelineDesc')}
               </div>
             </div>
             <button
@@ -441,7 +489,7 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
               className="px-4 py-2 bg-[#D8FF3E] text-[#11110F] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 hover:bg-white transition-colors cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>EXPORT STORYBOARD</span>
+              <span>{t('lab.exportStoryboard')}</span>
             </button>
           </div>
 
@@ -453,15 +501,15 @@ DELIVERY FORMAT: 4K DCI FLAT 24.000 FPS RAW (180° SHUTTER ANGLE)`;
                   <span className="text-[#8B887F]">BEAT 0{index + 1}</span>
                 </div>
                 <div>
-                  <div className="text-[10px] font-mono text-[#8B887F] uppercase">KEY SCENE</div>
+                  <div className="text-[10px] font-mono text-[#8B887F] uppercase">{t('lab.keyScene')}</div>
                   <div className="text-sm font-bold text-[#F2F0E8] mt-1">{beat.scene}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] font-mono text-[#8B887F] uppercase">OPTICAL RIG</div>
+                  <div className="text-[10px] font-mono text-[#8B887F] uppercase">{t('lab.opticalRig')}</div>
                   <div className="text-xs font-mono text-[#8B887F] mt-1">{beat.lens}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] font-mono text-[#8B887F] uppercase">DIRECTOR'S NOTE</div>
+                  <div className="text-[10px] font-mono text-[#8B887F] uppercase">{t('lab.directorNote')}</div>
                   <div className="text-xs font-mono text-[#D8FF3E] mt-1 italic">"{beat.note}"</div>
                 </div>
               </div>

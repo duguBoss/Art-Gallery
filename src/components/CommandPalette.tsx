@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, ArrowRight, X } from 'lucide-react';
 import type { CinemaScene } from '../types/cinema';
 import type { AtlasTab } from '../types/visualAtlas';
+import { useLanguage } from '../context/LanguageContext';
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onSelectScene,
   onNavigateTab,
 }) => {
+  const { lang, t } = useLanguage();
   const [query, setQuery] = useState('');
 
   useEffect(() => {
@@ -60,7 +62,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search scenes, visual DNA, camera rig, or press ESC..."
+            placeholder={t('cmd.placeholder')}
             className="flex-1 bg-transparent border-none outline-none text-sm text-[#F2F0E8] placeholder-[#8B887F] font-mono"
           />
           <button 
@@ -73,42 +75,42 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
         {/* Quick Commands & Navigation */}
         <div className="p-3 border-b border-[#F2F0E8]/10 flex flex-wrap gap-2 text-xs font-mono text-[#8B887F]">
-          <span className="opacity-60">JUMP TO:</span>
+          <span className="opacity-60">{t('cmd.jumpTo')}</span>
           <button 
             onClick={() => { onNavigateTab('index'); onClose(); }}
             className="px-2 py-0.5 border border-[#F2F0E8]/15 hover:border-[#D8FF3E] hover:text-[#D8FF3E] transition-colors"
           >
-            01 INDEX
+            {t('nav.index')}
           </button>
           <button 
             onClick={() => { onNavigateTab('archive'); onClose(); }}
             className="px-2 py-0.5 border border-[#F2F0E8]/15 hover:border-[#D8FF3E] hover:text-[#D8FF3E] transition-colors"
           >
-            02 ARCHIVE
+            {t('nav.archive')}
           </button>
           <button 
             onClick={() => { onNavigateTab('language'); onClose(); }}
             className="px-2 py-0.5 border border-[#F2F0E8]/15 hover:border-[#D8FF3E] hover:text-[#D8FF3E] transition-colors"
           >
-            03 LANGUAGE
+            {t('nav.language')}
           </button>
           <button 
             onClick={() => { onNavigateTab('dossiers'); onClose(); }}
             className="px-2 py-0.5 border border-[#F2F0E8]/15 hover:border-[#D8FF3E] hover:text-[#D8FF3E] transition-colors"
           >
-            04 DOSSIERS
+            {t('nav.dossiers')}
           </button>
           <button 
             onClick={() => { onNavigateTab('lab'); onClose(); }}
             className="px-2 py-0.5 border border-[#F2F0E8]/15 hover:border-[#D8FF3E] hover:text-[#D8FF3E] transition-colors"
           >
-            05 LAB
+            {t('nav.lab')}
           </button>
           <button 
             onClick={() => { onNavigateTab('about'); onClose(); }}
             className="px-2 py-0.5 border border-[#F2F0E8]/15 hover:border-[#D8FF3E] hover:text-[#D8FF3E] transition-colors"
           >
-            06 ABOUT
+            {t('nav.about')}
           </button>
         </div>
 
@@ -116,41 +118,44 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         <div className="max-h-96 overflow-y-auto p-2 divide-y divide-[#F2F0E8]/05">
           {filteredScenes.length === 0 ? (
             <div className="py-8 text-center text-xs font-mono text-[#8B887F]">
-              NO CORRESPONDING VISUAL ARCHIVE FOUND
+              {t('cmd.noResults')}
             </div>
           ) : (
-            filteredScenes.map((scene) => (
-              <div
-                key={scene.id}
-                onClick={() => {
-                  onSelectScene(scene.id);
-                  onClose();
-                }}
-                className="p-3 flex items-center justify-between hover:bg-[#1C1C18] cursor-pointer transition-colors group"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-8 bg-black shrink-0 overflow-hidden border border-[#F2F0E8]/10">
-                    <img 
-                      src={scene.coverImage} 
-                      alt={scene.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
-                    />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono text-[#D8FF3E]">{scene.sceneNumber}</span>
-                      <span className="text-xs font-medium text-[#F2F0E8] group-hover:text-[#D8FF3E] transition-colors">
-                        {scene.title}
-                      </span>
+            filteredScenes.map((scene) => {
+              const sceneTitle = lang === 'zh' ? scene.title : (scene.titleEn || scene.title);
+              return (
+                <div
+                  key={scene.id}
+                  onClick={() => {
+                    onSelectScene(scene.id);
+                    onClose();
+                  }}
+                  className="p-3 flex items-center justify-between hover:bg-[#1C1C18] cursor-pointer transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-8 bg-black shrink-0 overflow-hidden border border-[#F2F0E8]/10">
+                      <img 
+                        src={scene.coverImage} 
+                        alt={sceneTitle}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                      />
                     </div>
-                    <div className="text-[11px] text-[#8B887F] font-mono truncate max-w-md">
-                      {scene.cameraRig.lens} · {scene.cameraRig.mood}
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-mono text-[#D8FF3E]">{scene.sceneNumber}</span>
+                        <span className="text-xs font-medium text-[#F2F0E8] group-hover:text-[#D8FF3E] transition-colors">
+                          {sceneTitle}
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-[#8B887F] font-mono truncate max-w-md">
+                        {scene.cameraRig.lens} · {scene.cameraRig.mood}
+                      </div>
                     </div>
                   </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#8B887F] group-hover:text-[#D8FF3E] transition-transform group-hover:translate-x-1" />
                 </div>
-                <ArrowRight className="w-3.5 h-3.5 text-[#8B887F] group-hover:text-[#D8FF3E] transition-transform group-hover:translate-x-1" />
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 

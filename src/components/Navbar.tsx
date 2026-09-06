@@ -1,7 +1,8 @@
 import React from 'react';
-import { Search, Sparkles, Sliders, Command } from 'lucide-react';
+import { Search, Sliders, Globe } from 'lucide-react';
 import { playSpotlightClick } from '../utils/audio';
 import type { AtlasTab } from '../types/visualAtlas';
+import { useLanguage } from '../context/LanguageContext';
 
 export type MainViewType = 'cinema' | 'atoms' | 'principles' | 'styles' | 'mediums' | 'motion' | 'atlas' | 'shapes-lab';
 
@@ -20,13 +21,15 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCMS,
   savedDossierCount = 0,
 }) => {
-  const tabs: { id: AtlasTab; num: string; label: string }[] = [
-    { id: 'index', num: '01', label: 'INDEX' },
-    { id: 'archive', num: '02', label: 'ARCHIVE' },
-    { id: 'language', num: '03', label: 'LANGUAGE' },
-    { id: 'dossiers', num: '04', label: 'DOSSIERS' },
-    { id: 'lab', num: '05', label: 'LAB' },
-    { id: 'about', num: '06', label: 'ABOUT' },
+  const { lang, toggleLang, t } = useLanguage();
+
+  const tabs: { id: AtlasTab; num: string; labelKey: string }[] = [
+    { id: 'index', num: '01', labelKey: 'nav.index' },
+    { id: 'archive', num: '02', labelKey: 'nav.archive' },
+    { id: 'language', num: '03', labelKey: 'nav.language' },
+    { id: 'dossiers', num: '04', labelKey: 'nav.dossiers' },
+    { id: 'lab', num: '05', labelKey: 'nav.lab' },
+    { id: 'about', num: '06', labelKey: 'nav.about' },
   ];
 
   return (
@@ -43,10 +46,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="w-2.5 h-2.5 bg-[#D8FF3E] rotate-45 group-hover:rotate-90 transition-transform duration-300" />
           <div>
             <div className="font-bold tracking-[0.14em] text-sm uppercase text-[#F2F0E8]">
-              VISUAL ATLAS
+              {t('nav.title')}
             </div>
             <div className="text-[9px] font-mono tracking-wider text-[#8B887F] uppercase hidden md:block">
-              THE CINEMA & AESTHETIC LANGUAGE SYSTEM
+              {t('nav.subtitle')}
             </div>
           </div>
         </div>
@@ -68,8 +71,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     : 'border-transparent text-[#8B887F] hover:text-[#F2F0E8]'
                 }`}
               >
-                <span className="text-[10px] opacity-40">{tab.num}</span>
-                <span className="tracking-wider">{tab.label}</span>
+                <span className="tracking-wider">{t(tab.labelKey)}</span>
                 {tab.id === 'dossiers' && savedDossierCount > 0 && (
                   <span className="ml-1 text-[9px] px-1 bg-[#D8FF3E] text-[#11110F] font-bold">
                     {savedDossierCount}
@@ -80,8 +82,21 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </nav>
 
-        {/* Right Tools: ⌘K Command Trigger & CMS Entry */}
-        <div className="flex items-center gap-3 font-mono text-xs">
+        {/* Right Tools: Language Switcher, ⌘K Command Trigger & CMS Entry */}
+        <div className="flex items-center gap-2.5 font-mono text-xs">
+          {/* Bilingual Language Switcher */}
+          <button
+            onClick={() => {
+              playSpotlightClick();
+              toggleLang();
+            }}
+            className="flex items-center gap-1.5 px-2.5 py-1 border border-[#F2F0E8]/15 hover:border-[#D8FF3E] text-[#8B887F] hover:text-[#D8FF3E] transition-colors cursor-pointer text-xs"
+            title="Switch Language / 切换语言 (中 / EN)"
+          >
+            <Globe className="w-3.5 h-3.5 text-[#D8FF3E]" />
+            <span className="font-bold tracking-wider">{lang === 'zh' ? 'EN' : '中文'}</span>
+          </button>
+
           {/* Quick ⌘K Search Trigger */}
           <button
             onClick={() => {
@@ -92,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Press ⌘K or Ctrl+K to search"
           >
             <Search className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">SEARCH</span>
+            <span className="hidden sm:inline">{t('nav.search')}</span>
             <kbd className="text-[10px] px-1 bg-white/10 text-[#F2F0E8] rounded">⌘K</kbd>
           </button>
 
@@ -103,7 +118,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onOpenCMS();
             }}
             className="p-1.5 border border-[#F2F0E8]/10 hover:border-[#F2F0E8]/30 text-[#8B887F] hover:text-[#F2F0E8] transition-colors cursor-pointer"
-            title="Open Curator CMS"
+            title={t('nav.curator')}
           >
             <Sliders className="w-3.5 h-3.5" />
           </button>
@@ -123,7 +138,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }}
               className={`transition-colors px-1.5 py-0.5 ${isActive ? 'text-[#D8FF3E] font-bold border-b border-[#D8FF3E]' : 'text-[#8B887F]'}`}
             >
-              {tab.label}
+              {t(tab.labelKey).split(' ')[1] || t(tab.labelKey)}
             </button>
           );
         })}

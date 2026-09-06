@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import type { CinemaScene } from '../types/cinema';
 import { playSpotlightClick } from '../utils/audio';
+import { useLanguage } from '../context/LanguageContext';
 
 interface VisualConstellationViewProps {
   scenes: CinemaScene[];
@@ -9,11 +10,13 @@ interface VisualConstellationViewProps {
 
 interface LanguageNode {
   id: string;
-  label: string;
+  labelEn: string;
+  labelZh: string;
   category: 'MOOD' | 'LIGHT' | 'OPTICS' | 'COMPOSITION' | 'COLOR';
-  description: string;
-  x: number; // percentage
-  y: number; // percentage
+  descriptionZh: string;
+  descriptionEn: string;
+  x: number;
+  y: number;
   connectedNodeIds: string[];
   sceneIds: string[];
 }
@@ -22,6 +25,7 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
   scenes,
   onSelectScene,
 }) => {
+  const { lang, t } = useLanguage();
   const [filter, setFilter] = useState<'ALL' | 'MOOD' | 'LIGHT' | 'OPTICS' | 'COMPOSITION'>('ALL');
   const [activeNodeId, setActiveNodeId] = useState<string>('node-low-key');
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
@@ -29,9 +33,11 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
   const [nodes, setNodes] = useState<LanguageNode[]>([
     {
       id: 'node-melancholy',
-      label: 'MELANCHOLIC NOCTURNE',
+      labelEn: 'MELANCHOLIC NOCTURNE',
+      labelZh: '蓝调忧郁夜色',
       category: 'MOOD',
-      description: '雨夜与霓虹浸润下的迷离孤寂，利用冷暖极端色相制造心理距离。',
+      descriptionZh: '雨夜与霓虹浸润下的迷离孤寂，利用冷暖极端色相制造心理距离。',
+      descriptionEn: 'Nocturnal isolation soaked in neon rain, using extreme chromatic contrast to build psychological alienation.',
       x: 20,
       y: 28,
       connectedNodeIds: ['node-low-key', 'node-anamorphic', 'node-cyan-amber'],
@@ -39,9 +45,11 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
     },
     {
       id: 'node-low-key',
-      label: 'LOW-KEY VOLUMETRIC RIM',
+      labelEn: 'LOW-KEY VOLUMETRIC RIM',
+      labelZh: '低调反差轮廓光',
       category: 'LIGHT',
-      description: '大面积暗调仅以边缘轮廓光勾勒形体，建立极端反差与雕塑质感。',
+      descriptionZh: '大面积暗调仅以边缘轮廓光勾勒形体，建立极端反差与雕塑质感。',
+      descriptionEn: 'Deep low-key shadow sculpted solely by volumetric rim lighting, carving heroic contrast and texture.',
       x: 36,
       y: 44,
       connectedNodeIds: ['node-melancholy', 'node-anamorphic', 'node-negative-space'],
@@ -49,9 +57,11 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
     },
     {
       id: 'node-anamorphic',
-      label: 'ANAMORPHIC 35MM / 2.39:1',
+      labelEn: 'ANAMORPHIC 35MM / 2.39:1',
+      labelZh: '变形宽银幕 35MM / 2.39:1',
       category: 'OPTICS',
-      description: '好莱坞宽银幕变形镜头独有的椭圆焦外光斑与水平耀斑条纹。',
+      descriptionZh: '好莱坞宽银幕变形镜头独有的椭圆焦外光斑与水平耀斑条纹。',
+      descriptionEn: 'Hollywood vintage anamorphic lens characteristics: oval bokeh, horizontal flare, and organic distortion.',
       x: 52,
       y: 26,
       connectedNodeIds: ['node-melancholy', 'node-low-key', 'node-monolith'],
@@ -59,9 +69,11 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
     },
     {
       id: 'node-monolith',
-      label: 'MONUMENTAL SCALE SHOCK',
+      labelEn: 'MONUMENTAL SCALE SHOCK',
+      labelZh: '巨构比例震慑',
       category: 'COMPOSITION',
-      description: '微观人类体量（5%）与宏伟混凝土巨构（95%）的极端尺度碰撞。',
+      descriptionZh: '微观人类体量（5%）与宏伟混凝土巨构（95%）的极端尺度碰撞。',
+      descriptionEn: 'Extreme scale dissonance: 5% miniature human figure juxtaposed against 95% brutalist monolith.',
       x: 74,
       y: 35,
       connectedNodeIds: ['node-anamorphic', 'node-god-ray', 'node-symmetry'],
@@ -69,9 +81,11 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
     },
     {
       id: 'node-god-ray',
-      label: 'CATHEDRAL GOD RAY',
+      labelEn: 'CATHEDRAL GOD RAY',
+      labelZh: '大教堂神圣光柱',
       category: 'LIGHT',
-      description: '单一高角度穿透性直射光柱，伴随悬浮微粒形成神圣几何切面。',
+      descriptionZh: '单一高角度穿透性直射光柱，伴随悬浮微粒形成神圣几何切面。',
+      descriptionEn: 'Singular high-angle collimated shaft of sunlight, intersecting architectural atmospheric dust.',
       x: 82,
       y: 65,
       connectedNodeIds: ['node-monolith', 'node-negative-space'],
@@ -79,9 +93,11 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
     },
     {
       id: 'node-negative-space',
-      label: 'NEGATIVE SPACE 78%',
+      labelEn: 'NEGATIVE SPACE 78%',
+      labelZh: '负空间留白 78%',
       category: 'COMPOSITION',
-      description: '大面积留白给予观者视线充分的停泊之所，赋予版面呼吸生命。',
+      descriptionZh: '大面积留白给予观者视线充分的停泊之所，赋予版面呼吸生命。',
+      descriptionEn: 'High negative space granting visual breathing room, evoking Japanese Ma and Swiss modernist balance.',
       x: 48,
       y: 72,
       connectedNodeIds: ['node-low-key', 'node-diffuse', 'node-god-ray'],
@@ -89,9 +105,11 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
     },
     {
       id: 'node-diffuse',
-      label: '100% DIFFUSE WINDOW LIGHT',
+      labelEn: '100% DIFFUSE WINDOW LIGHT',
+      labelZh: '100% 柔和漫射天光',
       category: 'LIGHT',
-      description: '柔和北向天光，零硬阴影，呈现如画报触感般的有机灰阶过渡。',
+      descriptionZh: '柔和北向天光，零硬阴影，呈现如画报触感般的有机灰阶过渡。',
+      descriptionEn: 'Soft northern daylight without specular harshness, rendering velvet editorial greyscale falloff.',
       x: 24,
       y: 70,
       connectedNodeIds: ['node-negative-space', 'node-melancholy'],
@@ -99,9 +117,11 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
     },
     {
       id: 'node-symmetry',
-      label: 'ONE-POINT SYMMETRY',
+      labelEn: 'ONE-POINT SYMMETRY',
+      labelZh: '严苛单点透视对称',
       category: 'COMPOSITION',
-      description: '库布里克式严苛单点透视中心消失点，消除余赘，建立冰冷理性。',
+      descriptionZh: '库布里克式严苛单点透视中心消失点，消除余赘，建立冰冷理性。',
+      descriptionEn: 'Kubrickian centered one-point perspective converging at optical horizon, enforcing clinical order.',
       x: 66,
       y: 60,
       connectedNodeIds: ['node-monolith', 'node-negative-space'],
@@ -109,9 +129,11 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
     },
     {
       id: 'node-cyan-amber',
-      label: 'CYAN & AMBER CONTRAST',
+      labelEn: 'CYAN & AMBER CONTRAST',
+      labelZh: '青冷与琥珀暖色反差',
       category: 'COLOR',
-      description: '好莱坞经典冷暖色相极差，冷调背景拉升空间深度，暖调前景锁定视线。',
+      descriptionZh: '好莱坞经典冷暖色相极差，冷调背景拉升空间深度，暖调前景锁定视线。',
+      descriptionEn: 'Classic cinema chromatic polarity: cyan background receding spatial depth, warm amber foreground locking gaze.',
       x: 38,
       y: 18,
       connectedNodeIds: ['node-melancholy', 'node-anamorphic'],
@@ -147,39 +169,49 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
 
   const visibleNodes = filter === 'ALL' ? nodes : nodes.filter((n) => n.category === filter);
 
+  const filterButtons: { key: 'ALL' | 'MOOD' | 'LIGHT' | 'OPTICS' | 'COMPOSITION'; label: string }[] = [
+    { key: 'ALL', label: t('lang.filterAll') },
+    { key: 'MOOD', label: t('lang.filterMood') },
+    { key: 'LIGHT', label: t('lang.filterLight') },
+    { key: 'OPTICS', label: t('lang.filterOptics') },
+    { key: 'COMPOSITION', label: t('lang.filterComposition') },
+  ];
+
+  const activeLabel = lang === 'zh' ? activeNode.labelZh : activeNode.labelEn;
+
   return (
     <div className="w-full max-w-[1440px] mx-auto px-6 lg:px-12 py-8 lg:py-12 text-[#F2F0E8]">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-[#F2F0E8]/10 pb-6 mb-8 gap-4">
         <div>
           <div className="text-[11px] font-mono tracking-widest text-[#D8FF3E] uppercase mb-1">
-            RESEARCH DESK // VISUAL CONSTELLATION
+            {t('lang.desk')}
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight uppercase">
-            VISUAL LANGUAGE MAP
+            {t('lang.title')}
           </h2>
           <p className="text-xs text-[#8B887F] font-mono mt-1">
-            An interactive gravitational network showing how mood, light, optics, and geometry form cinema grammar. Drag nodes to reshape relational tension.
+            {t('lang.subtitle')}
           </p>
         </div>
 
         {/* Filter Categories */}
         <div className="flex flex-wrap items-center gap-1.5 font-mono text-xs">
-          <span className="text-[10px] text-[#8B887F] mr-1 hidden sm:inline">FILTER:</span>
-          {['ALL', 'MOOD', 'LIGHT', 'OPTICS', 'COMPOSITION'].map((f) => (
+          <span className="text-[10px] text-[#8B887F] mr-1 hidden sm:inline">{lang === 'zh' ? '分类筛选:' : 'FILTER:'}</span>
+          {filterButtons.map(({ key, label }) => (
             <button
-              key={f}
+              key={key}
               onClick={() => {
                 playSpotlightClick();
-                setFilter(f as any);
+                setFilter(key);
               }}
               className={`px-2.5 py-1 border transition-colors cursor-pointer ${
-                filter === f
+                filter === key
                   ? 'border-[#D8FF3E] text-[#D8FF3E] bg-[#D8FF3E]/10 font-bold'
                   : 'border-[#F2F0E8]/10 text-[#8B887F] hover:text-[#F2F0E8]'
               }`}
             >
-              {f}
+              {label}
             </button>
           ))}
         </div>
@@ -197,7 +229,7 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
 
         {/* Top Info Banner */}
         <div className="absolute top-3 left-4 text-[10px] font-mono text-[#8B887F] pointer-events-none">
-          INTERACTIVE GRAVITATION FIELD // DRAG NODES TO REORGANIZE
+          {t('lang.dragBanner')}
         </div>
 
         {/* SVG Relationship Connection Lines */}
@@ -227,6 +259,7 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
         {/* Interactive Constellation Nodes */}
         {visibleNodes.map((node) => {
           const isActive = node.id === activeNodeId;
+          const nodeLabel = lang === 'zh' ? node.labelZh : node.labelEn;
           return (
             <div
               key={node.id}
@@ -252,7 +285,7 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
                   : 'border-[#F2F0E8]/10 text-[#8B887F] bg-[#11110F]/90 group-hover:text-[#F2F0E8] group-hover:border-[#F2F0E8]/30'
               }`}>
                 <span className="opacity-50 mr-1">{node.category}:</span>
-                <span className="font-bold">{node.label}</span>
+                <span className="font-bold">{nodeLabel}</span>
               </div>
             </div>
           );
@@ -267,15 +300,15 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
               {activeNode.category}
             </span>
             <span className="text-sm font-bold text-[#F2F0E8] uppercase tracking-wider">
-              {activeNode.label}
+              {activeLabel}
             </span>
           </div>
           <div className="text-xs text-[#8B887F]">
-            RELATIONAL TENSION: {activeNode.connectedNodeIds.length} CONNECTED GRAMMAR NODES
+            {t('lang.relationalTension', { count: activeNode.connectedNodeIds.length })}
           </div>
         </div>
         <p className="text-xs text-[#8B887F] font-sans leading-relaxed">
-          {activeNode.description}
+          {lang === 'zh' ? activeNode.descriptionZh : activeNode.descriptionEn}
         </p>
       </div>
 
@@ -283,9 +316,9 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
       <div>
         <div className="flex items-center justify-between text-xs font-mono border-b border-[#F2F0E8]/10 pb-2 mb-6">
           <span className="text-[#8B887F]">
-            CORRELATED SCENES EMBODYING [{activeNode.label}]: {matchingScenes.length}
+            {t('lang.correlatedScenes', { label: activeLabel, count: matchingScenes.length })}
           </span>
-          <span className="text-[#D8FF3E]">CLICK SCENE TO STUDY VISUAL DNA →</span>
+          <span className="text-[#D8FF3E]">{t('lang.clickToStudy')}</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -301,7 +334,7 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
               <div className="aspect-[16/10] overflow-hidden mb-3 relative bg-[#181815]">
                 <img
                   src={scene.coverImage}
-                  alt={scene.title}
+                  alt={lang === 'zh' ? scene.title : (scene.titleEn || scene.title)}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/80 text-[10px] font-mono text-[#D8FF3E]">
@@ -309,7 +342,7 @@ export const VisualConstellationView: React.FC<VisualConstellationViewProps> = (
                 </div>
               </div>
               <div className="font-medium text-sm text-[#F2F0E8] group-hover:text-[#D8FF3E] transition-colors">
-                {scene.title}
+                {lang === 'zh' ? scene.title : (scene.titleEn || scene.title)}
               </div>
               <div className="text-xs font-mono text-[#8B887F] truncate mt-1">
                 {scene.cameraRig.lens}

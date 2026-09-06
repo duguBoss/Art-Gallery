@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { AtlasTab } from './types/visualAtlas';
 import type { CinemaScene } from './types/cinema';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { Navbar } from './components/Navbar';
 import { OpeningSequenceView } from './components/OpeningSequenceView';
 import { ArchiveContactSheet } from './components/ArchiveContactSheet';
@@ -20,7 +21,8 @@ import {
   getStyleRules 
 } from './data/atlasStore';
 
-export function App() {
+function AppContent() {
+  const { t } = useLanguage();
   const [currentTab, setCurrentTab] = useState<AtlasTab>('index');
   const [selectedSceneId, setSelectedSceneId] = useState<string | null>(null);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
@@ -180,7 +182,7 @@ export function App() {
                 initialScene={scenes[0]}
                 allScenes={scenes}
                 onSavePromptToDossier={(prompt) => {
-                  alert('Prompt saved to research dossier.');
+                  alert(t('lab.savePromptToDossier') + ' OK');
                 }}
               />
             )}
@@ -208,15 +210,15 @@ export function App() {
           <div className="flex items-center gap-2">
             <span className="text-[#D8FF3E]">●</span>
             <span className="text-[#F2F0E8] font-bold">VISUAL ATLAS</span>
-            <span>// 2026 ARCHIVE EDITION</span>
+            <span>{t('footer.edition')}</span>
           </div>
           <div className="flex items-center gap-6 text-[11px]">
-            <span>SEE → DECODE → CONNECT → COLLECT → CREATE</span>
+            <span>{t('footer.loop')}</span>
             <button 
               onClick={() => setIsAdminOpen(true)}
               className="hover:text-[#D8FF3E] transition-colors cursor-pointer"
             >
-              CURATOR CMS
+              {t('footer.cms')}
             </button>
           </div>
         </div>
@@ -252,6 +254,14 @@ export function App() {
         onUpdateStyleRules={setStyleRules}
       />
     </div>
+  );
+}
+
+export function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }
 

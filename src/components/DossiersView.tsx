@@ -1,7 +1,8 @@
 import React from 'react';
 import type { CinemaScene } from '../types/cinema';
 import { playSpotlightClick } from '../utils/audio';
-import { Bookmark, ArrowRight, Folder } from 'lucide-react';
+import { Bookmark, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface DossiersViewProps {
   savedSceneIds: string[];
@@ -16,30 +17,37 @@ export const DossiersView: React.FC<DossiersViewProps> = ({
   onSelectScene,
   onRemoveFromDossier,
 }) => {
+  const { lang, t } = useLanguage();
   const savedScenes = allScenes.filter((s) => savedSceneIds.includes(s.id));
 
   const curatedDossiers = [
     {
       id: 'dossier-01',
       num: 'DOSSIER 01',
-      title: 'LONELINESS IN BLUE (蓝调孤独)',
-      desc: 'Nocturnal rain, low-key lighting, cyan & amber contrast, solitary trench-coat figures.',
+      title: lang === 'zh' ? 'LONELINESS IN BLUE (蓝调孤独)' : 'LONELINESS IN BLUE',
+      desc: lang === 'zh'
+        ? '雨夜、低调布光、青色与琥珀色反差、风衣剪影的孤独漫步。'
+        : 'Nocturnal rain, low-key lighting, cyan & amber contrast, solitary trench-coat figures.',
       sceneCount: 24,
       tags: ['CYBER', 'LOW-KEY', 'ANAMORPHIC', 'RAIN'],
     },
     {
       id: 'dossier-02',
       num: 'DOSSIER 02',
-      title: 'MONOLITHIC BRUTALISM (粗野巨构)',
-      desc: 'Fluted concrete pillars, extreme scale shock (5% human vs 95% architecture), single cathedral God Rays.',
+      title: lang === 'zh' ? 'MONOLITHIC BRUTALISM (粗野巨构)' : 'MONOLITHIC BRUTALISM',
+      desc: lang === 'zh'
+        ? '凹槽混凝土巨柱、极端尺度震慑（5% 人类 vs 95% 建筑体量）、单一神圣大教堂光柱。'
+        : 'Fluted concrete pillars, extreme scale shock (5% human vs 95% architecture), single cathedral God Rays.',
       sceneCount: 18,
       tags: ['BRUTALISM', 'SCALE-SHOCK', 'GOD-RAY', 'RAW'],
     },
     {
       id: 'dossier-03',
       num: 'DOSSIER 03',
-      title: 'POETRY OF WHITE SPACE (留白诗性)',
-      desc: '78% negative space, north-facing soft window light, high-contrast serif typography.',
+      title: lang === 'zh' ? 'POETRY OF WHITE SPACE (留白诗性)' : 'POETRY OF WHITE SPACE',
+      desc: lang === 'zh'
+        ? '78% 极致留白、北向柔和漫射天光、高反差衬线字体与版面呼吸感。'
+        : '78% negative space, north-facing soft window light, high-contrast serif typography.',
       sceneCount: 12,
       tags: ['EDITORIAL', 'NEGATIVE-SPACE', 'SWISS-GRID'],
     },
@@ -50,13 +58,13 @@ export const DossiersView: React.FC<DossiersViewProps> = ({
       {/* Header */}
       <div className="border-b border-[#F2F0E8]/10 pb-6 mb-8">
         <div className="text-[11px] font-mono tracking-widest text-[#D8FF3E] uppercase mb-1">
-          RESEARCH NOTEBOOK // DOSSIER ARCHIVE
+          {t('dossier.tag')}
         </div>
         <h2 className="text-3xl sm:text-4xl font-bold tracking-tight uppercase">
-          CURATED DOSSIERS
+          {t('dossier.title')}
         </h2>
         <p className="text-xs text-[#8B887F] font-mono mt-1">
-          Digital research portfolios grouping film scenes, optic syntax, and visual DNA notes.
+          {t('dossier.subtitle')}
         </p>
       </div>
 
@@ -65,14 +73,14 @@ export const DossiersView: React.FC<DossiersViewProps> = ({
         <div className="flex items-center justify-between border-b border-[#F2F0E8]/10 pb-3 mb-4 text-xs font-mono">
           <div className="flex items-center gap-2 text-[#D8FF3E]">
             <Bookmark className="w-4 h-4" />
-            <span className="font-bold">MY ACTIVE RESEARCH DOSSIER</span>
+            <span className="font-bold">{t('dossier.myTitle')}</span>
           </div>
-          <span className="text-[#8B887F]">{savedScenes.length} SAVED SCENES</span>
+          <span className="text-[#8B887F]">{t('dossier.scenesCount', { count: savedScenes.length })}</span>
         </div>
 
         {savedScenes.length === 0 ? (
           <div className="py-8 text-center text-xs font-mono text-[#8B887F]">
-            NO SCENES SAVED YET. BROWSE ARCHIVE AND CLICK &quot;ADD TO DOSSIER&quot; TO CURATE YOUR PERSONAL RESEARCH.
+            {t('dossier.empty')}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -87,20 +95,22 @@ export const DossiersView: React.FC<DossiersViewProps> = ({
                 >
                   <img
                     src={scene.coverImage}
-                    alt={scene.title}
+                    alt={lang === 'zh' ? scene.title : (scene.titleEn || scene.title)}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
                 </div>
                 <div className="p-3 flex items-center justify-between text-xs font-mono">
                   <div>
                     <div className="text-[#D8FF3E]">{scene.sceneNumber}</div>
-                    <div className="font-medium text-[#F2F0E8] truncate max-w-[160px]">{scene.title}</div>
+                    <div className="font-medium text-[#F2F0E8] truncate max-w-[160px]">
+                      {lang === 'zh' ? scene.title : (scene.titleEn || scene.title)}
+                    </div>
                   </div>
                   <button
                     onClick={() => onRemoveFromDossier(scene.id)}
                     className="text-[10px] text-[#8B887F] hover:text-red-400 border border-[#F2F0E8]/10 px-2 py-0.5"
                   >
-                    REMOVE
+                    {t('dossier.remove')}
                   </button>
                 </div>
               </div>
@@ -112,7 +122,7 @@ export const DossiersView: React.FC<DossiersViewProps> = ({
       {/* Curated Pre-built Academic Research Dossiers */}
       <div>
         <div className="text-xs font-mono text-[#8B887F] uppercase mb-4 tracking-wider">
-          MASTER ARCHIVE DOSSIERS
+          {lang === 'zh' ? '精选大师研究案卷' : 'MASTER ARCHIVE DOSSIERS'}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {curatedDossiers.map((dos) => (
@@ -123,7 +133,7 @@ export const DossiersView: React.FC<DossiersViewProps> = ({
               <div>
                 <div className="flex items-center justify-between text-[11px] font-mono text-[#D8FF3E] mb-2">
                   <span>{dos.num}</span>
-                  <span className="text-[#8B887F]">{dos.sceneCount} SCENES</span>
+                  <span className="text-[#8B887F]">{dos.sceneCount} {lang === 'zh' ? '部关联分镜' : 'SCENES'}</span>
                 </div>
                 <h3 className="text-lg font-bold text-[#F2F0E8] uppercase tracking-tight">
                   {dos.title}
@@ -148,7 +158,7 @@ export const DossiersView: React.FC<DossiersViewProps> = ({
                   }}
                   className="w-full py-2 border border-[#D8FF3E] text-[#D8FF3E] hover:bg-[#D8FF3E] hover:text-[#11110F] text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
-                  <span>STUDY DOSSIER</span>
+                  <span>{t('dossier.open')}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
