@@ -109,7 +109,7 @@ export function App() {
     setActiveMediumFilter('all');
   };
 
-  // PPT / Keynote Remote Wheel Flip: Scroll once to flip exactly one slide
+  // PPT / Keynote Remote Wheel Flip: Natural boundary flip without killing native scroll
   useEffect(() => {
     let isLocked = false;
     let lockTimer: ReturnType<typeof setTimeout> | null = null;
@@ -117,27 +117,31 @@ export function App() {
     const handleWheel = (e: WheelEvent) => {
       if (isAdminOpen) return;
       if (e.ctrlKey || e.metaKey || e.altKey) return;
-      
-      // Stop native page scrolling so wheel acts 100% as a PPT slide clicker!
-      e.preventDefault();
-
       if (isLocked) return;
 
-      if (Math.abs(e.deltaY) > 8) {
+      const isAtBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 25;
+      const isAtTop = window.scrollY <= 25;
+
+      if (e.deltaY > 40 && isAtBottom) {
         const idx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
-        if (e.deltaY > 0 && idx < CHAPTER_LIST.length - 1) {
+        if (idx < CHAPTER_LIST.length - 1) {
           isLocked = true;
           handleSwitchChapter(CHAPTER_LIST[idx + 1].id);
-          lockTimer = setTimeout(() => { isLocked = false; }, 550);
-        } else if (e.deltaY < 0 && idx > 0) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          lockTimer = setTimeout(() => { isLocked = false; }, 600);
+        }
+      } else if (e.deltaY < -40 && isAtTop) {
+        const idx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
+        if (idx > 0) {
           isLocked = true;
           handleSwitchChapter(CHAPTER_LIST[idx - 1].id);
-          lockTimer = setTimeout(() => { isLocked = false; }, 550);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          lockTimer = setTimeout(() => { isLocked = false; }, 600);
         }
       }
     };
 
-    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('wheel', handleWheel, { passive: true });
     return () => {
       window.removeEventListener('wheel', handleWheel);
       if (lockTimer) clearTimeout(lockTimer);
@@ -155,11 +159,13 @@ export function App() {
         e.preventDefault();
         if (idx < CHAPTER_LIST.length - 1) {
           handleSwitchChapter(CHAPTER_LIST[idx + 1].id);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') {
         e.preventDefault();
         if (idx > 0) {
           handleSwitchChapter(CHAPTER_LIST[idx - 1].id);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       }
     };
@@ -181,16 +187,21 @@ export function App() {
       const touchEndY = e.changedTouches[0].clientY;
       const deltaY = touchStartY - touchEndY;
 
-      if (Math.abs(deltaY) > 35) {
+      const isAtBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 25;
+      const isAtTop = window.scrollY <= 25;
+
+      if (Math.abs(deltaY) > 50) {
         const idx = CHAPTER_LIST.findIndex((c) => c.id === currentView);
-        if (deltaY > 0 && idx < CHAPTER_LIST.length - 1) {
+        if (deltaY > 0 && isAtBottom && idx < CHAPTER_LIST.length - 1) {
           isLocked = true;
           handleSwitchChapter(CHAPTER_LIST[idx + 1].id);
-          setTimeout(() => { isLocked = false; }, 550);
-        } else if (deltaY < 0 && idx > 0) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          setTimeout(() => { isLocked = false; }, 600);
+        } else if (deltaY < 0 && isAtTop && idx > 0) {
           isLocked = true;
           handleSwitchChapter(CHAPTER_LIST[idx - 1].id);
-          setTimeout(() => { isLocked = false; }, 550);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          setTimeout(() => { isLocked = false; }, 600);
         }
       }
     };
@@ -217,7 +228,7 @@ export function App() {
 
   return (
     <div
-      className="h-screen w-screen overflow-hidden flex flex-col font-sans transition-colors duration-300 relative select-none"
+      className="min-h-screen w-full flex flex-col font-sans transition-colors duration-300 relative select-none"
       style={{
         backgroundColor: 'var(--bg-page)',
         color: 'var(--text-main)',
@@ -243,11 +254,11 @@ export function App() {
         onOpenCMS={() => setIsAdminOpen(true)}
       />
 
-      {/* Main Full-Bleed Presentation Stage (Apple Keynote Slide Flip Stage) */}
-      <main className="fixed inset-x-0 top-16 bottom-14 overflow-hidden z-10 flex flex-col items-center justify-center p-2 sm:p-4">
+      {/* Main Presentation Stage (Natural Fluid Height, Zero Clippings) */}
+      <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 flex flex-col justify-start pb-24 relative z-10">
         <div
           key={currentView}
-          className={`w-full h-full max-w-7xl mx-auto overflow-y-auto no-scrollbar flex flex-col justify-center ${
+          className={`w-full flex-1 flex flex-col justify-start ${
             slideDirection === 'up' ? 'animate-keynote-up' : 'animate-keynote-down'
           }`}
         >

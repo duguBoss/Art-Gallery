@@ -90,53 +90,40 @@ export const PromptCinemaView: React.FC<PromptCinemaViewProps> = ({
   };
 
   return (
-    <div className={`w-full transition-all duration-500 ${isCinemaMode ? 'fixed inset-0 z-50 bg-black flex items-center justify-center p-0' : 'max-w-7xl mx-auto px-4 sm:px-8 py-8'}`}>
-      {/* Non-Cinema Mode: Header Banner */}
+    <div className={`w-full transition-all duration-500 ${isCinemaMode ? 'fixed inset-0 z-50 bg-black flex items-center justify-center p-0' : 'max-w-6xl mx-auto px-2 sm:px-4 py-2'}`}>
+      {/* Non-Cinema Mode: Sleek Header Banner */}
       {!isCinemaMode && (
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+        <div className="flex flex-row items-center justify-between gap-4 mb-3">
           <div>
-            <div className="flex items-center gap-2 text-xs font-mono tracking-widest text-indigo-400 uppercase mb-1">
-              <Film className="w-3.5 h-3.5" />
-              <span>PROMPT CINEMA · 电影分镜漫游厅</span>
+            <div className="flex items-center gap-1.5 text-[11px] font-mono tracking-widest text-indigo-400 uppercase">
+              <Film className="w-3 h-3" />
+              <span>PROMPT CINEMA · 电影分镜漫游</span>
             </div>
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight">
-              网页即电影 · 随手截图即大片
+            <h2 className="text-lg sm:text-2xl font-bold tracking-tight text-white/95">
+              灵感在握 · 随手截图即大片
             </h2>
-            <p className="text-xs sm:text-sm opacity-70 mt-1 max-w-xl font-sans leading-relaxed">
-              摒弃传统卡片排布，以 16:9 电影画幅与分镜镜头推进，将 AI 提示词包装为好莱坞级摄制通告单。
-            </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setIsCinemaMode(true)}
-              className="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all"
+              className="px-3 py-1.5 rounded-full text-xs font-mono font-medium bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1.5 shadow-md shadow-indigo-600/30 transition-all shrink-0"
             >
-              <Maximize2 className="w-3.5 h-3.5" />
-              <span>纯净放映/录屏模式 (16:9)</span>
+              <Maximize2 className="w-3 h-3" />
+              <span>纯净放映 (16:9)</span>
             </button>
-            {onOpenCMS && (
-              <button
-                onClick={onOpenCMS}
-                className="px-3.5 py-2 rounded-xl text-xs font-mono bg-white/5 hover:bg-white/10 border border-white/10 flex items-center gap-1.5 transition-colors"
-                title="打开全站运维管理后台"
-              >
-                <Sliders className="w-3.5 h-3.5 text-amber-400" />
-                <span>运维后台</span>
-              </button>
-            )}
           </div>
         </div>
       )}
 
       {/* 16:9 CINEMA VIEWPORT (Flagship Canvas with 3D Tilt) */}
-      <Card3DTilt maxAngle={3.5} className="w-full">
+      <Card3DTilt maxAngle={2} className="w-full flex justify-center">
       <div 
-        className={`relative w-full aspect-video rounded-2xl sm:rounded-3xl overflow-hidden border shadow-2xl transition-all duration-500 bg-black flex flex-col justify-between ${
+        className={`relative w-full aspect-video max-h-[65vh] rounded-xl sm:rounded-2xl overflow-hidden border shadow-2xl transition-all duration-500 bg-black flex flex-col justify-between ${
           isCinemaMode ? 'h-full max-h-screen rounded-none border-none' : 'border-white/10'
         }`}
         style={{
-          boxShadow: `0 25px 60px -15px ${activeScene.accentColor}25`,
+          boxShadow: `0 20px 50px -15px ${activeScene.accentColor}25`,
         }}
       >
         {/* Background Visual Layer with Subtle Cinema Motion */}

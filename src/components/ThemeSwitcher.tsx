@@ -56,19 +56,19 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border transition-all duration-300 cursor-pointer shadow-xs text-xs font-medium hover:scale-[1.02]"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-300 cursor-pointer text-xs font-medium whitespace-nowrap shrink-0 hover:scale-[1.02]"
         style={{
           backgroundColor: 'var(--bg-card)',
           borderColor: 'var(--border-strong)',
           color: 'var(--text-main)',
-          boxShadow: `0 0 15px ${activeOption.glowColor}`,
+          boxShadow: `0 0 12px ${activeOption.glowColor}`,
         }}
-        title="切换场景化美学主题 (如：夜晚灯光下的温馨场景)"
+        title="切换场景化美学主题"
       >
         {getSceneIcon(activeOption.id)}
-        <span className="font-serif font-bold">{activeOption.name}</span>
+        <span className="font-medium whitespace-nowrap text-xs">{activeOption.name}</span>
         <span 
-          className="text-[10px] font-mono px-1.5 py-0.5 rounded-full border hidden sm:inline"
+          className="text-[10px] font-mono px-1.5 py-0.2 rounded-full border hidden lg:inline whitespace-nowrap"
           style={{
             backgroundColor: 'var(--tag-bg)',
             borderColor: 'var(--border-subtle)',
