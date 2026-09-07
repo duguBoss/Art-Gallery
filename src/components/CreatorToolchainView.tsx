@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Box, Camera, Clapperboard, Code2, Figma, Image, Layers3, Play, Search, Sparkles, Wand2 } from 'lucide-react';
+import { Box, Camera, Clapperboard, Code2, Frame, Image, Layers3, Play, Search, Sparkles, Wand2 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { KNOWLEDGE_CATALOG } from '../data/knowledgeCatalog';
 
@@ -7,7 +7,7 @@ type Tool = { name:string; type:string; icon:React.ElementType; desc:string; des
 const TOOLS:Tool[] = [
  {name:'Photoshop',type:'IMAGE',icon:Image,desc:'图像编辑、合成、修图与视觉制作。',descEn:'Image editing, compositing, retouching and visual production.',domains:['graphic-design','photography','ai-creation'],keywords:['PS','修图','合成']},
  {name:'Illustrator',type:'VECTOR',icon:Wand2,desc:'矢量图形、标志、插画与品牌视觉。',descEn:'Vector graphics, logos, illustration and identity.',domains:['graphic-design'],keywords:['AI','矢量','Logo']},
- {name:'Figma',type:'PRODUCT',icon:Figma,desc:'界面、原型、设计系统与协作。',descEn:'Interfaces, prototypes, design systems and collaboration.',domains:['ui-ux','graphic-design'],keywords:['UI','UX','原型']},
+ {name:'Figma',type:'PRODUCT',icon:Frame,desc:'界面、原型、设计系统与协作。',descEn:'Interfaces, prototypes, design systems and collaboration.',domains:['ui-ux','graphic-design'],keywords:['UI','UX','原型']},
  {name:'Premiere Pro',type:'EDITING',icon:Clapperboard,desc:'视频剪辑、声音、字幕与交付。',descEn:'Video editing, sound, captions and delivery.',domains:['video-editing'],keywords:['PR','剪辑','视频']},
  {name:'After Effects',type:'MOTION',icon:Play,desc:'动态图形、文字动画、合成与视觉特效。',descEn:'Motion graphics, typography, compositing and VFX.',domains:['motion','video-editing'],keywords:['AE','动画','VFX']},
  {name:'DaVinci Resolve',type:'COLOR / EDIT',icon:Camera,desc:'剪辑、调色、声音与后期一体化工作流。',descEn:'Integrated editing, color, audio and finishing workflow.',domains:['video-editing','photography','audio'],keywords:['达芬奇','调色','Fairlight']},
