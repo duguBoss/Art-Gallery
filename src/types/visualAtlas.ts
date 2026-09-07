@@ -12,8 +12,11 @@ export type KnowledgeDomainId =
   | 'video-editing'
   | 'motion'
   | '3d'
+  | 'audio'
   | 'ai-creation'
-  | 'audio';
+  | 'software'
+  | 'creative-systems'
+  | 'methodology';
 
 export interface KnowledgeDomain {
   id: KnowledgeDomainId;
