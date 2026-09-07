@@ -1,43 +1,50 @@
-# VISUAL ATLAS: The Cinema & Aesthetic Language System
-> A structured visual design knowledge archive & cinematic language ontology for humans and AI agents.
-> Website: https://duguboss.github.io/Art-Gallery/
-> Language: Bilingual (English / 简体中文)
+# VISUAL ATLAS
 
-## Purpose & Overview
-VISUAL ATLAS is not a generic image gallery or portfolio. It is an interactive visual knowledge system designed to deconstruct why cinematic masterworks evoke emotional resonance and aesthetic awe. 
-It establishes a unified visual syntax bridging optical rigs, lighting ratios, chromatic tension, geometric compositions, and AI generative prompt engineering.
+VISUAL ATLAS is a creator knowledge encyclopedia for visual creation.
 
-Core User & Agent Journey:
-SEE → DECODE → CONNECT → COLLECT → CREATE (看 → 拆 → 关联 → 收藏 → 创作)
+## Scope
 
-## Core Knowledge Endpoints & Resources
-- Complete Machine-Readable Knowledge Base: https://duguboss.github.io/Art-Gallery/llms-full.txt
-- Raw Visual Knowledge API (JSON): https://duguboss.github.io/Art-Gallery/visual-knowledge.json
-- Contact Sheet Archive: https://duguboss.github.io/Art-Gallery/#/archive
-- Visual Constellation Language Map: https://duguboss.github.io/Art-Gallery/#/language
-- Visual Prompt Laboratory: https://duguboss.github.io/Art-Gallery/#/lab
-- Research Dossiers: https://duguboss.github.io/Art-Gallery/#/dossiers
-- Aesthetic Manifesto & Anti-AI Constitution: https://duguboss.github.io/Art-Gallery/#/about
+The project connects principles, practical methods, software, cases and browser-based tools across visual design, graphic design, UI/UX, photography, video editing, motion design, After Effects, 3D, audio, AI creation, creative software, creative systems and creative methodology.
 
-## Visual Analysis Ontology (Visual DNA)
-Every cinematic scene in VISUAL ATLAS is deconstructed into five fundamental dimensions:
-1. MOOD (情绪基因): Emotional cadence, psychological distance, and subconscious resonance (e.g., Melancholic Nocturne, Monumental Austere, Poetic Editorial, Eastern Zen).
-2. LIGHT (光影几何): Key-to-fill ratios, directionality, volumetric falloff, and diffusion (e.g., Low-Key Volumetric Rim 1:8, Cathedral Single-Source God Ray, 100% Diffuse North Window Light).
-3. COLOR (色彩色谱): Chromatic polarity, color temperature separation, and film emulsion (e.g., Electric Cyan & Warm Amber Contrast, Monochrome Architectural Grayscale, Deep Emerald & Vermilion).
-4. CAMERA & OPTICS (光学句法): Focal length, lens compression, sensor format, aspect ratio, and shutter angle (e.g., Cooke Anamorphic 35mm T/1.8, Arri Signature Prime 24mm, 24.000 FPS / 180° Shutter).
-5. COMPOSITION (构图法则): Geometric grid, negative space ratio, and perspective convergence (e.g., Negative Space 78%, Centered Scale Shock 5% Human vs 95% Wall, One-Point Kubrickian Symmetry).
+## Core knowledge domains
 
-## Recommended AI Prompt Pattern
-When an AI agent is instructed to create or review visual work based on VISUAL ATLAS, it should execute the following reasoning chain:
-1. Select the emotional atmosphere (Mood).
-2. Determine spatial geometry and negative space percentage (Composition).
-3. Establish lighting direction and key/fill contrast ratio (Lighting).
-4. Define chromatic polarity and palette temperature (Color).
-5. Select physical camera rig, anamorphic distortion, and focal compression (Camera Optics).
-6. Synthesize into engine-specific syntax (Midjourney v6.1, FLUX.1 [dev], Runway Gen-3 / Veo, or Gemini Art Direction Brief).
+- Visual Foundations: composition, color theory, typography, grid systems, visual hierarchy
+- Graphic Design: posters, brand identity, editorial design, infographics, design critique
+- UI/UX: information architecture, interaction design, design systems, responsive layout, usability
+- Photography: exposure triangle, focal length, depth of field, lighting, cinematic photography
+- Video & Editing: shot size, editing rhythm, match cuts, color grading, sound editing
+- Motion / After Effects: animation principles, easing, motion typography, motion graphics, compositing
+- 3D Design: coordinates, modeling, PBR materials, lighting, rendering
+- Audio & Sound: music editing, sound effects, mixing, sound perspective, audiovisual sync
+- AI Creation: prompt structure, AI image composition, AI video direction, AI workflows, visual consistency
+- Creative Software: Photoshop, Figma, Premiere Pro, After Effects, Blender
+- Creative Systems: creative briefs, asset management, design tokens, handoff, versioning
+- Creative Methodology: research, moodboards, iteration, constraints, postmortems
 
-## Anti-AI Design Restraints (Design Constitution)
-- Strict Swiss 12-column grid and hairline borders (0.14 opacity).
-- Restrained color palette: Darkroom Canvas (#11110F) + Acid Chartreuse (#D8FF3E).
-- NO purple-blue gradients, glassmorphism cards, 3D blobs, or fake sci-fi HUD dashboards without semantic purpose.
-- Images must dominate the experience as structural proof, not wallpaper.
+## Learning paths
+
+- Visual Design from Zero
+- Short-form Creator
+- Motion Design with AE
+- 3D Visual Creator
+- AI Visual Creator
+
+## Knowledge pages
+
+Knowledge pages are generated as crawlable static routes under `/knowledge/{slug}/` and contain structured metadata for search engines and AI systems.
+
+## Tools
+
+The Tools hub currently includes an aspect-ratio calculator, color harmony explorer, AI prompt visual enhancer and photography quick reference. Tools are designed to run locally in the browser when possible.
+
+## Content workflow
+
+There is intentionally no in-app CMS. Knowledge is versioned and published through GitHub commits and pull requests.
+
+## Visual analysis layer
+
+The existing Visual Atlas archive remains the evidence layer: scenes can be deconstructed by mood, lighting, color, camera/optics and composition, then connected to creator knowledge and practical tools.
+
+## Design constitution
+
+Use a restrained Swiss editorial system: darkroom canvas #11110F, acid chartreuse #D8FF3E, hairline borders, strong typography and purposeful motion. Avoid decorative glassmorphism, purple-blue gradients and empty sci-fi HUD styling.
