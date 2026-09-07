@@ -16,13 +16,19 @@ import { AboutManifestoView } from './components/AboutManifestoView';
 import { CommandPalette } from './components/CommandPalette';
 import { UseWithAIModal } from './components/UseWithAIModal';
 import { AIKnowledgeCockpit } from './components/AIKnowledgeCockpit';
-import { useAtlasRouter } from './router/useAtlasRouter';
+import { parseLocation, useAtlasRouter } from './router/useAtlasRouter';
 import { GoogleAdSenseUnit } from './components/GoogleAdSenseUnit';
 import { playSpotlightClick } from './utils/audio';
 import { getCinemaScenes } from './data/atlasStore';
 
 function AppContent() {
-  const { lang, setLang, t } = useLanguage(); const [currentTab,setCurrentTab]=useState<AtlasTab>('index'); const [selectedSceneId,setSelectedSceneId]=useState<string|null>(null); const [selectedKnowledgeId,setSelectedKnowledgeId]=useState<string|null>(null); const [isCommandOpen,setIsCommandOpen]=useState(false); const [isAIOpen,setIsAIOpen]=useState(false); const [scenes]=useState<CinemaScene[]>(()=>getCinemaScenes());
+  const { lang, setLang, t } = useLanguage();
+  const initialRoute = parseLocation();
+  const [currentTab,setCurrentTab]=useState<AtlasTab>((initialRoute.tab === 'constellation' ? 'language' : initialRoute.tab as AtlasTab) || 'index');
+  const [selectedSceneId,setSelectedSceneId]=useState<string|null>(initialRoute.sceneId || null);
+  const [selectedKnowledgeId,setSelectedKnowledgeId]=useState<string|null>(initialRoute.knowledgeId || null);
+  const [isCommandOpen,setIsCommandOpen]=useState(false); const [isAIOpen,setIsAIOpen]=useState(false); const [scenes]=useState<CinemaScene[]>(()=>getCinemaScenes());
+  useEffect(()=>{if(initialRoute.locale&&initialRoute.locale!==lang)setLang(initialRoute.locale)},[]);
   useAtlasRouter(lang,currentTab==='language'?'constellation':currentTab,selectedSceneId,selectedKnowledgeId,(route)=>{if(route.locale&&route.locale!==lang)setLang(route.locale);if(route.tab)setCurrentTab((route.tab==='constellation'?'language':route.tab) as AtlasTab);setSelectedSceneId(route.sceneId||null);setSelectedKnowledgeId(route.knowledgeId||null);});
   useEffect(()=>{const h=(e:KeyboardEvent)=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();setIsCommandOpen(p=>!p)}if(e.key==='Escape'){setSelectedSceneId(null);setSelectedKnowledgeId(null)}};window.addEventListener('keydown',h);return()=>window.removeEventListener('keydown',h)},[]);
   const go=(tab:AtlasTab)=>{setSelectedSceneId(null);setSelectedKnowledgeId(null);setCurrentTab(tab);window.scrollTo({top:0,behavior:'smooth'})}; const openKnowledge=(id:string)=>{setSelectedSceneId(null);setSelectedKnowledgeId(id);setCurrentTab('knowledge');window.scrollTo({top:0,behavior:'smooth'})};
