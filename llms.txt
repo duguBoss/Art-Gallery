@@ -1,50 +1,20 @@
-# VISUAL ATLAS
+# 视觉图志 · Visual Atlas
 
-VISUAL ATLAS is a creator knowledge encyclopedia for visual creation.
+> A living atlas of human visual culture: an online museum + encyclopedia + knowledge graph covering art history, architecture, design, craft, photography, film, animation, games, digital art, fashion, industrial design, visual culture and creative science. Knowledge is always free; products sell saved time; support is by donation; ads are optional.
 
-## Scope
+Content is maintained as code (git commit → build → GitHub Pages). Factual artwork images are sourced from Wikimedia Commons and their owning institutions; text is CC BY-SA 4.0.
 
-The project connects principles, practical methods, software, cases and browser-based tools across visual design, graphic design, UI/UX, photography, video editing, motion design, After Effects, 3D, audio, AI creation, creative software, creative systems and creative methodology.
+## Main sections
 
-## Core knowledge domains
+- [Gallery — works, buildings, objects](https://duguboss.github.io/Art-Gallery/#/gallery): salon-style wall of 20+ analyzed works incl. Michelangelo’s David, Mona Lisa, The Last Supper, The Starry Night, The Great Wave off Kanagawa, the Parthenon, Villa Savoye, Fallingwater, Bauhaus Dessau, Katsura Imperial Villa.
+- [Knowledge Atlas — 14 domains](https://duguboss.github.io/Art-Gallery/#/knowledge): domain registry plus concepts, materials and techniques indexes.
+- [Explore — timeline / map / periods / cultures](https://duguboss.github.io/Art-Gallery/#/explore): four dimensions over the same graph.
+- [Styles — movements & contemporary creator styles](https://duguboss.github.io/Art-Gallery/#/styles): 14 historical movements and 11 contemporary styles, each linked to its roots.
+- [Artists — artists & architects](https://duguboss.github.io/Art-Gallery/#/artists): 13 people who changed visual language.
+- [Learn — museum-style lessons](https://duguboss.github.io/Art-Gallery/#/learn): visual foundations (color, composition, form, space, light, material, typography, rhythm, narrative), art history, creative disciplines.
+- [Practice — hands-on exercises](https://duguboss.github.io/Art-Gallery/#/practice): observation, constraint, comparison, color, cross-style AI labs.
+- [Exhibitions — curated graph walks](https://duguboss.github.io/Art-Gallery/#/exhibition/geometry-from-david-to-the-interface): "The Geometry Thread", "Light Travels", "The Neighborhood of David".
 
-- Visual Foundations: composition, color theory, typography, grid systems, visual hierarchy
-- Graphic Design: posters, brand identity, editorial design, infographics, design critique
-- UI/UX: information architecture, interaction design, design systems, responsive layout, usability
-- Photography: exposure triangle, focal length, depth of field, lighting, cinematic photography
-- Video & Editing: shot size, editing rhythm, match cuts, color grading, sound editing
-- Motion / After Effects: animation principles, easing, motion typography, motion graphics, compositing
-- 3D Design: coordinates, modeling, PBR materials, lighting, rendering
-- Audio & Sound: music editing, sound effects, mixing, sound perspective, audiovisual sync
-- AI Creation: prompt structure, AI image composition, AI video direction, AI workflows, visual consistency
-- Creative Software: Photoshop, Figma, Premiere Pro, After Effects, Blender
-- Creative Systems: creative briefs, asset management, design tokens, handoff, versioning
-- Creative Methodology: research, moodboards, iteration, constraints, postmortems
+## Entity model
 
-## Learning paths
-
-- Visual Design from Zero
-- Short-form Creator
-- Motion Design with AE
-- 3D Visual Creator
-- AI Visual Creator
-
-## Knowledge pages
-
-Knowledge pages are generated as crawlable static routes under `/knowledge/{slug}/` and contain structured metadata for search engines and AI systems.
-
-## Tools
-
-The Tools hub currently includes an aspect-ratio calculator, color harmony explorer, AI prompt visual enhancer and photography quick reference. Tools are designed to run locally in the browser when possible.
-
-## Content workflow
-
-There is intentionally no in-app CMS. Knowledge is versioned and published through GitHub commits and pull requests.
-
-## Visual analysis layer
-
-The existing Visual Atlas archive remains the evidence layer: scenes can be deconstructed by mood, lighting, color, camera/optics and composition, then connected to creator knowledge and practical tools.
-
-## Design constitution
-
-Use a restrained Swiss editorial system: darkroom canvas #11110F, acid chartreuse #D8FF3E, hairline borders, strong typography and purposeful motion. Avoid decorative glassmorphism, purple-blue gradients and empty sci-fi HUD styling.
+Entities: domains, periods, cultures, places, materials, techniques, concepts, movements/styles, people, works/buildings/objects, lessons, exercises, products, exhibitions. Relations (created_by, influenced_by, emerged_from, uses_material, uses_technique, located_in, associated_with, …) are first-class edges traversable in both directions. Every work carries discipline-specific analysis blocks (painting: composition → color → light → brushwork; architecture: site → plan → structure → light).
