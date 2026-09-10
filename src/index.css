@@ -2,270 +2,107 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --canvas-bg: #11110F;
-  --text-primary: #F2F0E8;
-  --text-secondary: #8B887F;
-  --accent: #D8FF3E;
-  --border-hairline: rgba(242, 240, 232, 0.12);
-  --surface-muted: #181815;
-  --surface-hover: #22221E;
-}
-
-/* ===================================================
-   VISUAL ATLAS · THE CINEMA & AESTHETIC LANGUAGE SYSTEM
-   Swiss Editorial + Museum Catalog + Film Contact Sheet
-   =================================================== */
-
-:root {
-  --canvas-bg: #11110F;
-  --bg-page: #11110F;
-  --text-main: #F2F0E8;
-  --text-primary: #F2F0E8;
-  --text-secondary: #8B887F;
-  --accent: #D8FF3E;
-  --border-hairline: rgba(242, 240, 232, 0.14);
-  --surface-muted: #181815;
-  --surface-hover: #22221E;
-}
+/*
+  Art Gallery — museum editorial design language (master plan §18–21).
+  Warm paper ground, ink text, serif display, generous whitespace.
+  No default dark theme, no neon, no glassmorphism.
+*/
 
 @layer base {
+  :root {
+    color-scheme: light;
+  }
+
   html {
     scroll-behavior: smooth;
-    background-color: #11110F;
-    color: #F2F0E8;
   }
 
   body {
-    background-color: #11110F;
-    color: #F2F0E8;
-    font-family: "Inter Tight", "Noto Sans SC", system-ui, -apple-system, sans-serif;
+    @apply bg-paper text-ink font-sans antialiased;
+    font-feature-settings: 'kern', 'liga', 'calt';
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-serif;
+    font-weight: 600;
+  }
+
+  ::selection {
+    background: #1a1815;
+    color: #f7f4ec;
+  }
+
+  /* Thin editorial scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: #f7f4ec; }
+  ::-webkit-scrollbar-thumb {
+    background: #d8d0bf;
+    border: 3px solid #f7f4ec;
+    border-radius: 8px;
   }
 }
 
-/* ===================================================
-   CINEMATIC TRANSITIONS & ENTRANCE ANIMATIONS (动画感拉满)
-   =================================================== */
+@layer components {
+  /* Section framing ------------------------------------------------------- */
+  .wrap {
+    @apply mx-auto w-full max-w-editorial px-6 md:px-10;
+  }
 
-@keyframes kenBurnsSlow {
-  0% {
-    transform: scale(1) translate(0, 0);
+  .eyebrow {
+    @apply text-[11px] font-sans font-medium uppercase tracking-eyebrow text-ink-mute;
   }
-  50% {
-    transform: scale(1.06) translate(-1%, -1%);
-  }
-  100% {
-    transform: scale(1.02) translate(1%, 0.5%);
-  }
-}
 
-@keyframes frameFloat {
-  0%, 100% {
-    transform: translateY(0);
+  .hairline-b {
+    @apply border-b border-paper-edge;
   }
-  50% {
-    transform: translateY(-4px);
-  }
-}
 
-@keyframes warmPulse {
-  0%, 100% {
-    opacity: 0.7;
-    filter: drop-shadow(0 0 25px var(--accent));
+  .hairline-t {
+    @apply border-t border-paper-edge;
   }
-  50% {
-    opacity: 1;
-    filter: drop-shadow(0 0 45px var(--accent));
-  }
-}
 
-@keyframes curtainSweep {
-  0% {
-    opacity: 0;
-    transform: scale(0.96) translateY(8px);
-    filter: blur(4px);
+  /* Editorial link with animated underline */
+  .link-editorial {
+    @apply relative inline-flex items-baseline text-ink underline decoration-ink-faint decoration-1 underline-offset-[3px] transition-colors duration-300 hover:decoration-ink;
   }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-    filter: blur(0);
-  }
-}
 
-@keyframes placardSlideUp {
-  0% {
-    opacity: 0;
-    transform: translateY(16px);
+  /* Buttons --------------------------------------------------------------- */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 bg-ink px-6 py-3 text-sm font-medium tracking-wide text-paper transition-all duration-300 ease-museum hover:bg-cinnabar-deep;
   }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 border border-ink/25 px-6 py-3 text-sm font-medium tracking-wide text-ink transition-all duration-300 ease-museum hover:border-ink hover:bg-ink hover:text-paper;
+  }
+
+  /* Index-numbered list label */
+  .index-num {
+    @apply font-mono text-xs text-ink-mute;
+  }
+
+  /* Tag chip */
+  .chip {
+    @apply inline-flex items-center gap-1.5 border border-paper-edge bg-paper-card px-3 py-1 text-xs text-ink-soft transition-colors duration-200 hover:border-ink/40 hover:text-ink;
+  }
+
+  /* Fact definition rows (entity pages) */
+  .fact-row {
+    @apply grid grid-cols-[7rem_1fr] gap-4 border-b border-paper-edge py-3 text-sm md:grid-cols-[10rem_1fr];
+  }
+  .fact-row dt { @apply text-ink-mute; }
+  .fact-row dd { @apply text-ink; }
+
+  /* Pull quote */
+  .pull-quote {
+    @apply border-l-2 border-cinnabar pl-6 font-serif text-2xl leading-snug text-ink md:text-3xl;
   }
 }
 
-@keyframes shimmerGleam {
-  0% {
-    background-position: -200% 0;
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
-  100% {
-    background-position: 200% 0;
+  /* Number labels that never look like UI chrome */
+  .tabular {
+    font-variant-numeric: tabular-nums;
   }
-}
-
-.animate-curtain-sweep {
-  animation: curtainSweep 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-placard-slide {
-  animation: placardSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-ken-burns {
-  animation: kenBurnsSlow 12s ease-in-out infinite alternate;
-}
-
-.animate-shimmer {
-  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
-  background-size: 200% 100%;
-  animation: shimmerGleam 2.5s infinite;
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-page);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
-}
-
-/* Film Grain Texture Overlay */
-.film-grain {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
-}
-
-/* Luxury Editorial Letterspacing */
-.tracking-cinematic {
-  letter-spacing: 0.28em;
-}
-
-/* Cinematic Page-Flip & Deck Slide Animations */
-@keyframes deckSlideInUp {
-  0% {
-    opacity: 0;
-    transform: translateY(24px) scale(0.985);
-    filter: blur(5px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
-
-@keyframes deckSlideInDown {
-  0% {
-    opacity: 0;
-    transform: translateY(-24px) scale(0.985);
-    filter: blur(5px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
-
-.animate-deck-up {
-  animation: deckSlideInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-deck-down {
-  animation: deckSlideInDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Apple-Grade Optical Iris Bloom & Visual Guidance Animations */
-@keyframes irisBloomExpand {
-  0% {
-    transform: scale(0.2);
-    opacity: 0.9;
-    filter: blur(0px);
-  }
-  50% {
-    opacity: 0.7;
-    filter: blur(2px);
-  }
-  100% {
-    transform: scale(3.2);
-    opacity: 0;
-    filter: blur(8px);
-  }
-}
-
-.animate-iris-bloom {
-  animation: irisBloomExpand 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.bg-radial-vignette {
-  background: radial-gradient(circle at center, rgba(251, 191, 36, 0.15) 0%, rgba(0, 0, 0, 0.6) 70%, rgba(0, 0, 0, 0.9) 100%);
-}
-
-/* Cine-Lens Viewport Rack Focus (平滑景深对焦) */
-.rack-focus-active {
-  transform: scale(1);
-  filter: blur(0px);
-  opacity: 1;
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease, opacity 0.6s ease;
-}
-
-.rack-focus-inactive {
-  transform: scale(0.985);
-  filter: blur(1.5px);
-  opacity: 0.88;
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease, opacity 0.6s ease;
-}
-
-/* Apple Keynote Slide Flip Animations (真·PPT翻页推移动效) */
-@keyframes keynoteSlideUp {
-  0% {
-    opacity: 0;
-    transform: translateY(50px) scale(0.96);
-    filter: blur(8px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
-
-@keyframes keynoteSlideDown {
-  0% {
-    opacity: 0;
-    transform: translateY(-50px) scale(0.96);
-    filter: blur(8px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
-
-.animate-keynote-up {
-  animation: keynoteSlideUp 0.52s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-keynote-down {
-  animation: keynoteSlideDown 0.52s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

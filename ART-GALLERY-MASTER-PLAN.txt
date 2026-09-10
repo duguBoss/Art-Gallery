@@ -1,0 +1,2418 @@
+ART GALLERY
+MASTER PRODUCT / KNOWLEDGE ARCHITECTURE
+Version 1.0
+Design Baseline for Gemini / Codex
+
+============================================================
+0. DOCUMENT PURPOSE
+============================================================
+
+This document is the master product specification for Art Gallery.
+
+It is not a simple visual redesign brief.
+It is not a request to make a generic "beautiful art website".
+It is not a course platform.
+It is not a paid knowledge platform.
+
+Art Gallery is intended to become:
+
+    A living, expandable atlas of human visual culture.
+
+The long-term goal is to let users experience the richness, diversity,
+history, relationships, techniques, ideas, and creative achievements
+of humanity through an open, free, visual knowledge system.
+
+This document must be treated as the primary product and design
+baseline by Gemini, Codex, or any other AI working on the project.
+
+When implementing future features, do NOT reinterpret the product from
+scratch. Extend the existing architecture.
+
+Core principle:
+
+    Content determines presentation.
+    Presentation must never limit the knowledge model.
+
+The system must be designed so that adding architecture, sculpture,
+photography, fashion, industrial design, film, animation, games,
+digital art, generative art, AI art, crafts, new media, etc. does not
+require redesigning the underlying product architecture.
+
+============================================================
+1. PRODUCT VISION
+============================================================
+
+Art Gallery should evolve from an art gallery into a comprehensive
+visual knowledge universe.
+
+The experience should communicate:
+
+    "Humanity has created an astonishingly rich world."
+
+Users should be able to:
+
+    Explore
+    Learn
+    Discover
+    Compare
+    Connect ideas
+    Study works
+    Understand history
+    Understand visual language
+    Practice creative skills
+    Find creative tools
+    Discover products
+
+The project should feel closer to:
+
+    museum + encyclopedia + atlas + archive + visual laboratory
+    + learning system + creative toolbox
+
+It should NOT feel like:
+
+    dashboard + SaaS admin panel + online course marketplace
+    + generic card grid + AI-generated landing page.
+
+============================================================
+2. CORE PHILOSOPHY
+============================================================
+
+2.1 Knowledge is free
+
+The project explicitly rejects the idea of putting knowledge itself
+behind a payment wall.
+
+Knowledge content should be openly accessible.
+
+Examples of content that should remain free:
+
+    Art history
+    Design theory
+    Visual language
+    Color theory
+    Composition
+    Typography
+    Architecture knowledge
+    Sculpture knowledge
+    Photography knowledge
+    Film knowledge
+    Animation knowledge
+    3D concepts
+    Motion concepts
+    AI visual creation knowledge
+    Techniques
+    Historical context
+    Artist information
+    Style analysis
+    Case studies
+    Learning paths
+    Practice exercises
+    Cross-disciplinary relationships
+
+Do not create:
+
+    "Premium knowledge"
+    "Locked chapters"
+    "Paid advanced theory"
+    "Pay to unlock knowledge"
+    "Knowledge membership wall"
+    "Paid course required to learn"
+
+2.2 Knowledge belongs to humanity
+
+The product philosophy should communicate that knowledge is a shared
+cultural inheritance built across generations.
+
+The project should encourage:
+
+    learning
+    sharing
+    attribution
+    open access
+    cultural curiosity
+    responsible reuse
+    continued contribution.
+
+2.3 What can be paid for
+
+Users may pay for products, tools, materials, services, or labor.
+
+Examples:
+
+    templates
+    design files
+    creator kits
+    Prompt packs
+    3D assets
+    materials
+    presets
+    workflows
+    Figma resources
+    PSD files
+    AE resources
+    motion assets
+    creator utilities
+    physical products
+    software/tools
+    commissioned services
+
+The distinction is:
+
+    Knowledge = free
+    Product = paid when appropriate
+    Support = donation
+    Advertising = optional project revenue
+    Sponsorship = optional project revenue
+
+============================================================
+3. COMMERCIAL MODEL
+============================================================
+
+Commercialization must never compromise the free knowledge principle.
+
+Primary revenue layers:
+
+    1. Creator Products
+    2. Donations
+    3. Sponsorships
+    4. Google AdSense / contextual advertising
+
+Recommended priority:
+
+    Products > Donations > Sponsorships > Ads
+
+Advertising is supplemental, not the identity of the site.
+
+3.1 Products
+
+Products should help people create faster or better.
+
+Product pages should clearly communicate:
+
+    what the product is
+    what files/materials are included
+    what problem it solves
+    preview
+    compatibility
+    license
+    price
+    purchase action
+
+Never imply:
+
+    "Buy this to learn."
+
+Instead:
+
+    "The knowledge is free. This product saves creation time."
+
+3.2 Donations
+
+Donation messaging should emphasize maintaining free knowledge.
+
+Suggested concept:
+
+    KEEP KNOWLEDGE FREE
+
+Possible explanation:
+
+    "If Art Gallery has helped you, you can support the project and
+    help us keep knowledge open, maintain the site, develop free tools,
+    and continue expanding the archive."
+
+Donation is not a purchase of knowledge.
+
+3.3 Sponsorship
+
+Sponsors may appear as tasteful editorial acknowledgements.
+
+Examples:
+
+    Supported by...
+    Exhibition partner
+    Creative technology partner
+    Project sponsor
+
+Do not make sponsorship visually overpower the content.
+
+3.4 Google Ads
+
+Reserve technically valid ad areas from the beginning.
+
+Recommended placements:
+
+    between long editorial sections
+    search results
+    selected content pages
+    lower sections
+    mobile-safe placements
+
+Do NOT place intrusive ads:
+
+    in the primary hero
+    over important artwork
+    inside critical learning steps
+    as fake navigation
+    as fake content
+    through aggressive popups
+    through deceptive click targets
+
+The design system should allow ads to be enabled, disabled, or changed
+without restructuring the page.
+
+============================================================
+4. PRODUCT INFORMATION ARCHITECTURE
+============================================================
+
+Primary navigation should be concept-driven rather than category-heavy.
+
+Recommended top-level navigation:
+
+    Gallery
+    Learn
+    Explore
+    Knowledge
+    Styles
+    Artists
+    Practice
+    Tools
+    Products
+    Support
+    About
+
+Search should be globally accessible.
+
+A "Discover / Surprise Me" action should be available from important
+entry points.
+
+Not every item needs to be a traditional page.
+Some should be dynamic experiences.
+
+============================================================
+5. FOUR PRIMARY USER MODES
+============================================================
+
+5.1 LEARN
+
+For users who want systematic education.
+
+Example:
+
+    Visual Foundations
+        -> Color
+        -> Composition
+        -> Form
+        -> Space
+        -> Light
+        -> Material
+        -> Typography
+        -> Visual Rhythm
+        -> Narrative
+        -> Symbol
+        -> Perception
+
+    Art History
+        -> Ancient
+        -> Medieval
+        -> Renaissance
+        -> Baroque
+        -> Enlightenment
+        -> Modernism
+        -> Contemporary
+        -> Digital / New Media
+
+    Creative disciplines
+        -> Art
+        -> Architecture
+        -> Design
+        -> Media
+        -> Digital
+        -> AI
+
+Learning should be progressive, but knowledge itself remains free.
+
+5.2 EXPLORE
+
+For curiosity-driven browsing.
+
+Possible exploration methods:
+
+    style
+    artist
+    work
+    period
+    culture
+    location
+    material
+    technique
+    color
+    visual language
+    discipline
+    theme
+
+5.3 SEARCH
+
+Search should understand entities and relationships.
+
+Examples:
+
+    "black and white architecture"
+    "red geometric posters"
+    "Japanese influence on modern design"
+    "stone sculpture"
+    "Bauhaus furniture"
+    "light in photography"
+
+Results should be able to combine multiple dimensions.
+
+5.4 DISCOVER
+
+Provide serendipitous discovery.
+
+Examples:
+
+    Surprise Me
+    Random Work
+    Random Artist
+    Random Style
+    Random Connection
+    This Day in Visual Culture
+    Follow This Thread
+
+The objective is to create intellectual curiosity.
+
+============================================================
+6. COMPLETE KNOWLEDGE DOMAIN MAP
+============================================================
+
+The system must NOT be hard-coded around "13 major art movements".
+
+A fixed list such as "13 art movements" may be used as an editorial
+entry point, but it must never be the underlying architecture.
+
+The following domains should be reserved in the information model.
+
+6.1 ARTS
+
+    Painting
+    Drawing
+    Sketching
+    Illustration
+    Printmaking
+    Sculpture
+    Installation
+    Performance Art
+    Conceptual Art
+    Land Art
+    Public Art
+    Sound Art
+    Mixed Media
+    Decorative Art
+    Calligraphy
+    Mural Art
+    Street Art
+    Folk Art
+    Contemporary Art
+    Experimental Art
+
+6.2 ARCHITECTURE AND SPACE
+
+    Architecture History
+    Architectural Styles
+    Residential Architecture
+    Religious Architecture
+    Civic Architecture
+    Cultural Architecture
+    Commercial Architecture
+    Industrial Architecture
+    Infrastructure
+    Landscape Architecture
+    Interior Architecture
+    Interior Design
+    Urban Design
+    Public Space
+    Sacred Space
+    Garden Design
+    Parametric Architecture
+    Digital Architecture
+    Sustainable Architecture
+    Temporary Architecture
+    Exhibition Architecture
+
+Architecture-specific knowledge should support:
+
+    plans
+    elevations
+    sections
+    site
+    structure
+    circulation
+    material
+    light
+    acoustics
+    climate
+    program
+    spatial sequence
+    construction
+    urban context
+
+6.3 DESIGN
+
+    Graphic Design
+    Communication Design
+    Brand Design
+    Identity Systems
+    Editorial Design
+    Poster Design
+    Information Design
+    Data Visualization
+    Typography
+    Packaging
+    UI Design
+    UX Design
+    Interaction Design
+    Product Design
+    Industrial Design
+    Furniture Design
+    Transportation Design
+    Service Design
+    Experience Design
+    Environmental Graphic Design
+    Exhibition Design
+    Motion Design
+
+6.4 CRAFT AND MATERIAL CULTURE
+
+    Ceramics
+    Glass
+    Woodworking
+    Metalworking
+    Jewelry
+    Textile
+    Weaving
+    Dyeing
+    Embroidery
+    Leather
+    Paper
+    Lacquer
+    Basketry
+    Carving
+    Traditional Crafts
+    Contemporary Craft
+
+6.5 PHOTOGRAPHY
+
+    Photography History
+    Documentary
+    Portrait
+    Landscape
+    Street
+    Architecture Photography
+    Fashion Photography
+    Still Life
+    Fine Art Photography
+    Experimental Photography
+    Digital Photography
+    Computational Photography
+    Camera
+    Lens
+    Lighting
+    Exposure
+    Composition
+    Darkroom
+    Digital Post-processing
+
+6.6 FILM AND MOVING IMAGE
+
+    Film History
+    Cinema
+    Documentary Film
+    Experimental Film
+    Cinematography
+    Camera Language
+    Lighting
+    Production Design
+    Costume
+    Editing
+    Sound
+    Storyboarding
+    Visual Effects
+    Motion Graphics
+    Title Design
+    Music Video
+    Video Art
+
+6.7 ANIMATION
+
+    Traditional Animation
+    2D Animation
+    3D Animation
+    Stop Motion
+    Motion Graphics
+    Experimental Animation
+    Character Animation
+    Storyboarding
+    Layout
+    Timing
+    Acting
+    Visual Development
+
+6.8 GAME AND INTERACTIVE MEDIA
+
+    Game Art
+    Game Design
+    Environment Art
+    Character Art
+    UI / UX
+    Level Design
+    Narrative Design
+    Real-time 3D
+    Interactive Storytelling
+    Virtual Worlds
+
+6.9 DIGITAL AND NEW MEDIA
+
+    Digital Art
+    Generative Art
+    Algorithmic Art
+    Computational Art
+    Data Art
+    Interactive Art
+    Installation Technology
+    Projection Mapping
+    VR
+    AR
+    XR
+    Web Art
+    Net Art
+    Virtual Worlds
+    Creative Coding
+    Digital Sculpture
+    Digital Fabrication
+    AI Art
+
+6.10 FASHION AND BODY
+
+    Fashion History
+    Costume
+    Garment Design
+    Textile Design
+    Accessories
+    Footwear
+    Jewelry
+    Makeup
+    Body Art
+    Fashion Photography
+    Fashion Communication
+
+6.11 INDUSTRIAL AND PRODUCT CULTURE
+
+    Industrial Design
+    Consumer Products
+    Appliances
+    Electronics
+    Tools
+    Vehicles
+    Mobility
+    Furniture
+    Material Innovation
+    Manufacturing
+    Ergonomics
+    Human Factors
+
+6.12 VISUAL CULTURE
+
+    Advertising
+    Publishing
+    Books
+    Magazines
+    Posters
+    Music Visuals
+    Album Art
+    Fashion Culture
+    Internet Culture
+    Popular Culture
+    Subcultures
+    Symbols
+    Icons
+    Visual Communication
+    Propaganda History
+    Brand Culture
+
+6.13 CREATIVE SCIENCE AND FOUNDATIONS
+
+    Color
+    Composition
+    Form
+    Shape
+    Line
+    Texture
+    Pattern
+    Space
+    Perspective
+    Scale
+    Proportion
+    Balance
+    Contrast
+    Rhythm
+    Repetition
+    Movement
+    Light
+    Shadow
+    Material
+    Perception
+    Cognition
+    Psychology
+    Semiotics
+    Information
+    Narrative
+    Visual Hierarchy
+    Gestalt
+    Human-Computer Interaction
+    Generative Systems
+
+6.14 ART HISTORY AND CULTURAL HISTORY
+
+The system should support broad historical periods rather than only
+a fixed movement list.
+
+Possible high-level periods:
+
+    Prehistoric
+    Ancient
+    Classical
+    Late Antiquity
+    Medieval
+    Renaissance
+    Mannerism
+    Baroque
+    Rococo
+    Neoclassicism
+    Romanticism
+    Realism
+    Impressionism
+    Post-Impressionism
+    Symbolism
+    Art Nouveau
+    Expressionism
+    Cubism
+    Futurism
+    Dada
+    Surrealism
+    De Stijl
+    Bauhaus
+    Constructivism
+    Modernism
+    Abstract Expressionism
+    Pop Art
+    Minimalism
+    Conceptual Art
+    Postmodernism
+    Contemporary
+    Digital
+    Generative
+    AI / Emerging
+
+This is an editorial framework, not a rigid taxonomy.
+New movements can be added without changing the architecture.
+
+============================================================
+7. CULTURE AND GEOGRAPHY
+============================================================
+
+Western art must not become the implicit definition of all art.
+
+The system should support global cultures.
+
+Possible geographic dimensions:
+
+    East Asia
+        China
+        Japan
+        Korea
+        etc.
+
+    South Asia
+        India
+        etc.
+
+    Southeast Asia
+
+    Central Asia
+
+    Middle East
+
+    Africa
+
+    Europe
+
+    North America
+
+    Latin America
+
+    Oceania
+
+    Indigenous cultures
+
+Culture, country, region, civilization, and movement are separate
+concepts and should not be collapsed into one taxonomy.
+
+============================================================
+8. KNOWLEDGE ENTITY MODEL
+============================================================
+
+The core architecture should be entity-based.
+
+Primary entity types:
+
+    Person
+    Artist
+    Designer
+    Architect
+    Creator
+    Work
+    Building
+    Object
+    Movement
+    Style
+    Discipline
+    Medium
+    Material
+    Technique
+    Concept
+    Culture
+    Civilization
+    Place
+    City
+    Institution
+    Organization
+    Period
+    Event
+    Tool
+    Process
+    Collection
+    Exhibition
+    Source
+    Product
+
+Entities should be reusable across multiple views.
+
+Example:
+
+    Michelangelo
+
+may connect to:
+
+    Person
+    Artist
+    Renaissance
+    Sculpture
+    Painting
+    Architecture
+    Humanism
+    Marble
+    Anatomy
+    Florence
+    David
+    Sistine Chapel
+
+A person page must not duplicate these concepts.
+It should reference shared entities.
+
+============================================================
+9. RELATIONSHIP MODEL
+============================================================
+
+The system should support semantic relationships such as:
+
+    created_by
+    created
+    influenced
+    influenced_by
+    inspired
+    inspired_by
+    belongs_to
+    part_of
+    related_to
+    contrasts_with
+    follows
+    precedes
+    emerged_from
+    evolved_into
+    located_in
+    originated_in
+    uses_material
+    uses_medium
+    uses_technique
+    uses_visual_language
+    associated_with
+    collaborated_with
+    studied
+    taught
+    exhibited_at
+    references
+    responds_to
+    derived_from
+    contemporaneous_with
+
+Relationships should be first-class data.
+
+Do not rely only on nested categories.
+
+============================================================
+10. MULTI-DIMENSIONAL KNOWLEDGE
+============================================================
+
+Every relevant object should be able to have multiple dimensions.
+
+Possible dimensions:
+
+    Time
+    Place
+    Culture
+    Discipline
+    Medium
+    Material
+    Technique
+    Style
+    Movement
+    Concept
+    Scale
+    Function
+    Audience
+    Technology
+    Visual Language
+    Social Context
+    Historical Context
+
+Example query:
+
+    "20th century Japanese architecture using concrete
+     with minimalist visual language"
+
+should be conceptually possible.
+
+============================================================
+11. DATA / PRESENTATION SEPARATION
+============================================================
+
+This is a mandatory architecture principle.
+
+Knowledge data and visual presentation must be independent.
+
+Conceptually:
+
+    KNOWLEDGE DATA
+          |
+          +-- Timeline View
+          +-- Gallery View
+          +-- Map View
+          +-- Network View
+          +-- Comparison View
+          +-- Story View
+          +-- Archive View
+          +-- Interactive View
+          +-- Learning View
+          +-- 3D View
+
+The same Work, Artist, Building, or Movement can appear in many
+different contexts.
+
+Do not create content structures that only work for one page template.
+
+============================================================
+12. EXHIBITION ENGINE
+============================================================
+
+Create a reusable concept of an Exhibition Engine.
+
+Supported presentation modes should include:
+
+    Timeline
+    Gallery
+    Atlas
+    Map
+    Comparison
+    Collection
+    Detail Analysis
+    Process
+    Material
+    3D Viewer
+    Archive
+    Story
+    Interactive
+    Network / Knowledge Graph
+    Editorial Article
+    Before / After
+    Image Annotation
+    Fullscreen Immersive View
+
+The system may introduce additional modes later.
+
+12.1 Timeline
+
+Best for:
+
+    history
+    movements
+    technology evolution
+    architecture evolution
+    artist careers
+
+12.2 Gallery
+
+Best for:
+
+    works
+    visual collections
+    photography
+    paintings
+    sculpture
+    design
+
+12.3 Atlas
+
+Best for:
+
+    styles
+    disciplines
+    cultural systems
+    knowledge exploration
+
+12.4 Map
+
+Best for:
+
+    architecture
+    artists
+    cultural geography
+    historical events
+    institutions
+
+12.5 Comparison
+
+Best for:
+
+    styles
+    works
+    movements
+    materials
+    before/after
+    visual language
+
+12.6 Detail Analysis
+
+Best for:
+
+    composition
+    color
+    lighting
+    technique
+    architecture details
+
+12.7 Process
+
+Best for:
+
+    making
+    architecture
+    sculpture
+    illustration
+    animation
+    design
+    craft
+
+12.8 Material
+
+Best for:
+
+    stone
+    wood
+    metal
+    ceramic
+    glass
+    textile
+    paper
+    digital materials
+
+12.9 3D Viewer
+
+Best for:
+
+    sculpture
+    architecture
+    objects
+    products
+    artifacts
+
+12.10 Story
+
+Best for:
+
+    historical narratives
+    artist biographies
+    movements
+    cultural stories
+
+12.11 Network
+
+Best for:
+
+    influence
+    relationships
+    cross-disciplinary discovery
+
+============================================================
+13. DIFFERENT DOMAINS NEED DIFFERENT PRESENTATION
+============================================================
+
+Do NOT force all disciplines into one generic detail template.
+
+13.1 Painting
+
+Suggested sequence:
+
+    Artwork
+    Artist
+    Period
+    Context
+    Composition
+    Color
+    Light
+    Brushwork / Technique
+    Materials
+    Details / Zoom
+    Related works
+    Historical influence
+    Modern relevance
+
+13.2 Sculpture
+
+Suggested sequence:
+
+    Full work
+    3D / multiple views
+    Artist
+    Period
+    Material
+    Technique
+    Scale
+    Surface
+    Form
+    Space relationship
+    Installation context
+    Details
+    Related works
+
+13.3 Architecture
+
+Suggested sequence:
+
+    Hero building image
+    Architect
+    Date
+    Location
+    Program
+    Historical context
+    Site
+    Plan
+    Elevation
+    Section
+    Structure
+    Circulation
+    Material
+    Light
+    Space sequence
+    Urban relationship
+    Influence
+    Current condition
+
+13.4 Photography
+
+Suggested sequence:
+
+    Photograph
+    Photographer
+    Date
+    Location
+    Camera / lens where relevant
+    Composition
+    Light
+    Moment
+    Subject
+    Technique
+    Context
+    Series
+    Influence
+
+13.5 Graphic Design
+
+Suggested sequence:
+
+    Design
+    Designer / studio
+    Brief / purpose
+    Audience
+    Grid
+    Typography
+    Color
+    Image
+    Hierarchy
+    Production
+    Cultural context
+    Related designs
+
+13.6 Product / Industrial Design
+
+Suggested sequence:
+
+    Product
+    Designer
+    Function
+    User
+    Form
+    Ergonomics
+    Material
+    Manufacturing
+    Interface
+    Cultural context
+    Evolution
+    Related products
+
+13.7 Craft
+
+Suggested sequence:
+
+    Object
+    Culture
+    Material
+    Technique
+    Process
+    Tool
+    Time
+    Labor
+    Function
+    Symbolism
+    Contemporary adaptation
+
+13.8 Film
+
+Suggested sequence:
+
+    Film
+    Director
+    Period
+    Story
+    Cinematography
+    Composition
+    Lighting
+    Production Design
+    Costume
+    Editing
+    Sound
+    Influence
+
+13.9 Animation
+
+Suggested sequence:
+
+    Work
+    Style
+    Movement
+    Character
+    Layout
+    Timing
+    Motion
+    Background
+    Process
+    Technology
+    Cultural context
+
+13.10 Digital / AI Art
+
+Suggested sequence:
+
+    Work
+    Creator
+    Concept
+    System
+    Tool / technology
+    Input
+    Process
+    Generation
+    Curation
+    Iteration
+    Output
+    Cultural implications
+    Related techniques
+
+============================================================
+14. LEARNING SYSTEM
+============================================================
+
+Learning is free.
+
+The system should teach through:
+
+    Learn
+    Observe
+    Analyze
+    Try
+    Create
+    Connect
+
+Instead of merely presenting facts.
+
+A lesson should preferably contain:
+
+    Context
+    Explanation
+    Visual example
+    Guided observation
+    Key principles
+    Practice
+    Connections
+    Further exploration
+
+Example:
+
+    Learn Composition
+        -> See an artwork
+        -> Identify focal point
+        -> Identify balance
+        -> Compare alternatives
+        -> Try a constrained exercise
+        -> Explore related artists
+
+Do not turn the system into a conventional online course UI.
+
+Avoid:
+
+    course cards
+    lesson progress dashboards
+    locked lessons
+    gamified points everywhere
+    artificial certification
+
+Learning should feel like exploring a museum, archive, studio, and
+book simultaneously.
+
+============================================================
+15. PRACTICE SYSTEM
+============================================================
+
+Practice converts knowledge into ability.
+
+Practice types:
+
+    Observation
+    Analysis
+    Reconstruction
+    Constraint Exercise
+    Comparison
+    Composition Exercise
+    Color Exercise
+    Typography Exercise
+    Spatial Exercise
+    Material Exercise
+    Lighting Exercise
+    Storyboarding
+    Design Challenge
+    Creative Prompt
+    Cross-style Experiment
+
+Examples:
+
+    "Create a poster using only three geometric forms."
+
+    "Identify the light source in this painting."
+
+    "Compare two buildings and identify their circulation logic."
+
+    "Reconstruct the color hierarchy of this design."
+
+Practice content remains free.
+
+============================================================
+16. GALLERY EXPERIENCE
+============================================================
+
+Gallery should prioritize visual emotion and discovery.
+
+It should not behave like a database table.
+
+Possible modes:
+
+    Featured
+    Collections
+    Artists
+    Styles
+    Periods
+    Materials
+    Colors
+    Themes
+    Random
+    Recently Added
+    Curated Stories
+
+Gallery can use:
+
+    full-bleed images
+    asymmetrical compositions
+    editorial spreads
+    horizontal journeys
+    immersive transitions
+    image-led navigation
+    visual comparisons
+
+Do not turn every work into the same rounded card.
+
+============================================================
+17. HOME PAGE
+============================================================
+
+The homepage should feel like entering a cultural institution, not
+opening a SaaS dashboard.
+
+Suggested structure:
+
+    HERO
+        Strong visual
+        Art Gallery identity
+        Short philosophical statement
+        Explore / Learn entry
+
+    TODAY'S DISCOVERY
+        A surprising cultural or visual story
+
+    VISUAL JOURNEY
+        A connected sequence of works / ideas
+
+    KNOWLEDGE ATLAS
+        Major knowledge domains
+
+    ART HISTORY
+        A visual timeline
+
+    CROSS-DISCIPLINARY CONNECTION
+        Example:
+        Cubism -> Geometry -> Architecture -> Graphic Design -> UI
+
+    FEATURED EXHIBITION
+        Editorially curated immersive topic
+
+    LEARN
+        "Start from zero" entry
+
+    PRACTICE
+        Small creative challenge
+
+    CREATOR PRODUCTS
+        Clearly separated from knowledge
+
+    SUPPORT
+        Keep Knowledge Free
+
+    FOOTER
+        Philosophy
+        Sources
+        Languages
+        GitHub / project information
+        Support
+        Legal
+
+The homepage must not attempt to display every feature at once.
+
+============================================================
+18. DESIGN LANGUAGE
+============================================================
+
+The visual identity should communicate:
+
+    intelligence
+    culture
+    curiosity
+    beauty
+    depth
+    editorial quality
+    openness
+    contemporary technology
+
+It should NOT communicate:
+
+    generic SaaS
+    AI dashboard
+    crypto
+    cyberpunk by default
+    excessive neon
+    dark gaming UI
+    generic glassmorphism
+
+Use a flexible visual system.
+
+Important:
+
+    The brand name "Art Gallery" must not automatically imply
+    black/dark visual treatment.
+
+The visual system may change according to exhibition content.
+
+A Renaissance exhibition may feel different from a digital-art
+exhibition.
+
+The design language should unify the institution, not flatten the
+content.
+
+============================================================
+19. ANTI-STIFFNESS DESIGN RULES
+============================================================
+
+These rules are mandatory.
+
+DO NOT:
+
+    make every section a card
+    use identical 3-column grids everywhere
+    use a sidebar for everything
+    make every component rounded
+    add shadows to every container
+    use badges everywhere
+    use excessive pills
+    turn the site into a dashboard
+    use giant gradient blobs without purpose
+    use generic "AI premium" visual effects
+    repeat identical section structures
+    fill empty space with meaningless UI
+    add controls merely because they look sophisticated
+    put a CTA in every section
+    make every page visually identical
+
+DO:
+
+    use editorial layouts
+    use full-bleed imagery when appropriate
+    use intentional whitespace
+    use asymmetry where useful
+    use strong typography
+    use visual storytelling
+    use image-led navigation
+    use horizontal exploration when appropriate
+    use timelines for historical information
+    use maps for geographic information
+    use graphs for relationships
+    use 3D for spatial objects
+    use annotations for visual analysis
+    use comparison views for differences
+    use long-form editorial layouts for deep reading
+
+Key rule:
+
+    Consistency belongs to the design system.
+    Variety belongs to the content.
+
+============================================================
+20. TYPOGRAPHY AND LAYOUT
+============================================================
+
+Typography should establish hierarchy before decorative UI.
+
+Suggested hierarchy:
+
+    Exhibition Title
+    Section Title
+    Work Title
+    Metadata
+    Body
+    Annotation
+    Caption
+    Source
+
+Allow:
+
+    oversized editorial headlines
+    compact metadata
+    narrow reading columns
+    full-width images
+    edge-aligned captions
+    overlapping labels where meaningful
+
+Do not force all content into a central max-width card.
+
+Grid should be a flexible editorial grid.
+
+Whitespace is an active design element.
+
+============================================================
+21. MOTION
+============================================================
+
+Motion should communicate relationships, not decorate everything.
+
+Good motion:
+
+    image reveal
+    timeline transition
+    map movement
+    graph expansion
+    detail zoom
+    subtle parallax
+    spatial transition
+    progressive disclosure
+
+Avoid:
+
+    constant floating
+    excessive bouncing
+    decorative particles
+    meaningless glow
+    long loading animations
+    motion on every hover
+
+Motion should respect accessibility and reduced-motion preferences.
+
+============================================================
+22. SEARCH AND KNOWLEDGE DISCOVERY
+============================================================
+
+Search should eventually support:
+
+    full text
+    entity search
+    multi-filter search
+    related concepts
+    visual attributes
+    geographic filters
+    period filters
+    material filters
+    discipline filters
+    culture filters
+
+Search results should not merely list pages.
+
+They should show relationships.
+
+Example:
+
+    Search: "Bauhaus"
+
+    Movement
+    People
+    Works
+    Buildings
+    Furniture
+    Typography
+    Related concepts
+    Influences
+    Places
+    Timeline
+    Practice
+    Products
+
+============================================================
+23. KNOWLEDGE GRAPH
+============================================================
+
+A visible Knowledge Graph should become a major differentiator.
+
+Example:
+
+    DAVID
+       |
+    Michelangelo
+       |
+    Renaissance
+       |
+    Humanism
+       |
+    Classical Sculpture
+       |
+    Ancient Greece
+       |
+    Contrapposto
+       |
+    Anatomy
+       |
+    Marble
+       |
+    Florence
+
+Users should be able to follow connections.
+
+The graph should not be forced onto every page.
+Use it when it improves understanding.
+
+============================================================
+24. CONTENT QUALITY
+============================================================
+
+Content should be:
+
+    accurate
+    sourced
+    contextualized
+    readable
+    visual
+    connected
+    non-repetitive
+
+Avoid shallow AI-generated encyclopedia text.
+
+Each important knowledge item should preferably answer:
+
+    What is it?
+    Why did it appear?
+    What problem / idea did it respond to?
+    What makes it visually distinctive?
+    Who developed it?
+    What influenced it?
+    What did it influence?
+    Where did it happen?
+    When did it happen?
+    What materials / techniques are involved?
+    Where can we see it today?
+    How does it connect to modern creative practice?
+
+Sources should be represented in the data model.
+
+============================================================
+25. SEO / GEO
+============================================================
+
+Every important entity should be independently understandable.
+
+Pages should have:
+
+    unique title
+    concise description
+    canonical URL
+    semantic headings
+    structured metadata
+    internal links
+    related entities
+    source information
+    language metadata
+
+Content should be written so both traditional search engines and
+AI answer systems can understand the entity and its relationships.
+
+Do not keyword-stuff.
+
+Knowledge relationships should create natural internal linking.
+
+============================================================
+26. MULTILINGUAL
+============================================================
+
+The system should support multiple languages from the architecture
+level.
+
+Language should be data-aware, not hard-coded into UI components.
+
+Default language may be selected based on locale when possible, with
+manual language switching always available.
+
+Do not duplicate the entire application for each language.
+
+Shared entities should have localized fields.
+
+============================================================
+27. MOBILE
+============================================================
+
+Mobile is not a compressed desktop.
+
+Mobile layouts should prioritize:
+
+    image
+    title
+    context
+    readable content
+    touch exploration
+    progressive disclosure
+
+Complex graphs and maps should have mobile-specific interactions.
+
+Horizontal exploration may be used intentionally.
+
+Avoid tiny metadata and dense desktop-style grids.
+
+============================================================
+28. PRODUCTS AREA
+============================================================
+
+Products must remain conceptually separate from knowledge.
+
+Suggested structure:
+
+    Creator Products
+        Templates
+        Assets
+        Prompt Kits
+        3D
+        Motion
+        Design Files
+        Tools
+        Bundles
+
+Each product should explain:
+
+    product
+    use case
+    preview
+    included files
+    license
+    compatibility
+    price
+    support
+
+Never imply that purchasing grants access to knowledge.
+
+============================================================
+29. SUPPORT / DONATION AREA
+============================================================
+
+Suggested identity:
+
+    KEEP KNOWLEDGE FREE
+
+The support page should explain:
+
+    why the project exists
+    why knowledge remains free
+    what donations support
+    project maintenance
+    hosting
+    content research
+    free tools
+    development
+    preservation
+
+Donation UI should be simple and trustworthy.
+
+============================================================
+30. ADS AND SPONSORSHIP UI
+============================================================
+
+Create reusable ad slots in the component architecture.
+
+Example conceptual slots:
+
+    AdSlotInline
+    AdSlotSearch
+    AdSlotFooter
+    AdSlotMobile
+
+They should not dictate page structure.
+
+Sponsored content must be clearly labeled.
+
+Never disguise advertising as editorial knowledge.
+
+============================================================
+31. NO ADMIN DASHBOARD
+============================================================
+
+Do not create a traditional admin panel unless future requirements
+explicitly justify one.
+
+The current preferred workflow is:
+
+    edit data/content
+        ->
+    GitHub commit
+        ->
+    build
+        ->
+    GitHub Pages deployment
+
+The project should remain maintainable through source control.
+
+============================================================
+32. STATIC-FIRST ARCHITECTURE
+============================================================
+
+The preferred architecture is static-first and GitHub Pages friendly.
+
+Knowledge should preferably be represented as structured data.
+
+Possible conceptual structure:
+
+    /content
+        /people
+        /works
+        /movements
+        /styles
+        /disciplines
+        /materials
+        /techniques
+        /concepts
+        /cultures
+        /places
+        /periods
+        /buildings
+        /objects
+        /collections
+        /exhibitions
+        /practice
+        /products
+
+The exact implementation technology may vary.
+
+Do not hard-code knowledge into individual page components.
+
+============================================================
+33. CONTENT SCHEMA PRINCIPLES
+============================================================
+
+Each entity should support fields such as:
+
+    id
+    type
+    title
+    alternate_titles
+    slug
+    summary
+    description
+    period
+    date
+    place
+    culture
+    discipline
+    medium
+    materials
+    techniques
+    styles
+    movements
+    concepts
+    creators
+    relationships
+    images
+    sources
+    tags
+    related_entities
+    exhibition_modes
+    practice_links
+    product_links
+    language_variants
+
+Not every entity needs every field.
+
+The schema should be extensible.
+
+============================================================
+34. FUTURE EXPANSION RULE
+============================================================
+
+When a new discipline is added:
+
+    DO NOT redesign the entire site.
+
+Instead:
+
+    define entity type / fields
+    define relationships
+    define appropriate exhibition modes
+    define discipline-specific page composition
+    add content
+    connect to existing knowledge
+
+Example:
+
+    Add Sculpture
+
+should connect to:
+
+    Art
+    Material
+    Technique
+    Space
+    Artist
+    Period
+    Culture
+    Place
+    3D Viewer
+
+Example:
+
+    Add Architecture
+
+should connect to:
+
+    Building
+    Architect
+    City
+    Period
+    Style
+    Material
+    Structure
+    Space
+    Plan
+    Section
+    Light
+
+============================================================
+35. EXAMPLES OF CROSS-DISCIPLINARY KNOWLEDGE
+============================================================
+
+Minimalism can connect:
+
+    Painting
+    Sculpture
+    Architecture
+    Furniture
+    Graphic Design
+    UI
+    Product Design
+
+Geometry can connect:
+
+    Cubism
+    Bauhaus
+    Architecture
+    Typography
+    Industrial Design
+    UI
+    Parametric Design
+
+Light can connect:
+
+    Painting
+    Photography
+    Architecture
+    Film
+    Sculpture
+    3D
+    Motion
+    AI Image Generation
+
+Nature can connect:
+
+    Landscape
+    Japanese Garden
+    Art Nouveau
+    Biomimicry
+    Architecture
+    Product Design
+    Generative Art
+
+These connections are the heart of the knowledge universe.
+
+============================================================
+36. USER JOURNEY EXAMPLE
+============================================================
+
+A user enters because they want to see "David".
+
+Journey:
+
+    David
+      ->
+    Michelangelo
+      ->
+    Renaissance
+      ->
+    Humanism
+      ->
+    Classical Sculpture
+      ->
+    Ancient Greece
+      ->
+    Contrapposto
+      ->
+    Anatomy
+      ->
+    Marble
+      ->
+    Florence
+      ->
+    Architecture
+      ->
+    Renaissance Space
+      ->
+    Modern influence
+
+The user should feel:
+
+    "One work contains centuries of knowledge."
+
+This is the desired emotional outcome.
+
+============================================================
+37. HOMEPAGE EMOTIONAL GOAL
+============================================================
+
+The homepage should not communicate:
+
+    "Here are our categories."
+
+It should communicate:
+
+    "There is an enormous world of human creation waiting for you."
+
+The user should feel curiosity before utility.
+
+============================================================
+38. PRODUCT DESIGN PRINCIPLE
+============================================================
+
+The website is not merely a collection of pages.
+
+It is a system with:
+
+    Knowledge
+    Relationships
+    Exhibitions
+    Learning
+    Practice
+    Discovery
+    Creation
+    Products
+    Support
+
+The user should be able to move between these layers naturally.
+
+============================================================
+39. IMPLEMENTATION PHASES
+============================================================
+
+PHASE 1 - ARCHITECTURE
+
+    Define entities
+    Define relationships
+    Define content schema
+    Define taxonomy
+    Define domain registry
+    Define exhibition modes
+
+Acceptance:
+
+    Adding a new discipline must not require rewriting the core model.
+
+PHASE 2 - CONTENT FOUNDATION
+
+    Migrate existing content
+    Preserve existing valuable content
+    Normalize entities
+    Add relationships
+    Add sources
+
+Acceptance:
+
+    Existing useful knowledge is not lost.
+
+PHASE 3 - CORE EXPERIENCE
+
+    Homepage
+    Gallery
+    Knowledge
+    Search
+    Entity pages
+    Exploration
+
+Acceptance:
+
+    Users can discover information through multiple paths.
+
+PHASE 4 - EXHIBITION ENGINE
+
+    Timeline
+    Gallery
+    Map
+    Comparison
+    Network
+    Detail
+    Story
+    Process
+    Material
+    3D where appropriate
+
+Acceptance:
+
+    Different content types can use different presentation modes.
+
+PHASE 5 - LEARNING / PRACTICE
+
+    Learning paths
+    Visual analysis
+    Exercises
+    Practice
+
+Acceptance:
+
+    A beginner can start from zero and progressively build knowledge.
+
+PHASE 6 - DISCOVERY
+
+    Surprise Me
+    Random connections
+    Cross-disciplinary trails
+    Collections
+
+Acceptance:
+
+    The website produces meaningful serendipitous discovery.
+
+PHASE 7 - MULTILINGUAL / SEO / GEO
+
+    localization
+    metadata
+    semantic structure
+    internal linking
+    structured data
+    indexing
+
+Acceptance:
+
+    Important knowledge entities are independently discoverable.
+
+PHASE 8 - COMMERCIAL LAYER
+
+    Products
+    Donations
+    Ad slots
+    Sponsorship
+
+Acceptance:
+
+    No knowledge is locked behind payment.
+
+PHASE 9 - POLISH
+
+    typography
+    motion
+    accessibility
+    responsive layouts
+    performance
+    image optimization
+
+Acceptance:
+
+    The site feels like a cultural institution, not a generic web app.
+
+============================================================
+40. AI IMPLEMENTATION RULES
+============================================================
+
+These rules are mandatory for Gemini / Codex.
+
+1. Do not redesign the product from scratch.
+
+2. Read this document before modifying architecture.
+
+3. Preserve useful existing content.
+
+4. Do not remove the learning system merely to simplify UI.
+
+5. Do not introduce paid knowledge.
+
+6. Do not introduce a course marketplace.
+
+7. Do not introduce a knowledge membership wall.
+
+8. Do not add an admin panel unless explicitly requested.
+
+9. Do not make every page use the same layout.
+
+10. Do not turn everything into cards.
+
+11. Do not invent UI simply to fill empty space.
+
+12. Do not use dark/black styling merely because of the Art Gallery
+    name or any assumed "premium" aesthetic.
+
+13. Do not default to cyberpunk, neon, glassmorphism, or generic AI
+    aesthetics.
+
+14. Let the subject matter determine visual treatment.
+
+15. Prefer real visual hierarchy over decorative effects.
+
+16. Keep knowledge data independent from presentation components.
+
+17. When adding a new domain, integrate it into the existing entity
+    and relationship model.
+
+18. Before adding a new component, check whether an existing
+    presentation mode can solve the problem.
+
+19. Before changing navigation, check the entire information
+    architecture.
+
+20. Before deleting content, verify whether it is part of the
+    knowledge model.
+
+21. Mobile must be considered from the beginning.
+
+22. Accessibility must be preserved.
+
+23. Performance matters because the site is image-heavy.
+
+24. Sources and attribution must remain available.
+
+25. If uncertain, prefer the option that increases long-term
+    extensibility rather than short-term visual convenience.
+
+============================================================
+41. DESIGN DECISION TEST
+============================================================
+
+Before implementing any major feature, ask:
+
+    Does this help users understand something?
+    Does this help users discover something?
+    Does this help users connect ideas?
+    Does this improve visual appreciation?
+    Does this improve learning?
+    Does this help creation?
+    Does this preserve openness?
+    Does this remain extensible?
+
+If the answer is no to all meaningful questions, do not add it.
+
+============================================================
+42. CONTENT VS UI RULE
+============================================================
+
+Never force knowledge into a predefined UI.
+
+Instead:
+
+    Identify the nature of the knowledge.
+    Select the appropriate narrative structure.
+    Select the appropriate exhibition mode.
+    Then design the interface.
+
+Examples:
+
+    History -> Timeline
+    Geography -> Map
+    Influence -> Network
+    Sculpture -> 3D / multi-view
+    Architecture -> plan / section / spatial sequence
+    Painting -> image / detail / annotation
+    Technique -> Process
+    Material -> Material view
+    Style comparison -> Comparison
+    Biography -> Story
+    Deep theory -> Editorial reading
+
+============================================================
+43. QUALITY BAR
+============================================================
+
+The website should be judged on five dimensions:
+
+    Knowledge depth
+    Knowledge structure
+    Visual quality
+    Exploration quality
+    Long-term extensibility
+
+A beautiful page with shallow knowledge is not sufficient.
+
+A huge database with poor presentation is not sufficient.
+
+The goal is:
+
+    deep knowledge
+    + strong relationships
+    + excellent visual communication
+    + meaningful exploration
+    + sustainable architecture
+
+============================================================
+44. SUCCESS DEFINITION
+============================================================
+
+The project succeeds when:
+
+    A beginner can learn from zero.
+
+    An experienced creator can discover useful references.
+
+    A curious visitor can wander for an hour and keep discovering
+    meaningful connections.
+
+    A user can start from one artwork and travel through centuries
+    of connected knowledge.
+
+    Architecture, sculpture, photography, design, film, craft,
+    digital art, AI art and future disciplines can coexist naturally.
+
+    Knowledge remains free.
+
+    Products can support the project without becoming knowledge
+    paywalls.
+
+    The site can grow for years without requiring architectural
+    rewrites.
+
+============================================================
+45. FINAL PRODUCT STATEMENT
+============================================================
+
+Art Gallery is not intended to be a website that merely displays art.
+
+It is intended to become a living atlas of human creativity.
+
+It should preserve and connect:
+
+    what humans created
+    why they created it
+    how they created it
+    what influenced them
+    what they influenced
+    where they came from
+    where their ideas traveled
+    how those ideas changed
+    how those ideas continue to influence creation today
+
+The site should make knowledge feel alive.
+
+The desired experience is not:
+
+    "I finished a lesson."
+
+It is:
+
+    "I discovered something."
+
+Then:
+
+    "That connects to something else."
+
+Then:
+
+    "I had no idea these things were related."
+
+And finally:
+
+    "Human creativity is astonishing."
+
+The project should keep knowledge open.
+
+The project should make exploration beautiful.
+
+The project should make relationships visible.
+
+The project should make learning feel like discovery.
+
+The project should help people create.
+
+The project should sell products, not knowledge.
+
+The project should accept support without creating barriers.
+
+The project should grow continuously without losing its foundation.
+
+CORE PRINCIPLE:
+
+    KNOWLEDGE IS FREE.
+    CREATION IS OPEN.
+    CURIOSITY IS WELCOME.
+    PRODUCTS SUPPORT THE PROJECT.
+    THE KNOWLEDGE UNIVERSE SHOULD NEVER STOP GROWING.
+
+============================================================
+END OF MASTER SPECIFICATION
+============================================================

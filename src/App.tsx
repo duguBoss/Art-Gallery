@@ -1,40 +1,76 @@
-import React, { useState, useEffect } from 'react';
-import type { AtlasTab } from './types/visualAtlas';
-import type { CinemaScene } from './types/cinema';
-import { LanguageProvider, useLanguage } from './context/LanguageContext';
-import { Navbar } from './components/Navbar';
-import { OpeningSequenceView } from './components/OpeningSequenceView';
-import { ArchiveContactSheet } from './components/ArchiveContactSheet';
-import { SceneDetailView } from './components/SceneDetailView';
-import { VisualConstellationView } from './components/VisualConstellationView';
-import { KnowledgeHubViewV2 } from './components/KnowledgeHubViewV2';
-import { KnowledgeDetailView } from './components/KnowledgeDetailView';
-import { ToolsHubViewV2 } from './components/ToolsHubViewV2';
-import { CreatorToolchainView } from './components/CreatorToolchainView';
-import { DossiersView } from './components/DossiersView';
-import { VisualLabView } from './components/VisualLabView';
-import { AboutManifestoView } from './components/AboutManifestoView';
-import { CommandPalette } from './components/CommandPalette';
-import { UseWithAIModal } from './components/UseWithAIModal';
-import { AIKnowledgeCockpit } from './components/AIKnowledgeCockpit';
-import { parseLocation, useAtlasRouter } from './router/useAtlasRouter';
-import { GoogleAdSenseUnit } from './components/GoogleAdSenseUnit';
-import { playSpotlightClick } from './utils/audio';
-import { getCinemaScenes } from './data/atlasStore';
+import { LanguageProvider } from './i18n/LanguageContext';
+import { RouterProvider, useRouter, Link } from './router/router';
+import { Navbar } from './components/layout/Navbar';
+import { Footer } from './components/layout/Footer';
+import { CommandPalette } from './components/search/CommandPalette';
+import { EntityPage } from './components/entity/EntityPage';
+import { HomePage } from './pages/HomePage';
+import { GalleryPage } from './pages/GalleryPage';
+import { ExplorePage } from './pages/ExplorePage';
+import { KnowledgePage } from './pages/KnowledgePage';
+import { StylesPage } from './pages/StylesPage';
+import { ArtistsPage } from './pages/ArtistsPage';
+import { LearnPage } from './pages/LearnPage';
+import { PracticePage } from './pages/PracticePage';
+import { ProductsPage } from './pages/ProductsPage';
+import { SupportPage } from './pages/SupportPage';
+import { AboutPage } from './pages/AboutPage';
+import { ToolsPage } from './pages/ToolsPage';
+import { SearchPage } from './pages/SearchPage';
+import { ExhibitionPage } from './pages/ExhibitionPage';
+import { useLang } from './i18n/LanguageContext';
 
-function AppContent() {
-  const { lang, setLang, t } = useLanguage();
-  const initialRoute = parseLocation();
-  const [currentTab,setCurrentTab]=useState<AtlasTab>((initialRoute.tab === 'constellation' ? 'language' : initialRoute.tab as AtlasTab) || 'index');
-  const [selectedSceneId,setSelectedSceneId]=useState<string|null>(initialRoute.sceneId || null);
-  const [selectedKnowledgeId,setSelectedKnowledgeId]=useState<string|null>(initialRoute.knowledgeId || null);
-  const [isCommandOpen,setIsCommandOpen]=useState(false); const [isAIOpen,setIsAIOpen]=useState(false); const [isToolchainOpen,setIsToolchainOpen]=useState(false); const [scenes]=useState<CinemaScene[]>(()=>getCinemaScenes());
-  useEffect(()=>{if(initialRoute.locale&&initialRoute.locale!==lang)setLang(initialRoute.locale)},[]);
-  useAtlasRouter(lang,currentTab==='language'?'constellation':currentTab,selectedSceneId,selectedKnowledgeId,(route)=>{if(route.locale&&route.locale!==lang)setLang(route.locale);if(route.tab)setCurrentTab((route.tab==='constellation'?'language':route.tab) as AtlasTab);setSelectedSceneId(route.sceneId||null);setSelectedKnowledgeId(route.knowledgeId||null);});
-  useEffect(()=>{const h=(e:KeyboardEvent)=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();setIsCommandOpen(p=>!p)}if(e.key==='Escape'){setSelectedSceneId(null);setSelectedKnowledgeId(null);setIsToolchainOpen(false)}};window.addEventListener('keydown',h);return()=>window.removeEventListener('keydown',h)},[]);
-  const go=(tab:AtlasTab)=>{setSelectedSceneId(null);setSelectedKnowledgeId(null);setCurrentTab(tab);window.scrollTo({top:0,behavior:'smooth'})}; const openKnowledge=(id:string)=>{setSelectedSceneId(null);setSelectedKnowledgeId(id);setCurrentTab('knowledge');window.scrollTo({top:0,behavior:'smooth'})};
-  const activeScene=scenes.find(s=>s.id===selectedSceneId)||scenes[0]; const [savedSceneIds,setSavedSceneIds]=useState<string[]>(()=>{try{const s=localStorage.getItem('visual_atlas_dossier_scenes_v1');return s?JSON.parse(s):[scenes[0]?.id].filter(Boolean)}catch{return [scenes[0]?.id].filter(Boolean)}}); useEffect(()=>{try{localStorage.setItem('visual_atlas_dossier_scenes_v1',JSON.stringify(savedSceneIds))}catch{}},[savedSceneIds]);
-  const toggleDossier=(scene:CinemaScene)=>{playSpotlightClick();setSavedSceneIds(p=>p.includes(scene.id)?p.filter(id=>id!==scene.id):[...p,scene.id])}; const removeDossier=(id:string)=>{playSpotlightClick();setSavedSceneIds(p=>p.filter(x=>x!==id))};
-  return <div className="min-h-screen w-full bg-[#11110F] text-[#F2F0E8] font-sans flex flex-col selection:bg-[#D8FF3E] selection:text-[#11110F]"><Navbar currentTab={currentTab} onSelectTab={go} onOpenCommandPalette={()=>setIsCommandOpen(true)} onOpenAI={()=>setIsAIOpen(true)} savedDossierCount={savedSceneIds.length}/><main className="flex-1 w-full">{selectedSceneId?<SceneDetailView scene={activeScene} allScenes={scenes} onBack={()=>go('archive')} onSelectScene={id=>{setSelectedSceneId(id);window.scrollTo({top:0,behavior:'smooth'})}} onExploreTag={()=>go('archive')} onOpenInLab={()=>go('lab')} onSaveToDossier={toggleDossier} isSavedInDossier={savedSceneIds.includes(activeScene.id)}/>:selectedKnowledgeId?<KnowledgeDetailView nodeId={selectedKnowledgeId} onBack={()=>go('knowledge')} onOpenNode={openKnowledge}/>:<>{currentTab==='index'&&<><OpeningSequenceView featuredScene={scenes[0]} totalScenesCount={scenes.length} onStudyScene={id=>setSelectedSceneId(id)} onExploreArchive={()=>go('archive')}/><CreatorToolchainView/></>} {currentTab==='archive'&&<ArchiveContactSheet scenes={scenes} onSelectScene={id=>setSelectedSceneId(id)}/>} {currentTab==='knowledge'&&<><KnowledgeHubViewV2 onOpenNode={openKnowledge}/><CreatorToolchainView/></>} {currentTab==='language'&&<VisualConstellationView scenes={scenes} onSelectScene={id=>setSelectedSceneId(id)}/>} {currentTab==='dossiers'&&<DossiersView savedSceneIds={savedSceneIds} allScenes={scenes} onSelectScene={id=>setSelectedSceneId(id)} onRemoveFromDossier={removeDossier}/>} {currentTab==='lab'&&<VisualLabView initialScene={scenes[0]} allScenes={scenes} onSavePromptToDossier={()=>alert(t('lab.savePromptToDossier')+' OK')}/>} {currentTab==='tools'&&<ToolsHubViewV2/>} {currentTab==='about'&&<AboutManifestoView onExploreArchive={()=>go('archive')}/>} {currentTab==='ai'&&<AIKnowledgeCockpit/>}</>}</main><div className="max-w-[1440px] mx-auto w-full px-6 lg:px-12 my-6"><GoogleAdSenseUnit variant="banner"/></div><footer className="w-full border-t border-[#F2F0E8]/10 bg-[#0E0E0C] text-[#8B887F] text-xs font-mono py-8 px-6 lg:px-12"><div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4"><div className="flex items-center gap-2"><span className="text-[#D8FF3E]">●</span><span className="text-[#F2F0E8] font-bold">VISUAL ATLAS</span><span>{t('footer.edition')}</span></div><a href="https://github.com/duguBoss/Art-Gallery" target="_blank" rel="noreferrer" className="hover:text-[#D8FF3E]">GITHUB</a></div></footer><CommandPalette isOpen={isCommandOpen} onClose={()=>setIsCommandOpen(false)} scenes={scenes} onSelectScene={id=>setSelectedSceneId(id)} onNavigateTab={tab=>go(tab)}/><UseWithAIModal isOpen={isAIOpen} onClose={()=>setIsAIOpen(false)}/></div>;
+function NotFound() {
+  const { u } = useLang();
+  return (
+    <div className="wrap py-32 text-center">
+      <div className="eyebrow mb-4">404</div>
+      <p className="font-serif text-5xl">This room is empty.</p>
+      <Link to="/" className="btn-ghost mt-8">← {u('nav.home')}</Link>
+    </div>
+  );
 }
-export function App(){return <LanguageProvider><AppContent/></LanguageProvider>} export default App;
+
+function Routed() {
+  const { route } = useRouter();
+  const [s0, s1, s2] = route.segments;
+
+  let page: React.ReactNode;
+  switch (s0) {
+    case undefined: page = <HomePage />; break;
+    case 'gallery': page = <GalleryPage />; break;
+    case 'explore': page = <ExplorePage />; break;
+    case 'knowledge': page = <KnowledgePage />; break;
+    case 'styles': page = <StylesPage />; break;
+    case 'artists': page = <ArtistsPage />; break;
+    case 'learn': page = <LearnPage />; break;
+    case 'practice': page = <PracticePage />; break;
+    case 'products': page = <ProductsPage />; break;
+    case 'support': page = <SupportPage />; break;
+    case 'about': page = <AboutPage />; break;
+    case 'tools': page = <ToolsPage />; break;
+    case 'search': page = <SearchPage />; break;
+    case 'exhibition': page = s1 ? <ExhibitionPage slug={s1} /> : <NotFound />; break;
+    case 'entity': page = s1 && s2 ? <EntityPage type={s1} slug={s2} /> : <NotFound />; break;
+    default: page = <NotFound />;
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Navbar />
+      <main className="flex-1 pb-8">{page}</main>
+      <Footer />
+      <CommandPalette />
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <RouterProvider>
+        <Routed />
+      </RouterProvider>
+    </LanguageProvider>
+  );
+}

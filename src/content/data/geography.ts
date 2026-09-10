@@ -1,0 +1,235 @@
+import type { Culture, PlaceEntity } from '../../model/entity';
+import { loc } from '../../model/i18n';
+
+/**
+ * §7 Culture and geography — culture, country, region, civilization and
+ * movement are separate concepts and never collapse into one taxonomy.
+ */
+
+export const CULTURES: Culture[] = [
+  {
+    id: 'culture-ancient-greek',
+    type: 'culture',
+    slug: 'ancient-greek-culture',
+    name: loc('古希腊文明', 'Ancient Greek'),
+    summary: loc(
+      '城邦、理性、理想人体与柱式——西方艺术史不断回返的源头之一。',
+      'The polis, reason, the ideal body and the orders — a source Western art history returns to repeatedly.',
+    ),
+    domainIds: ['art-history', 'arts', 'architecture'],
+    tags: ['classical', 'mediterranean'],
+  },
+  {
+    id: 'culture-italian',
+    type: 'culture',
+    slug: 'italian-culture',
+    name: loc('意大利文化', 'Italian'),
+    summary: loc(
+      '从佛罗伦萨共和到罗马教廷：文艺复兴的语言实验室与赞助网络。',
+      'From the Florentine republic to the Roman curia: the Renaissance laboratory of language and patronage.',
+    ),
+    domainIds: ['art-history', 'arts', 'architecture'],
+  },
+  {
+    id: 'culture-french',
+    type: 'culture',
+    slug: 'french-culture',
+    name: loc('法兰西文化', 'French'),
+    summary: loc(
+      '学院、沙龙与前卫的辩证：从凡尔赛到印象派，巴黎长期是西方艺术的制度中心。',
+      'Academy, salon and avant-garde in dialectic — from Versailles to Impressionism, Paris long set the institutional center.',
+    ),
+    domainIds: ['art-history', 'arts', 'design'],
+  },
+  {
+    id: 'culture-dutch',
+    type: 'culture',
+    slug: 'dutch-culture',
+    name: loc('尼德兰文化', 'Dutch / Netherlandish'),
+    summary: loc(
+      '市民社会、油画技法与静物、肖像、风景等世俗画类的兴起。',
+      'Burgher society, oil technique and the rise of still life, portrait and landscape as secular genres.',
+    ),
+    domainIds: ['art-history', 'arts'],
+  },
+  {
+    id: 'culture-germanic',
+    type: 'culture',
+    slug: 'germanic-culture',
+    name: loc('中欧 / 德意志文化', 'Central European / Germanic'),
+    summary: loc(
+      '包豪斯、德意志制造联盟与排版理性主义的土壤。',
+      'Soil of the Bauhaus, the Deutscher Werkbund and typographic rationalism.',
+    ),
+    domainIds: ['design', 'architecture', 'art-history'],
+  },
+  {
+    id: 'culture-japanese',
+    type: 'culture',
+    slug: 'japanese-culture',
+    name: loc('日本文化', 'Japanese'),
+    summary: loc(
+      '浮世绘、琳派、侘寂与书院造——平面化构图与留白曾深刻改写欧洲现代艺术。',
+      'Ukiyo-e, Rinpa, wabi-sabi and the shoin style — flat composition and emptiness reshaped European modernism.',
+    ),
+    domainIds: ['arts', 'craft', 'architecture', 'art-history'],
+  },
+  {
+    id: 'culture-chinese',
+    type: 'culture',
+    slug: 'chinese-culture',
+    name: loc('中华文化', 'Chinese'),
+    summary: loc(
+      '山水、书画同源、文人审美与木构体系：一条独立而绵延的视觉传统。',
+      'Shanshui painting, the unity of calligraphy and painting, literati taste and timber architecture — an independent, continuous tradition.',
+    ),
+    domainIds: ['arts', 'craft', 'architecture', 'art-history'],
+  },
+  {
+    id: 'culture-american',
+    type: 'culture',
+    slug: 'american-culture',
+    name: loc('美利坚文化', 'American'),
+    summary: loc(
+      '摩天楼、商业图像、抽象表现主义与波普——工业规模与大众文化的视觉实验场。',
+      'Skyscrapers, commercial imagery, Abstract Expressionism and Pop — the proving ground of industrial scale and mass culture.',
+    ),
+    domainIds: ['arts', 'architecture', 'visual-culture'],
+  },
+  {
+    id: 'culture-mexican',
+    type: 'culture',
+    slug: 'mexican-culture',
+    name: loc('墨西哥文化', 'Mexican'),
+    summary: loc(
+      '壁画运动、本土传统与超现实主义的交汇，弗里达·卡洛的身体叙事在此生长。',
+      'Muralism, indigenous heritage and Surrealism converge; Frida Kahlo’s bodily narrative grows from this soil.',
+    ),
+    domainIds: ['arts', 'visual-culture'],
+  },
+  {
+    id: 'culture-digital-global',
+    type: 'culture',
+    slug: 'global-digital-culture',
+    name: loc('全球数字文化', 'Global Digital'),
+    summary: loc(
+      '跨越地域的创作者在同一套工具、平台与视觉模因中交流，风格以月为单位演化。',
+      'Creators across regions share tools, platforms and memes; styles now evolve month by month.',
+    ),
+    domainIds: ['digital', 'visual-culture'],
+  },
+];
+
+export const PLACES: PlaceEntity[] = [
+  {
+    id: 'place-athens',
+    type: 'place',
+    slug: 'athens',
+    name: loc('雅典', 'Athens'),
+    country: loc('希腊', 'Greece'),
+    geo: { lat: 37.9715, lng: 23.7257 },
+    summary: loc('古典希腊的城邦核心，卫城俯瞰爱琴海文明的记忆。', 'Polis of classical Greece; the Acropolis above the Aegean.'),
+  },
+  {
+    id: 'place-rome',
+    type: 'place',
+    slug: 'rome',
+    name: loc('罗马', 'Rome'),
+    country: loc('意大利', 'Italy'),
+    geo: { lat: 41.9028, lng: 12.4964 },
+    summary: loc('帝国、教廷与巴洛克的永恒之城。', 'The eternal city of empire, papacy and Baroque.'),
+  },
+  {
+    id: 'place-florence',
+    type: 'place',
+    slug: 'florence',
+    name: loc('佛罗伦萨', 'Florence'),
+    country: loc('意大利', 'Italy'),
+    geo: { lat: 43.7696, lng: 11.2558 },
+    summary: loc(
+      '文艺复兴的实验室：美第奇的赞助、布鲁内莱斯基的穹顶与米开朗基罗的大卫。',
+      'Laboratory of the Renaissance: Medici patronage, Brunelleschi’s dome and Michelangelo’s David.',
+    ),
+  },
+  {
+    id: 'place-milan',
+    type: 'place',
+    slug: 'milan',
+    name: loc('米兰', 'Milan'),
+    country: loc('意大利', 'Italy'),
+    geo: { lat: 45.4642, lng: 9.19 },
+    summary: loc('《最后的晚餐》所在的圣玛利亚感恩修道院。', 'Santa Maria delle Grazie, home of The Last Supper.'),
+  },
+  {
+    id: 'place-paris',
+    type: 'place',
+    slug: 'paris',
+    name: loc('巴黎', 'Paris'),
+    country: loc('法国', 'France'),
+    geo: { lat: 48.8566, lng: 2.3522 },
+    summary: loc('沙龙、印象派展览与现代艺术市场的中心。', 'Center of the salon, the Impressionist exhibitions and the modern art market.'),
+  },
+  {
+    id: 'place-dessau',
+    type: 'place',
+    slug: 'dessau',
+    name: loc('德绍', 'Dessau'),
+    country: loc('德国', 'Germany'),
+    geo: { lat: 51.8342, lng: 12.2442 },
+    summary: loc('1925 年包豪斯迁入德绍，格罗皮乌斯设计的校舍成为现代建筑宣言。', 'The Bauhaus moved here in 1925; Gropius’s building is a manifesto in built form.'),
+  },
+  {
+    id: 'place-poissy',
+    type: 'place',
+    slug: 'poissy',
+    name: loc('普瓦西', 'Poissy'),
+    country: loc('法国', 'France'),
+    geo: { lat: 48.9278, lng: 2.0367 },
+    summary: loc('萨伏伊别墅的所在地，柯布西耶“新建筑五点”的示范。', 'Site of the Villa Savoye, demonstration of Le Corbusier’s Five Points.'),
+  },
+  {
+    id: 'place-mill-run',
+    type: 'place',
+    slug: 'mill-run-pennsylvania',
+    name: loc('熊溪河畔 / 米尔伦', 'Mill Run, Pennsylvania'),
+    country: loc('美国', 'USA'),
+    geo: { lat: 39.9062, lng: -79.4681 },
+    summary: loc('流水别墅悬挑于瀑布之上，有机建筑的标志。', 'Fallingwater cantilevers over a waterfall — the icon of organic architecture.'),
+  },
+  {
+    id: 'place-new-york',
+    type: 'place',
+    slug: 'new-york',
+    name: loc('纽约', 'New York'),
+    country: loc('美国', 'USA'),
+    geo: { lat: 40.7128, lng: -74.006 },
+    summary: loc('战后艺术中心：MoMA、抽象表现主义与波普的主场。', 'Postwar center: MoMA, Abstract Expressionism and Pop.'),
+  },
+  {
+    id: 'place-mexico-city',
+    type: 'place',
+    slug: 'mexico-city',
+    name: loc('墨西哥城', 'Mexico City'),
+    country: loc('墨西哥', 'Mexico'),
+    geo: { lat: 19.4326, lng: -99.1332 },
+    summary: loc('蓝房子与壁画运动的心脏。', 'The Blue House and the heart of the mural movement.'),
+  },
+  {
+    id: 'place-edo',
+    type: 'place',
+    slug: 'edo-tokyo',
+    name: loc('江户 / 东京', 'Edo / Tokyo'),
+    country: loc('日本', 'Japan'),
+    geo: { lat: 35.6812, lng: 139.7671 },
+    summary: loc('浮世绘的出版都市与今日全球次文化的生产中心。', 'Publishing city of ukiyo-e and today’s center of global subcultural production.'),
+  },
+  {
+    id: 'place-kyoto',
+    type: 'place',
+    slug: 'kyoto',
+    name: loc('京都', 'Kyoto'),
+    country: loc('日本', 'Japan'),
+    geo: { lat: 35.0116, lng: 135.7681 },
+    summary: loc('桂离宫所在：书院造、回游式庭园与现代主义遥遥相契。', 'Home of Katsura Rikyū — shoin architecture and stroll gardens that resonate with modernism.'),
+  },
+];

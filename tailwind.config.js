@@ -8,56 +8,62 @@ export default {
   theme: {
     extend: {
       colors: {
-        atlas: {
-          canvas: '#11110F',
-          surface: '#181815',
-          surfaceHover: '#22221E',
-          paper: '#F2F0E8',
-          stone: '#8B887F',
-          acid: '#D8FF3E',
-          hairline: 'rgba(242, 240, 232, 0.12)',
+        // Museum-paper palette (master plan §18-20): warm ground, ink text.
+        paper: {
+          DEFAULT: '#f7f4ec',   // main warm white ground
+          deep: '#efe9dc',      // slightly deeper section ground
+          card: '#fbf9f4',      // lifted surface
+          edge: '#e4ddcd',      // hairline borders
         },
-        gallery: {
-          950: '#070709',
-          900: '#0f1013',
-          850: '#15161b',
-          800: '#1c1e25',
-          700: '#2a2d37',
-          600: '#3d4251',
-          500: '#565d71',
-          400: '#7f88a3',
-          300: '#adb7d4',
-          200: '#d5dcfa',
-          100: '#eaeffe',
-          50: '#f6f8ff',
+        ink: {
+          DEFAULT: '#1a1815',   // primary text / headings
+          soft: '#453f37',      // secondary text
+          mute: '#847c6e',      // captions, eyebrows
+          faint: '#b4ac9d',     // disabled / placeholders
         },
-        gold: {
-          300: '#f6d884',
-          400: '#ecc457',
-          500: '#d4a327',
-          600: '#aa7d14',
-          700: '#7d590a',
+        cinnabar: {
+          DEFAULT: '#b3402a',   // vermillion accent — used sparingly, 5%
+          deep: '#8f2f1e',
+          soft: '#d9705c',
         },
-        accent: {
-          crimson: '#e11d48',
-          emerald: '#10b981',
-          violet: '#8b5cf6',
-          amber: '#f59e0b',
-          cyan: '#06b6d4',
-          rose: '#f43f5e',
-        }
+        sage: {
+          DEFAULT: '#5c6b58',
+          deep: '#43503f',
+        },
+        ochre: {
+          DEFAULT: '#a8762e',
+          light: '#d9b26a',
+        },
       },
       fontFamily: {
-        sans: ['"Inter Tight"', '"Noto Sans SC"', 'system-ui', '-apple-system', 'sans-serif'],
-        mono: ['"IBM Plex Mono"', 'monospace'],
-        display: ['"Inter Tight"', '"Helvetica Neue"', 'sans-serif'],
+        serif: ['"Cormorant Garamond"', '"Noto Serif SC"', 'Georgia', '"Songti SC"', 'serif'],
+        sans: ['Inter', '"Noto Sans SC"', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace'],
       },
-      boxShadow: {
-        'gallery': '0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 20px 0 rgba(212, 163, 39, 0.08)',
-        'gallery-lg': '0 30px 60px -20px rgba(0, 0, 0, 0.9), 0 0 35px 0 rgba(212, 163, 39, 0.15)',
-        'glow-gold': '0 0 25px rgba(212, 163, 39, 0.4)',
-        'glow-cyan': '0 0 25px rgba(6, 182, 212, 0.4)',
-      }
+      fontSize: {
+        'display-xl': ['clamp(3rem, 7vw, 6.5rem)', { lineHeight: '1.02', letterSpacing: '-0.02em' }],
+        'display-lg': ['clamp(2.25rem, 5vw, 4.25rem)', { lineHeight: '1.05', letterSpacing: '-0.015em' }],
+        'display-md': ['clamp(1.75rem, 3.2vw, 2.75rem)', { lineHeight: '1.12', letterSpacing: '-0.01em' }],
+      },
+      maxWidth: {
+        'measure': '68ch',
+        'editorial': '1320px',
+      },
+      letterSpacing: {
+        'eyebrow': '0.22em',
+      },
+      transitionTimingFunction: {
+        'museum': 'cubic-bezier(0.22, 1, 0.36, 1)',
+      },
+      keyframes: {
+        'fade-up': {
+          '0%': { opacity: '0', transform: 'translateY(14px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'fade-up': 'fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both',
+      },
     },
   },
   plugins: [],
