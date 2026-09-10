@@ -1,90 +1,140 @@
-﻿# 🏛️ 艺术画廊 · Art Gallery
+# 视觉图志 · Visual Atlas
 
-> **全球艺术创作流派与设计美学沉浸式画廊**  
-> 🌐 **官网在线访问地址**：[https://duguboss.github.io/Art-Gallery/](https://duguboss.github.io/Art-Gallery/)  
-> 📦 **GitHub 仓库**：[https://github.com/duguBoss/Art-Gallery.git](https://github.com/duguBoss/Art-Gallery.git)
+**人类视觉文化的活地图集 — A Living Atlas of Human Visual Culture**
 
-[![Deploy Art Gallery to GitHub Pages](https://github.com/duguBoss/Art-Gallery/actions/workflows/deploy.yml/badge.svg)](https://github.com/duguBoss/Art-Gallery/actions/workflows/deploy.yml)
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Click_to_Visit-gold?style=for-the-badge&logo=google-chrome&logoColor=white)](https://duguboss.github.io/Art-Gallery/)
+[![Deploy](https://github.com/duguBoss/Art-Gallery/actions/workflows/deploy.yml/badge.svg)](https://github.com/duguBoss/Art-Gallery/actions/workflows/deploy.yml)
+[![Live](https://img.shields.io/badge/在线访问-Live-gold?style=flat-square)](https://duguboss.github.io/Art-Gallery/)
+[![License: CC BY-SA 4.0](https://img.shields.io/badge/内容协议-CC%20BY--SA%204.0-lightgrey?style=flat-square)](https://creativecommons.org/licenses/by-sa/4.0/)
 
-![Art Gallery Preview](https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1200&q=80)
+> 从《大卫》的大理石到你手机里的栅格——
+> 艺术史、建筑、设计、工艺、摄影、电影、动画、游戏、数字艺术与创作科学，
+> 被织成一张可以双向漫游的知识图谱。
+>
+> *From the marble of David to the grid in your hand — art, architecture, design, film and creative technology as one explorable knowledge graph.*
 
----
-
-## 🔗 直接访问官网
-
-👉 **[点击直接进入艺术画廊官网](https://duguboss.github.io/Art-Gallery/)**
-
----
-
-## 🎨 网站介绍
-
-艺术画廊（**Art Gallery**）是一个采用**画廊沉浸美学（Museum & Gallery Aesthetic）**打造的艺术流派鉴赏与创作灵感平台。网站收录并解构了从古典传统到数字未来的丰富艺术创作风格，为创作者、设计师、游戏开发者与 AI 绘图爱好者提供身临其境的艺术漫步体验。
+**→ 入口：[https://duguboss.github.io/Art-Gallery/](https://duguboss.github.io/Art-Gallery/)**
 
 ---
 
-## ✨ 核心功能与亮点
+## 这是什么
 
-### 1. 🏛️ 身临其境的展厅空间体验 (Immersive Museum Experience)
-- **聚光灯跟随光影 (Dynamic Museum Torch)**：鼠标移动时光影随行，模拟美术馆射灯照亮展画的真实质感。
-- **典藏展签与独立展位 (Exhibition Placards)**：每个流派配有独立展厅编号（如 `ROOM 01 // NO. 01`）、材质工艺标签、策展寄语与装裱级画框。
-- **全屏沉浸漫步巡礼 (Virtual Tour Mode)**：一键进入全屏导览模式，支持键盘 `←` `→` 键穿梭于各个艺术展厅。
-- **展厅静谧白噪音 (Synthesized Ambient Soundscape)**：内置 Web Audio API 生成的纯净展厅环境音与交互声效，拉满临场感。
+视觉图志**不是**画廊模板、不是课程市场、不是 SaaS 仪表盘，也不是 AI 落地页。
+它同时是：
 
-### 2. 🌌 多元丰富的艺术流派收录 (Curated Art Movements)
-- 🗝️ **锈湖手绘暗黑叙事 (Rusty Lake Surrealism)**：剪纸感硬边手绘、低饱和复古暗色、大卫·林奇式心理悬疑。
-- 🧊 **VOX 体素与立体像素 (Voxel & Pixel 3D)**：3D 立方体微缩世界、等距视角、MagicaVoxel 物理光追。
-- 🏙️ **赛博朋克与霓虹废土 (Cyberpunk & Neon Dystopia)**：青蓝品红霓虹、雨夜沥青倒影、全息投影与未来都市。
-- 🍵 **水墨丹青与东方写意 (Ink Wash & Oriental Zen)**：宣纸渗墨肌理、浓淡干湿焦、计白当黑的空灵禅意。
-- 🎨 **孟菲斯几何狂想 (Memphis & Bold Pop)**：高饱和跳跃撞色、斑马纹波点、反叛不对称几何。
-- 📐 **包豪斯极简主义 (Bauhaus & Constructivism)**：红黄蓝三原色、网格构成系统、理性工业美学。
-- 🌊 **浮世绘木版画 (Ukiyo-e Woodblock)**：葛饰北斋惊涛波浪、普鲁士蓝矿物色、木版雕刻套印肌理。
-- ☁️ **吉卜力水彩童话 (Ghibli Watercolor Fantasy)**：积雨云海、夏日田园草甸、治愈系手绘胶片光影。
-- 🔮 **蒸汽波与合成波 (Vaporwave & Synthwave)**：古希腊雕像、Windows 95 怀旧、透视网格与洋红渐变。
-- 🧸 **粘土定格与童趣雕塑 (Claymation & Stylized Clay 3D)**：软糯油泥质感、手工指纹印记、温暖柔光箱。
-- 💎 **低多边形与折纸雕塑 (Low Poly Geometric)**：极简多边形棱面、折纸硬光切面。
-- 🌌 **暗黑哥特与古典巴洛克 (Dark Gothic & Baroque)**：尖拱飞扶壁、繁复金银丝雕花、卡拉瓦乔明暗对照。
-- 🪟 **液态玻璃拟物 (Liquid Glassmorphism & Caustics)**：半透明亚克力折射、色散虹彩与焦散光斑。
+| 博物馆 Museum | 百科 Encyclopedia | 地图集 Atlas | 档案馆 Archive |
+| --- | --- | --- | --- |
+| 以策展叙事呈现作品 | 每个概念有完整释义 | 十四个知识域构成版图 | 事实图片皆可溯源 |
+| **视觉实验室 Visual Lab** | **学习系统 Learning System** | **创作工具箱 Toolbox** | |
+| 关系图谱、比较与时间轴 | 观察 → 分析 → 练习 | 技法知识与创作者产品 | |
 
-### 3. 🛠️ 策展人深度解构与创作工具箱
-- **色卡提取 (Color Palette Inspector)**：动态提取各流派核心色彩基因，点击一键复制 HEX 代码。
-- **AI 绘画提示词配方 (Prompt Recipes)**：提取 Midjourney / Stable Diffusion 官方推荐 Prompt 与正负向关键词。
-- **技法与材质拆解 (Technique Breakdown)**：详细剖析媒介选择、笔触肌理、布光法则与构图技巧。
-- **风格灵感炼金炉 (Style Alchemist)**：任意选择两种艺术流派进行跨界融合推演，生成全新混血美学与 Prompt。
-- **超清画作灯箱 (Fullscreen Lightbox)**：支持画作全屏高清鉴赏与元数据检索。
-- **社区流派投稿 (Submit Style Modal)**：创作者可向画廊策展部投递新的艺术流派建议。
+核心信念：**当你真正理解一幅画为什么好，你就同时学会了布光、调色、排版与判断 AI 生成物——因为它们本来就是同一件事。**
 
----
+## 四条铁律
 
-## 🚀 GitHub Actions 自动更新与部署
+1. **知识永远免费。** 产品售卖节省的时间，支持依靠捐赠，广告完全可选——永远不存在付费知识墙。
+2. **内容决定呈现。** 绘画讲构图、色彩、光、笔触；建筑讲场地、流线、结构、光。不同学科使用不同的叙事序列，拒绝统一模板。
+3. **关系是一等数据。** 「受影响于」「脱胎于」「使用材料」「形成对照」都是有方向的边，可双向遍历——知识不是分类树，是一张网。
+4. **内容即代码。** 没有后台、没有数据库、没有 admin 面板：编辑内容 = git commit，发布 = 公开构建。
 
-本项目已预置 GitHub Actions 自动化流水线 (`.github/workflows/deploy.yml`)。  
-**每次向 `main` 分支推送代码，都会自动触发构建并自动发布到 GitHub Pages。**
+## 知识模型
 
----
+一切皆为**实体（Entity）**，实体之间以**关系（Relation）**相连，呈现层只负责查询与渲染——数据与展示彻底分离。
 
-## 💻 本地开发与构建
-
-```bash
-# 1. 克隆仓库
-git clone https://github.com/duguBoss/Art-Gallery.git
-cd Art-Gallery
-
-# 2. 安装依赖
-npm install
-
-# 3. 启动本地开发服务
-npm run dev
-
-# 4. 构建生产产物
-npm run build
-
-# 5. 本地预览构建产物
-npm run preview
+```
+src/model/        类型系统：22 种实体 · 28 种关系 · 17 种展览模式
+src/content/data/ 种子内容（纯数据，零 UI 依赖）
+src/content/kb.ts 只读查询 API：search / neighbors / timeline / random …
 ```
 
+当前图谱规模：
+
+| 知识域 14 | 历史时期 15 | 文化 10 · 地点 12 |
+| --- | --- | --- |
+| 材料 12 · 技法 12 | 概念 32（学术概念 + 视觉原子 + 设计原则） | 历史流派 14 · 当代风格 11 |
+| 艺术家与建筑师 13 | 作品 / 建筑 / 物品 17（含学科化分析板块） | 课程 14 · 练习 8 |
+| 创作者产品 4 | 专题策展 3 | 关系边 100+ |
+
+每件作品带有一组**分析板块（AnalysisBlock）**：文本、引语、清单、工艺流程、图像标注（annotation markers）——按学科序列排定，而非套用通用详情页。
+
+## 展览引擎
+
+同一组知识，多种观看方式（`src/components/exhibition/`）：
+
+- **Timeline** — 三千年水平时间轴，作品落位
+- **GalleryWall** — 非对称沙龙式展墙（拒绝统一三列网格）
+- **Atlas** — 14 知识域编辑式索引，每域自带强调色与字形图标
+- **Network** — 放射状 SVG 关系星团，点击任意节点继续漫游
+- **Detail** — 分析板块渲染，支持图像标注点
+- **Compare / Map / Process** — 并置对比、等距矩形投影地图、工艺流程
+
+全局检索：`⌘K / Ctrl+K` 命令面板，结果按实体类型分组；**Surprise Me** 随机坠入图谱任意节点。
+
+## 页面地图
+
+| 路由 | 内容 |
+| --- | --- |
+| `/` | 首页：12 段编辑式编排（发现 → 图谱 → 时间轴 → 策展 → 学习 → 支持） |
+| `/gallery` | 展厅：作品 / 建筑 / 物品沙龙墙 |
+| `/knowledge` | 知识图谱：14 域 + 概念 / 材料 / 技法索引 |
+| `/explore` | 多维探索：时间 · 地点（地图）· 时期 · 文化 |
+| `/styles` `/artists` | 历史流派 & 当代创作者风格 · 艺术家 |
+| `/learn` `/practice` | 三条学习路径（视觉基础 / 艺术史 / 创作学科）· 动手练习 |
+| `/tools` `/products` | 创作工具箱（技法知识）· 创作者产品（省时间的文件） |
+| `/support` `/about` | 四种支持方式 · 项目宪章与致谢 |
+| `/entity/:type/:slug` | 实体详情页（按类型分支叙事 + 关系星团） |
+| `/exhibition/:slug` | 专题策展（如《几何线索：从大卫到界面》） |
+
+## 设计语言
+
+博物馆编辑式美学（Museum Editorial）：
+
+- 暖纸底色 `#f7f4ec` · 墨色文字 `#1a1815` · 朱砂点睛色（≤5%）
+- 衬线大标题（Cormorant Garamond / Noto Serif SC）+ 无衬线正文
+- 留白是主动的设计元素；动效传达关系而非装饰
+- 不使用默认暗色 / 霓虹 / 玻璃拟态 / 全卡片化
+
+## 技术栈
+
+**React 19 · TypeScript 6 · Vite 8 · Tailwind CSS 3 · framer-motion · lucide-react**
+
+- 零后端：静态构建，部署至 GitHub Pages（`base: /Art-Gallery/`）
+- 零路由依赖：自实现 hash 路由（`src/router/router.tsx`）
+- i18n：中文 / 英文（模型层保留 zh / en / ja / ko 四语结构，种子内容双语）
+- 事实作品图片使用已核验的 **Wikimedia Commons** 地址，每图标注收藏机构
+
+## 本地开发
+
+```bash
+npm install
+npm run dev        # http://localhost:3000/Art-Gallery/
+npm run build      # tsc -b && vite build
+```
+
+## 内容贡献（内容即代码）
+
+所有知识都是 `src/content/data/` 下的类型化数据文件。添加一件作品：
+
+```ts
+// src/content/data/works.ts — 追加一个 WorkEntity
+{
+  id: 'work-your-slug',
+  type: 'work',
+  slug: 'your-slug',
+  name: loc('中文名', 'English name'),
+  yearStart: 1656,
+  creatorIds: ['person-…'],
+  conceptIds: ['c-light'],
+  image: { url: wiki('File:…jpg', 1400), sourceId: 'src-wikimedia' },
+  blocks: [ /* 该学科的分析序列 */ ],
+}
+```
+
+关系在 `src/content/data/relations.ts` 中以 `rel(from, type, to)` 声明；引用字段（`creatorIds`、`materialIds` 等）会被知识库自动派生为双向边。提交 PR 即完成策展。
+
+## 版权与致谢
+
+事实图片来自 **Wikimedia Commons** 及原始收藏机构（卢浮宫、佛罗伦萨美术学院、MoMA、包豪斯德绍基金会等），权利归各机构所有。文字内容以 **CC BY-SA 4.0** 开放；代码以 **MIT** 许可。
+
 ---
 
-## 📜 开源协议
-
-本项目基于 [MIT 协议](LICENSE) 开源。
+*Content as code · Knowledge free, forever.*
