@@ -38,8 +38,10 @@ import { GAMES } from './data/games';
 import { INDUSTRIAL } from './data/industrial';
 import { FASHION } from './data/fashion';
 import { VISUAL_CULTURE_EXTRA } from './data/visual-culture-expansion';
+import { DENSITY_EXPANSION } from './data/density-expansion';
 import { SOURCES } from './data/sources';
 import { RELATIONS } from './data/relations';
+import { RELATIONS_DENSITY } from './data/relations-density';
 
 export type Entity = EntityBase;
 
@@ -76,6 +78,7 @@ const ALL_ENTITIES: Entity[] = [
   ...INDUSTRIAL,
   ...FASHION,
   ...VISUAL_CULTURE_EXTRA,
+  ...DENSITY_EXPANSION,
 ];
 
 /** Every entity keyed by id (fails loudly on duplicate ids). */
@@ -149,7 +152,7 @@ function derivedRelations(): Relation[] {
   return out;
 }
 
-const ALL_EDGES: Relation[] = [...RELATIONS, ...derivedRelations()];
+const ALL_EDGES: Relation[] = [...RELATIONS, ...RELATIONS_DENSITY, ...derivedRelations()];
 
 /** Full edge list (authored + derived) — used by the knowledge audit script. */
 export function allEdges(): Relation[] {
@@ -337,7 +340,11 @@ export function recommendedNextOf(lessonId: string): Entity[] {
   return (e?.recommendedNextIds ?? []).map(id => BY_ID.get(id)).filter((x): x is Entity => !!x);
 }
 
-export const ALL_LESSONS: Entity[] = [...LESSONS, ...LESSONS_EXPANSION];
+export const ALL_LESSONS: Entity[] = [
+  ...LESSONS,
+  ...LESSONS_EXPANSION,
+  ...DENSITY_EXPANSION.filter(e => e.type === 'lesson'),
+];
 export const ALL_PRACTICES: Entity[] = [...PRACTICES, ...PRACTICES_EXPANSION];
 
 export { DOMAINS, EXHIBITIONS, JOURNEYS, LESSONS, PRACTICES, PRODUCTS, PERIODS, SOURCES, RELATIONS };

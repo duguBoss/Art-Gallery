@@ -233,17 +233,18 @@ for (const chain of CHAINS) {
 section('10', 'Image coverage & count floors');
 const withImg = ALL.filter(e => !!e.image).length;
 console.log(`  entities with hero image: ${withImg}/${ALL.length}`);
+// Floors ratified to the Phase-2 content plan (master plan §11 corpus targets).
 const floors: [string, number, number][] = [
-  ['works+buildings+objects', count(['work', 'building', 'object']), 70],
-  ['persons', count(['person']), 45],
-  ['concepts', count(['concept']), 65],
-  ['materials', count(['material']), 30],
-  ['techniques', count(['technique']), 35],
-  ['movements', count(['movement']), 24],
-  ['styles', count(['style']), 20],
-  ['cultures', count(['culture']), 20],
-  ['places', count(['place']), 30],
-  ['periods', count(['period']), 20],
+  ['works+buildings+objects', count(['work', 'building', 'object']), 100],
+  ['persons', count(['person']), 60],
+  ['concepts', count(['concept']), 80],
+  ['materials', count(['material']), 40],
+  ['techniques', count(['technique']), 50],
+  ['movements', count(['movement']), 30],
+  ['styles', count(['style']), 30],
+  ['cultures', count(['culture']), 25],
+  ['places', count(['place']), 40],
+  ['periods', count(['period']), 25],
   ['ALL_LESSONS', count(['lesson']), 30],
   ['practices', count(['practice']), 14],
   ['journeys', count(['journey']), 7],
