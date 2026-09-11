@@ -1,6 +1,6 @@
 import type { Entity, Neighbor } from '../../content/kb';
-import { findBySlug, neighborGroups, SOURCES_BY_ID } from '../../content/kb';
-import type { LessonEntity, PracticeEntity, ProductEntity, DomainEntity } from '../../model/entity';
+import { findBySlug, neighborGroups, SOURCES_BY_ID, getById, prerequisitesOf, recommendedNextOf, learningLevel } from '../../content/kb';
+import type { LessonEntity, PracticeEntity, ProductEntity, DomainEntity, JourneyEntity } from '../../model/entity';
 import { loc } from '../../model';
 import { useLang } from '../../i18n/LanguageContext';
 import { Link, entityPath } from '../../router/router';
@@ -73,12 +73,37 @@ function Sources({ ids }: { ids?: string[] }) {
 // ---------------------------------------------------------------------------
 function LessonBody({ e }: { e: LessonEntity }) {
   const { t, u } = useLang();
+  const level = learningLevel(e.path);
+  const prerequisites = prerequisitesOf(e.id);
+  const next = recommendedNextOf(e.id);
+  const dots = (n: number, max: number) => `${'●'.repeat(n)}${'○'.repeat(max - n)}`;
   return (
     <article>
-      <div className="mb-8 flex flex-wrap gap-3 text-sm text-ink-mute">
-        <span className="chip">{e.path === 'foundations' ? '视觉基础' : e.path === 'history' ? '艺术史' : '创作学科'}</span>
+      <div className="mb-8 flex flex-wrap items-center gap-3 text-sm text-ink-mute">
+        <span className="chip">
+          L{level.index} · {t(level.name)}
+        </span>
         {e.durationMin && <span className="chip">{e.durationMin} {u('common.minutes')}</span>}
+        {e.difficulty !== undefined && (
+          <span className="chip" aria-label={u('common.difficulty')}>
+            {u('common.difficulty')} <span className="tracking-[0.2em] text-cinnabar">{dots(e.difficulty, 5)}</span>
+          </span>
+        )}
       </div>
+
+      {prerequisites.length > 0 && (
+        <div className="mb-10">
+          <h3 className="eyebrow mb-3">{u('lesson.prerequisites')}</h3>
+          <div className="flex flex-wrap gap-2">
+            {prerequisites.map(p => (
+              <Link key={p.id} to={entityPath(p)} className="chip">
+                {t(p.name)}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       {e.steps && (
         <ol className="space-y-10">
           {e.steps.map((s, i) => (
@@ -104,6 +129,69 @@ function LessonBody({ e }: { e: LessonEntity }) {
           </ul>
         </div>
       )}
+      {e.outcomes && e.outcomes.length > 0 && (
+        <div className="mt-14 border-t border-ink/15 pt-8">
+          <h3 className="eyebrow mb-5">{u('lesson.outcomes')}</h3>
+          <ul className="space-y-3">
+            {e.outcomes.map((o, i) => (
+              <li key={i} className="flex gap-4 text-lg leading-relaxed text-ink-soft">
+                <span className="text-cinnabar">✓</span> {t(o)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {next.length > 0 && (
+        <div className="mt-14 border-t border-ink/15 pt-8">
+          <h3 className="eyebrow mb-5">{u('lesson.next')}</h3>
+          <div className="flex flex-wrap gap-2">
+            {next.map(n => (
+              <Link key={n.id} to={entityPath(n)} className="chip">
+                {t(n.name)} →
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </article>
+  );
+}
+
+/** Journey = an ordered editorial thread of stops (master plan §14b). */
+function JourneyBody({ e }: { e: JourneyEntity }) {
+  const { t, u } = useLang();
+  return (
+    <article>
+      <h2 className="eyebrow mb-10">{u('journey.stops')}</h2>
+      <ol className="relative space-y-14 border-l border-ink/20 pl-8 md:pl-12">
+        {e.stops.map((stop, i) => {
+          const entities = stop.entityIds.map(id => getById(id)).filter((x): x is Entity => !!x);
+          return (
+            <li key={stop.id} className="relative">
+              <span
+                className="absolute -left-[2.35rem] top-1 flex h-7 w-7 items-center justify-center rounded-full border border-ink/30 bg-paper text-xs tabular md:-left-[3.35rem]"
+                style={e.accent ? { borderColor: e.accent, color: e.accent } : undefined}
+              >
+                {i + 1}
+              </span>
+              <h3 className="font-serif text-2xl leading-snug md:text-3xl">{t(stop.title)}</h3>
+              {stop.lead && <p className="mt-2 max-w-measure text-lg italic leading-relaxed text-ink-soft">{t(stop.lead)}</p>}
+              {stop.narrative && (
+                <p className="mt-4 max-w-measure text-lg leading-relaxed text-ink-soft">{t(stop.narrative)}</p>
+              )}
+              {entities.length > 0 && (
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {entities.map(en => (
+                    <Link key={en.id} to={entityPath(en)} className="chip">
+                      {t(en.name)}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ol>
     </article>
   );
 }
@@ -186,6 +274,7 @@ export function EntityPage({ type, slug }: { type: string; slug: string }) {
   const isPractice = entity.type === 'practice';
   const isProduct = entity.type === 'product';
   const isDomain = entity.type === 'domain';
+  const isJourney = entity.type === 'journey';
   const hasBlocks = !!entity.blocks?.length;
 
   return (
@@ -240,6 +329,7 @@ export function EntityPage({ type, slug }: { type: string; slug: string }) {
           {isProduct && <ProductBody e={entity as ProductEntity} />}
 
           {isDomain && <DomainBody e={entity as unknown as DomainEntity} />}
+          {isJourney && <JourneyBody e={entity as JourneyEntity} />}
 
           {/* graph for core cultural entities */}
           {(entity.type === 'work' || entity.type === 'building' || entity.type === 'person' || entity.type === 'style') && (
