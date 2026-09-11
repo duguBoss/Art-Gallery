@@ -28,6 +28,7 @@ export const ENTITY_TYPES = [
   'tool',
   'collection',
   'exhibition', // curated editorial exhibition
+  'journey', // cross-discipline learning journey (§14b)
   'lesson',
   'practice',
   'product',
@@ -90,6 +91,7 @@ export const RELATION_TYPES = [
   'depicts',
   'teaches',
   'practiced_in',
+  'requires',
 ] as const;
 
 export type RelationType = (typeof RELATION_TYPES)[number];
@@ -144,6 +146,18 @@ export const PRACTICE_KINDS = [
 export type PracticeKind = (typeof PRACTICE_KINDS)[number];
 
 // ---------------------------------------------------------------------------
-// §14 Learning paths
+// §14 Learning ladder — seven levels of growing visual capability.
+// Level metadata (names/leads) lives in model/learning.ts; this is the
+// ordered id registry.
 // ---------------------------------------------------------------------------
-export type LessonLevel = 'foundations' | 'history' | 'disciplines';
+export const LESSON_LEVELS = [
+  'awareness', // L0: meeting the visual world
+  'foundations', // L1: shared visual fundamentals
+  'language', // L2: visual language & design principles
+  'disciplines', // L3: discipline methods
+  'history', // L4: history & culture
+  'practice', // L5: creation practice
+  'cross', // L6: cross-discipline creation
+] as const;
+
+export type LessonLevel = (typeof LESSON_LEVELS)[number];

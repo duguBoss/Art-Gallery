@@ -16,7 +16,7 @@ const TYPE_KEY: Record<string, UiKey> = {
   place: 'type.place', culture: 'type.culture', material: 'type.material',
   technique: 'type.technique', concept: 'type.concept', lesson: 'type.lesson',
   practice: 'type.practice', product: 'type.product', exhibition: 'type.exhibition',
-  domain: 'type.domain',
+  domain: 'type.domain', journey: 'type.journey',
 };
 
 export const typeLabelOf = (type: string, u: (k: UiKey) => string): string =>

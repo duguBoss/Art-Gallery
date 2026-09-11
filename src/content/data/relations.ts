@@ -26,11 +26,11 @@ export const RELATIONS: Relation[] = [
   rel('person-van-gogh', 'influenced_by', 'movement-ukiyo-e'),
   rel('person-van-gogh', 'influenced_by', 'person-hokusai'),
   rel('person-picasso', 'influenced_by', 'movement-ukiyo-e'),
-  rel('person-mondrian', 'associated_with', 'movement-de-stijl'),
-  rel('person-rietveld', 'associated_with', 'movement-de-stijl'),
-  rel('person-gropius', 'associated_with', 'movement-bauhaus'),
-  rel('person-le-corbusier', 'associated_with', 'movement-bauhaus'),
-  rel('person-warhol', 'associated_with', 'movement-pop-art'),
+  rel('person-mondrian', 'part_of', 'movement-de-stijl'),
+  rel('person-rietveld', 'part_of', 'movement-de-stijl'),
+  rel('person-gropius', 'part_of', 'movement-bauhaus'),
+  rel('person-le-corbusier', 'part_of', 'movement-bauhaus'),
+  rel('person-warhol', 'part_of', 'movement-pop-art'),
 
   // ------------------------------------------------------ contemporaneity
   rel('person-michelangelo', 'contemporaneous_with', 'person-leonardo'),
@@ -68,15 +68,16 @@ export const RELATIONS: Relation[] = [
   rel('cs-editorial', 'emerged_from', 'cs-swiss'),
   rel('cs-zen-design', 'emerged_from', 'cs-ink-wash'),
   rel('cs-cyberpunk', 'contrasts_with', 'cs-zen-design'),
-  rel('cs-claymation', 'associated_with', 'mat-ceramic'),
-  rel('cs-liquid-glass', 'associated_with', 'mat-steel-glass'),
+  rel('cs-claymation', 'uses_material', 'mat-ceramic'),
+  rel('cs-liquid-glass', 'uses_material', 'mat-steel-glass'),
 
   // ------------------------------------------------------ concepts connect disciplines
+  rel('mat-oil-paint', 'emerged_from', 'mat-pigment'),
   rel('c-geometry', 'related_to', 'c-perspective'),
   rel('c-light', 'related_to', 'tech-chiaroscuro'),
   rel('tech-chiaroscuro', 'influenced', 'atom-rim-light'),
-  rel('tech-sfumato', 'associated_with', 'c-light'),
-  rel('c-humanism', 'associated_with', 'c-anatomy'),
+  rel('tech-sfumato', 'related_to', 'c-light'),
+  rel('c-humanism', 'related_to', 'c-anatomy'),
   rel('c-conceptual-turn', 'influenced_by', 'tech-readymade'),
 
   // ------------------------------------------------------ lessons & practices
@@ -93,4 +94,10 @@ export const RELATIONS: Relation[] = [
   rel('exhibition-geometry-thread', 'related_to', 'c-geometry'),
   rel('exhibition-light-thread', 'related_to', 'c-light'),
   rel('exhibition-david-neighborhood', 'related_to', 'work-david'),
+
+  // ------------------------------------------------------ product anchors (fix degree-0 orphans)
+  rel('product-poster-kit', 'part_of', 'design'),
+  rel('product-prompt-atlas', 'part_of', 'digital'),
+  rel('product-swatch-atlas', 'part_of', 'creative-science'),
+  rel('product-motion-pack', 'part_of', 'digital'),
 ];

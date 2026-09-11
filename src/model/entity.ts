@@ -162,6 +162,18 @@ export interface LessonEntity extends EntityBase {
   path: LessonLevel;
   order: number;
   durationMin?: number;
+  /** 1 (beginner) – 5 (advanced). */
+  difficulty?: 1 | 2 | 3 | 4 | 5;
+  /** Lesson ids that should be studied first (DAG). */
+  prerequisiteIds?: string[];
+  /** Editorially chosen next lessons. */
+  recommendedNextIds?: string[];
+  /** Sibling lessons on the same thread. */
+  relatedLessonIds?: string[];
+  /** What the learner can do afterwards (observable outcomes). */
+  outcomes?: L10n[];
+  /** Journey ids this lesson belongs to. */
+  journeyIds?: string[];
   /** The artwork(s) the lesson asks the learner to observe. */
   workIds?: string[];
   exerciseIds?: string[];
@@ -202,6 +214,24 @@ export interface ExhibitionEntity extends EntityBase {
   accent?: string;
 }
 
+/**
+ * A cross-discipline learning journey (§14b): an ordered thread of stops
+ * mixing concepts, works and lessons — "follow light across 5,000 years"
+ * rather than "take course 07". Rendered like an exhibition but consumed
+ * from the Learn navigator.
+ */
+export interface JourneyEntity extends EntityBase {
+  type: 'journey';
+  stops: {
+    id: string;
+    title: L10n;
+    lead?: L10n;
+    entityIds: string[];
+    narrative?: L10n;
+  }[];
+  accent?: string;
+}
+
 /** Taxonomy entities share the plain base shape. */
 export interface TaxonomyEntity extends EntityBase {
   type:
@@ -226,6 +256,7 @@ export type Entity =
   | PracticeEntity
   | ProductEntity
   | ExhibitionEntity
+  | JourneyEntity
   | TaxonomyEntity;
 
 export type EntityId = string;

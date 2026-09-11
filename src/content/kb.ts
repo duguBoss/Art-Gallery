@@ -23,9 +23,21 @@ import { CONTEMPORARY_STYLES } from './data/styles';
 import { PEOPLE } from './data/people';
 import { WORKS } from './data/works';
 import { LESSONS } from './data/lessons';
+import { LESSONS_EXPANSION, PRACTICES_EXPANSION } from './data/lessons-expansion';
 import { PRACTICES } from './data/practice';
 import { PRODUCTS } from './data/products';
 import { EXHIBITIONS } from './data/exhibitions';
+import { JOURNEYS } from './data/journeys';
+import { MODERN_ART, DESIGN_HISTORY } from './data/modern-art';
+import { PHOTOGRAPHY } from './data/photography';
+import { FILM } from './data/film';
+import { CRAFT_EXPANSION } from './data/craft-expansion';
+import { DIGITAL_MEDIA } from './data/digital';
+import { ANIMATION } from './data/animation';
+import { GAMES } from './data/games';
+import { INDUSTRIAL } from './data/industrial';
+import { FASHION } from './data/fashion';
+import { VISUAL_CULTURE_EXTRA } from './data/visual-culture-expansion';
 import { SOURCES } from './data/sources';
 import { RELATIONS } from './data/relations';
 
@@ -47,9 +59,23 @@ const ALL_ENTITIES: Entity[] = [
   ...PEOPLE,
   ...WORKS,
   ...LESSONS,
+  ...LESSONS_EXPANSION,
   ...PRACTICES,
+  ...PRACTICES_EXPANSION,
   ...PRODUCTS,
   ...EXHIBITIONS,
+  ...JOURNEYS,
+  ...MODERN_ART,
+  ...DESIGN_HISTORY,
+  ...PHOTOGRAPHY,
+  ...FILM,
+  ...CRAFT_EXPANSION,
+  ...DIGITAL_MEDIA,
+  ...ANIMATION,
+  ...GAMES,
+  ...INDUSTRIAL,
+  ...FASHION,
+  ...VISUAL_CULTURE_EXTRA,
 ];
 
 /** Every entity keyed by id (fails loudly on duplicate ids). */
@@ -84,15 +110,17 @@ export const SOURCES_BY_ID = new Map<string, Source>(SOURCES.map(s => [s.id, s])
 // ---------------------------------------------------------------------------
 function derivedRelations(): Relation[] {
   const out: Relation[] = [];
-  const push = (from: string, type: RelationType, to?: string) => {
-    if (to && BY_ID.has(to) && to !== from) out.push({ from, type, to });
+  const push = (from: string, type: RelationType, to?: string, note?: Relation['note']) => {
+    if (to && BY_ID.has(to) && to !== from) out.push({ from, type, to, note });
   };
   for (const e of ALL_ENTITIES) {
     e.creatorIds?.forEach(id => push(e.id, 'created_by', id));
     e.materialIds?.forEach(id => push(e.id, 'uses_material', id));
     e.techniqueIds?.forEach(id => push(e.id, 'uses_technique', id));
-    e.conceptIds?.forEach(id => push(e.id, 'associated_with', id));
-    e.movementIds?.forEach(id => push(e.id, 'associated_with', id));
+    // Phase-2 edge upgrade: concepts <-> related_to; movements <-> part_of;
+    // contemporary styles keep associated_with ("made in this style").
+    e.conceptIds?.forEach(id => push(e.id, 'related_to', id));
+    e.movementIds?.forEach(id => push(e.id, 'part_of', id));
     e.styleIds?.forEach(id => push(e.id, 'associated_with', id));
     e.domainIds?.forEach(id => push(e.id, 'part_of', id));
     push(e.id, 'located_in', e.placeId);
@@ -103,14 +131,30 @@ function derivedRelations(): Relation[] {
         push(e.id, e.type === 'lesson' ? 'references' : 'practiced_in', id),
       );
     }
-    if (e.type === 'work' || e.type === 'building' || e.type === 'object') {
-      // culture of the work -> associated
+    if (e.type === 'lesson') {
+      const l = e as Entity & {
+        prerequisiteIds?: string[];
+        recommendedNextIds?: string[];
+      };
+      l.prerequisiteIds?.forEach(id => push(e.id, 'requires', id));
+      l.recommendedNextIds?.forEach(id =>
+        push(e.id, 'related_to', id, { zh: '进阶', en: 'Next step' }),
+      );
+    }
+    if (e.type === 'journey') {
+      const j = e as Entity & { stops?: { entityIds: string[] }[] };
+      j.stops?.forEach(s => s.entityIds.forEach(id => push(e.id, 'part_of', id)));
     }
   }
   return out;
 }
 
 const ALL_EDGES: Relation[] = [...RELATIONS, ...derivedRelations()];
+
+/** Full edge list (authored + derived) — used by the knowledge audit script. */
+export function allEdges(): Relation[] {
+  return ALL_EDGES;
+}
 
 export interface Neighbor {
   entity: Entity;
@@ -182,6 +226,7 @@ function inverseType(t: RelationType): RelationType {
     located_in: 'located_in',
     uses_material: 'uses_material',
     uses_technique: 'uses_technique',
+    requires: 'requires',
     associated_with: 'associated_with',
     related_to: 'related_to',
   };
@@ -262,4 +307,37 @@ export function byDomain(domain: DomainId): Entity[] {
   return ALL_ENTITIES.filter(e => e.domainIds?.includes(domain));
 }
 
-export { DOMAINS, EXHIBITIONS, LESSONS, PRACTICES, PRODUCTS, PERIODS, SOURCES };
+// ---------------------------------------------------------------------------
+// Learning ladder (§14 / phase 2)
+// ---------------------------------------------------------------------------
+export { LEARNING_LEVELS, learningLevel } from '../model/learning';
+import type { LessonLevel } from '../model';
+
+/** Lessons on a ladder level, ordered. */
+export function lessonsByLevel(level: LessonLevel): Entity[] {
+  return ALL_ENTITIES.filter(e => e.type === 'lesson' && (e as { path?: string }).path === level).sort(
+    (a, b) => ((a as { order?: number }).order ?? 0) - ((b as { order?: number }).order ?? 0),
+  );
+}
+
+/** All learning journeys. */
+export function journeys(): Entity[] {
+  return JOURNEYS;
+}
+
+/** Prerequisite lesson entities of a lesson (direct, in authored order). */
+export function prerequisitesOf(lessonId: string): Entity[] {
+  const e = BY_ID.get(lessonId) as { prerequisiteIds?: string[] } | undefined;
+  return (e?.prerequisiteIds ?? []).map(id => BY_ID.get(id)).filter((x): x is Entity => !!x);
+}
+
+/** Recommended next lesson entities. */
+export function recommendedNextOf(lessonId: string): Entity[] {
+  const e = BY_ID.get(lessonId) as { recommendedNextIds?: string[] } | undefined;
+  return (e?.recommendedNextIds ?? []).map(id => BY_ID.get(id)).filter((x): x is Entity => !!x);
+}
+
+export const ALL_LESSONS: Entity[] = [...LESSONS, ...LESSONS_EXPANSION];
+export const ALL_PRACTICES: Entity[] = [...PRACTICES, ...PRACTICES_EXPANSION];
+
+export { DOMAINS, EXHIBITIONS, JOURNEYS, LESSONS, PRACTICES, PRODUCTS, PERIODS, SOURCES, RELATIONS };

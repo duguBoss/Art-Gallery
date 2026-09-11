@@ -6,7 +6,7 @@
  *   / editorial imagery that does not depict a specific factual work.
  * - `scene()` serves bundled atmospheric scene plates from /public.
  */
-const BASE = import.meta.env.BASE_URL;
+const BASE = (import.meta.env?.BASE_URL as string | undefined) ?? '/';
 
 export const scene = (file: string): string => `${BASE}scenes/${file}`;
 

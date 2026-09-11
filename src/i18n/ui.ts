@@ -85,6 +85,7 @@ export const UI = {
   'type.product': { zh: '产品', en: 'Product' },
   'type.exhibition': { zh: '策展', en: 'Exhibition' },
   'type.domain': { zh: '知识域', en: 'Domain' },
+  'type.journey': { zh: '学习旅程', en: 'Learning Journey' },
 } as const;
 
 export type UiKey = keyof typeof UI;

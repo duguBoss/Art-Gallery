@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "audit": "npx esbuild scripts/knowledge-audit.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/audit.mjs && node node_modules/.cache/audit.mjs",
     "lint": "oxlint",
     "preview": "vite preview"
   },

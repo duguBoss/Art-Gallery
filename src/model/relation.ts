@@ -62,4 +62,5 @@ export const RELATION_META: Record<RelationType, RelationMeta> = {
   depicts: m('描绘', 'Depicts', '被描绘于', 'Depicted in'),
   teaches: m('讲授', 'Teaches', '相关课程', 'Taught in'),
   practiced_in: m('实践于', 'Practiced in', '实践内容', 'Practice'),
+  requires: m('先修', 'Requires', '进阶解锁', 'Unlocks'),
 };

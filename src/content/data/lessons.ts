@@ -1,4 +1,4 @@
-import type { LessonEntity } from '../../model/entity';
+﻿import type { LessonEntity } from '../../model/entity';
 import { loc } from '../../model/i18n';
 
 /**
@@ -32,6 +32,10 @@ export const LESSONS: LessonEntity[] = [
     ],
     conceptIds: ['c-color-theory', 'atom-cold-warm-clash', 'atom-monochrome-accent', 'atom-earth-mineral'],
     domainIds: ['creative-science'],
+    difficulty: 1,
+    outcomes: [loc('能说出色相明度纯度冷暖四种基本属性','Name hue/value/saturation/temperature'),loc('能把任意作品还原为 6 个色卡','Reduce any work to 6 swatches'),loc('理解色彩法则跨油画/电影/界面通用','Color laws cross all disciplines')],
+    prerequisiteIds: ['lesson-what-is-seeing'],
+    recommendedNextIds: ['lesson-composition'],
     modes: ['editorial', 'detail'],
   },
   {
@@ -59,6 +63,10 @@ export const LESSONS: LessonEntity[] = [
     ],
     conceptIds: ['atom-negative-space', 'atom-asymmetric-tension', 'atom-frame-in-frame', 'dp-balance', 'dp-hierarchy', 'c-gestalt'],
     domainIds: ['creative-science'],
+    difficulty: 1,
+    outcomes: [loc('能在 5 秒内识别一幅画的主焦点','Focal point in 5 seconds'),loc('能说清非对称平衡的动势来源','Source of asymmetric tension'),loc('能画出视线动线草图','Gaze flow sketch')],
+    prerequisiteIds: ['lesson-color'],
+    recommendedNextIds: ['lesson-form'],
   },
   {
     id: 'lesson-form',
@@ -84,6 +92,10 @@ export const LESSONS: LessonEntity[] = [
     ],
     conceptIds: ['c-geometry'],
     domainIds: ['creative-science', 'design'],
+    difficulty: 1,
+    outcomes: [loc('能把任何物体简化为点线面','Reduce any object to point/line/plane'),loc('理解直线和曲线的语义差异','Straight vs curve semantics'),loc('能用 5 分钟画纯几何速写','5-min pure geometry sketch')],
+    prerequisiteIds: ['lesson-composition'],
+    recommendedNextIds: ['lesson-space'],
   },
   {
     id: 'lesson-space',
@@ -110,6 +122,10 @@ export const LESSONS: LessonEntity[] = [
     ],
     conceptIds: ['c-perspective', 'tech-linear-perspective'],
     domainIds: ['creative-science', 'architecture'],
+    difficulty: 1,
+    outcomes: [loc('能识别五种深度引擎','Five depth engines'),loc('理解东方和西方空间语法的不同','East vs West space grammar'),loc('能在照片上标出所有深度线索','Mark all depth cues in a photo')],
+    prerequisiteIds: ['lesson-form'],
+    recommendedNextIds: ['lesson-light'],
   },
   {
     id: 'lesson-light',
@@ -136,6 +152,10 @@ export const LESSONS: LessonEntity[] = [
     ],
     conceptIds: ['c-light', 'tech-chiaroscuro', 'atom-rim-light', 'atom-god-rays'],
     domainIds: ['creative-science', 'arts', 'architecture', 'film', 'photography'],
+    difficulty: 1,
+    outcomes: [loc('能在 3 秒内找到任何作品的光源','Find light source in 3s'),loc('能区分硬光和柔光的情绪效果','Hard vs soft light mood'),loc('理解光跨绘画/摄影/电影/3D 通用','Light crosses all image-making')],
+    prerequisiteIds: ['lesson-space'],
+    recommendedNextIds: ['lesson-material'],
   },
   {
     id: 'lesson-material',
@@ -161,13 +181,17 @@ export const LESSONS: LessonEntity[] = [
     ],
     materialIds: ['mat-marble', 'mat-ink-xuan', 'mat-code-pixels', 'mat-fresco-plaster'],
     domainIds: ['creative-science', 'craft', 'digital'],
+    difficulty: 1,
+    outcomes: [loc('能说出三种材料的独特优势','Unique strengths of 3 materials'),loc('理解数字材料也有脾气','Digital material has temper'),loc('能为一个想法选对材料','Match material to idea')],
+    prerequisiteIds: ['lesson-light'],
+    recommendedNextIds: ['lesson-rhythm'],
   },
   {
     id: 'lesson-typography',
     type: 'lesson',
     slug: 'typography',
-    path: 'foundations',
-    order: 7,
+    path: 'language',
+    order: 3,
     durationMin: 16,
     name: loc('排版：文字是最密的建筑', 'Typography: architecture at high density'),
     summary: loc('字号、字重、行距、栏宽与留白构成信息的秩序：排版不是装饰文字，而是管理读者的注意力。', 'Scale, weight, leading, measure and emptiness form the order of information: typography is attention management.'),
@@ -186,6 +210,10 @@ export const LESSONS: LessonEntity[] = [
     ],
     conceptIds: ['atom-swiss-grid', 'atom-editorial-serif', 'dp-alignment', 'dp-hierarchy'],
     domainIds: ['creative-science', 'design'],
+    difficulty: 2,
+    outcomes: [loc('能用三级字阶组织信息','Three type levels for organization'),loc('能在瑞士风格作品上还原网格','Reverse Swiss grid'),loc('理解衬线/无衬线的语义','Serif vs sans-serif semantics')],
+    prerequisiteIds: ['lesson-composition'],
+    recommendedNextIds: ['lesson-grid'],
   },
   {
     id: 'lesson-rhythm',
@@ -210,13 +238,17 @@ export const LESSONS: LessonEntity[] = [
     ],
     conceptIds: ['dp-rhythm', 'dp-repetition-order'],
     domainIds: ['creative-science', 'design', 'film'],
+    difficulty: 1,
+    outcomes: [loc('能识别画面中的三层节奏','Spot three rhythm layers'),loc('理解留白是休止符','Emptiness as rest note'),loc('能用间距变化表达加速减速','Accel/decel via interval change')],
+    prerequisiteIds: ['lesson-material'],
+    recommendedNextIds: ['lesson-visual-hierarchy'],
   },
   {
     id: 'lesson-narrative',
     type: 'lesson',
     slug: 'narrative',
-    path: 'foundations',
-    order: 9,
+    path: 'language',
+    order: 4,
     durationMin: 16,
     name: loc('叙事：图像如何讲一件事', 'Narrative: how an image tells'),
     summary: loc('单个画面选择“哪一秒”来暗示前因后果——这是从宗教画、浮世绘到分镜故事板共同的功夫。', 'A single image chooses which second implies before and after — the shared craft of altarpieces, ukiyo-e and storyboards.'),
@@ -235,6 +267,10 @@ export const LESSONS: LessonEntity[] = [
     ],
     conceptIds: ['dp-movement', 'c-sublime'],
     domainIds: ['creative-science', 'film', 'visual-culture'],
+    difficulty: 2,
+    outcomes: [loc('能找出单个画面的叙事瞬间','Narrative instant in one frame'),loc('理解系列图像讲时间的方式','Series tells time via repetition'),loc('能画 8 格分镜无文字讲一个故事','8-frame wordless storyboard')],
+    prerequisiteIds: ['lesson-light', 'lesson-composition'],
+    recommendedNextIds: ['lesson-read-film'],
   },
   // ------------------------------------------------------------- History path
   {
@@ -260,6 +296,10 @@ export const LESSONS: LessonEntity[] = [
       { title: loc('第四步：关系', '4. Relations'), body: loc('它师从谁、反驳谁、后来被谁引用？作品不是孤岛，点开知识图谱顺着线索走。', 'Whom did it learn from, refute, get quoted by? Works are not islands — follow the knowledge graph.') },
     ],
     domainIds: ['art-history', 'arts'],
+    difficulty: 2,
+    outcomes: [loc('掌握四步观看法','Four-step reading method'),loc('能在 3 分钟内抓住作品论点','Work’s argument in 3 minutes'),loc('能沿知识图谱追溯影响链','Trace influence via graph')],
+    prerequisiteIds: ['lesson-learn-to-see'],
+    recommendedNextIds: ['lesson-renaissance-humanism'],
   },
   {
     id: 'lesson-renaissance-humanism',
@@ -286,6 +326,10 @@ export const LESSONS: LessonEntity[] = [
     conceptIds: ['c-humanism', 'c-perspective', 'c-anatomy', 'tech-contrapposto'],
     movementIds: ['movement-renaissance'],
     domainIds: ['art-history', 'arts'],
+    difficulty: 2,
+    outcomes: [loc('能讲清透视+解剖+人文主义的汇合','Perspective+anatomy+humanism convergence'),loc('能画出《大卫》的对立平衡线','Draw David’s contrapposto line'),loc('理解文艺复兴是方法革命不是风格革命','Renaissance as method not style')],
+    prerequisiteIds: ['lesson-read-a-work'],
+    recommendedNextIds: ['lesson-modern-shatter'],
   },
   {
     id: 'lesson-modern-shatter',
@@ -312,6 +356,10 @@ export const LESSONS: LessonEntity[] = [
     conceptIds: ['c-geometry', 'c-perspective'],
     movementIds: ['movement-cubism', 'movement-de-stijl', 'movement-bauhaus'],
     domainIds: ['art-history', 'arts', 'design', 'architecture'],
+    difficulty: 2,
+    outcomes: [loc('能讲清立体→风格派→包豪斯链条','Cubism→De Stijl→Bauhaus chain'),loc('理解现代主义是一连串还原操作','Modernism = chain of reductions'),loc('能在当代界面找到包豪斯遗产','Bauhaus legacy in modern UI')],
+    prerequisiteIds: ['lesson-renaissance-humanism'],
+    recommendedNextIds: ['lesson-ukiyoe-ui'],
   },
   // ------------------------------------------------------- Disciplines path
   {
@@ -337,6 +385,10 @@ export const LESSONS: LessonEntity[] = [
       { title: loc('练习', 'Try'), body: loc('回家画出你住处的流线图：进门后视线第一落点、转折处、唯一你会停留的位置。', 'Map your own home’s circulation: first glance from the door, turns, the one place you stop.') },
     ],
     domainIds: ['architecture'],
+    difficulty: 2,
+    outcomes: [loc('能画任何建筑的流线图','Circulation map of any building'),loc('能识别墙承重 vs 柱承重','Wall vs frame structure'),loc('能对比东西方空间答案','Compare East-West spatial answers')],
+    prerequisiteIds: ['lesson-space'],
+    recommendedNextIds: ['lesson-read-product'],
   },
   {
     id: 'lesson-ai-literacy',
@@ -361,5 +413,9 @@ export const LESSONS: LessonEntity[] = [
     ],
     conceptIds: ['c-conceptual-turn', 'tech-generative-process'],
     domainIds: ['digital', 'creative-science'],
+    difficulty: 3,
+    outcomes: [loc('理解生成工具放大判断力','Generative tools amplify taste'),loc('能跨两种风格写合并提示词','Merge two style prompts'),loc('理解知识免费卖时间的产品逻辑','Knowledge free, sell time saved')],
+    prerequisiteIds: ['lesson-modern-shatter'],
+    recommendedNextIds: ['lesson-dismantle-recombine'],
   },
 ];
